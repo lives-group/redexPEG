@@ -1,0 +1,6 @@
+#lang racket
+(require redex)
+[define-language Or
+  (b t
+     f) ]
+

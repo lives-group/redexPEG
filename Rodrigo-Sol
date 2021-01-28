@@ -1,0 +1,27 @@
+#lang racket
+(require redex)
+
+(define-language L 
+  (e ::= (e e) 
+     (λ (x t) e) 
+     x 
+     (amb (e t) ...)
+     number 
+     (+ e ...)
+     (if0 e e e)
+     (fix e))
+  (t ::= (→ t t) 
+     num)
+  (x ::= variable-not-otherwise-mentioned))
+
+(define-extended-language L+Γ L
+  [Γ ::= ((x : t) ... )]) 
+
+(define-metafunction L+Γ
+  [(same t_1 t_1) #t]
+  [(same t_1 t_2) #f])
+
+(define-judgment-form
+  L+Γ
+  #:mode (types I I O)  
+  #:contract (types Γ e t)

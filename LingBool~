@@ -1,0 +1,86 @@
+#lang racket
+(require redex)
+
+(define-language E
+  (e (+ E E)
+     (- E E)
+     (* E E)
+     (/ E E)
+     (or E E)
+     (if? E E E)
+     t
+     f
+     number)
+  (t  num
+      bool)
+  (x variable-not-otherwise-mentioned))
+
+(define-extended-language L+Γ L
+  [Γ · (x : t Γ)])
+
+(define-judgment-form
+  L+Γ
+  #:mode (types I I O)
+  #:contract (types Γ e t)
+ 
+  [(types Γ e_1 (→ t_2 t_3))
+   (types Γ e_2 t_2)
+   -------------------------
+   (types Γ (e_1 e_2) t_3)]
+ 
+  [(types (x : t_1 Γ) e t_2)
+   -----------------------------------
+   (types Γ (λ (x t_1) e) (→ t_1 t_2))]
+ 
+  [(types Γ e (→ (→ t_1 t_2) (→ t_1 t_2)))
+   ---------------------------------------
+   (types Γ (fix e) (→ t_1 t_2))]
+ 
+  [---------------------
+   (types (x : t Γ) x t)]
+ 
+  [(types Γ x_1 t_1)
+   (side-condition (different x_1 x_2))
+   ------------------------------------
+   (types (x_2 : t_2 Γ) x_1 t_1)]
+ 
+  [(types Γ e num) ...
+   -----------------------
+   (types Γ (+ e ...) num)]
+ 
+  [--------------------
+   (types Γ number num)]
+ 
+  [(types Γ e_1 num)
+   (types Γ e_2 t)
+   (types Γ e_3 t)
+   -----------------------------
+   (types Γ (if0 e_1 e_2 e_3) t)]
+
+[ 
+   -----------------------
+   (types Γ (amb t ) (mt t) )]
+  
+[  (types Γ e t_1) ...
+   (side-condition (allEquals t t_1 ... ))
+   -----------------------
+   (types Γ (amb t e ...) t)])
+
+
+(define-metafunction L+Γ
+  allEquals : t ... -> boolean
+  [(allEquals) #t]
+  [(allEquals t) #t]
+  [(allEquals t t t_1 ...) (allEquals t t_1 ...)]
+  [(allEquals t _ ...) #f])
+
+(define-metafunction L+Γ
+  extend : Γ (x  t) ... -> Γ
+  [(extend ((x_Γ  t_Γ) ...) (x  t) ...)
+   ((x t) ... (x_Γ  t_Γ) ...)])
+
+(define-metafunction L+Γ
+  [(different x_1 x_1) #f]
+  [(different x_1 x_2) #t])
+
+ (judgment-holds (types · (amb (→ num num) (λ (x num) x) (λ (x num) x))  t)  t)
