@@ -23,21 +23,10 @@
   [s (natural ...)]
 )
 
-(define-judgment-form evalPeg
+#;(define-judgment-form evalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
-    [(eval G ((/ e_1 e_2) (s)) (e_1))
-     (side-condition (eq? e_1 s))
-     --------------------------------
-     (eval G ((/ e_1 e_2) (s)) (e_1))]
 
-    [--------------------------------
-     (eval G natural num)]
+  
 
 )
-
-(define-metafunction evalPeg
-  [(eq? e_1 (car s)) #t]
-  [(eq? e_1 e_1)     #f])
-
-(judgment-holds (eval G ((/ e_1 e_2) s) (e_1)) s)
