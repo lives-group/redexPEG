@@ -5,7 +5,7 @@
 (define-language Peg
    (e natural    ; Terminal
      (/ e e)     ; Choice
-     (• e e) ; Sequence
+     (• e e)     ; Sequence
      (* e)       ; Repetition
      (! e)       ; Not complement
      ε           ; Empty
@@ -20,24 +20,92 @@
 ; Syntax for parsing expression evaluation
 (define-extended-language evalPeg Grammar
   [E (e s)]
-  [s (natural ...)]
-)
+  [s (natural ...)
+     ⊥
+     ε])
+
 
 (define-judgment-form evalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
-    [(eval G ((/ e_1 e_2) (s)) (e_1))
-     (side-condition (eq? e_1 s))
-     --------------------------------
-     (eval G ((/ e_1 e_2) (s)) (e_1))]
+  
+  ;Terminal
+  [-------------------------------- 
+   (eval G (natural_1 (natural_1 natural ...)) (natural ...))]
+  
+  [(side-condition (diff? natural_1 natural_2))
+   --------------------------------
+   (eval G (natural_1 (natural_2 natural ...)) ⊥)]
+  
+  [--------------------------------
+   (eval G (natural_1 ()) ⊥)]
 
-    [--------------------------------
-     (eval G natural num)]
+  ;Choice
+  [(eval G (e_1 s) s_1)
+   (side-condition (botton? s_1))
+   --------------------------------
+   (eval G ((/ e_1 e_2) s) s_1)]
 
+  [(eval G (e_2 s) s_1)
+  (side-condition (botton? s_1))  
+   -------------------------------
+   (eval G ((/ e_1 e_2) s) s_1)]
+
+  [------------------------------
+   (eval G ((/ e_1 e_2) ()) ⊥)]
+
+  ;Sequence
+  [(eval G (e_1 s) s_1)
+   (eval G (e_2 s_1) s_2)
+   -------------------------------
+   (eval G ((• e_1 e_2) s) s_2)]
+
+  [(eval G (e_1 s) ⊥)
+   ------------------------------
+   (eval G ((• e_1 e_2) s) ⊥)]
+
+  ;Not
+  [(eval G (e s) s_1)
+   (side-condition (botton? s_1))
+   -------------------------------
+   (eval G ((! e) s) ⊥)]
+
+  [(eval G (e s) ⊥)
+   -------------------------------
+   (eval G ((! e) s) ε)]  
+  
 )
 
 (define-metafunction evalPeg
-  [(eq? e_1 (car s)) #t]
-  [(eq? e_1 e_1)     #f])
+  [(diff? natural_1 natural_1) #f]
+  [(diff? natural_1 natural_2) #t]) 
 
-(judgment-holds (eval G ((/ e_1 e_2) s) (e_1)) s)
+(define-metafunction evalPeg
+  [(botton? ⊥)        #f]
+  [(botton? s_1)      #t])
+
+
+
+
+;tests for terminal
+(display "Terminal\n")
+(judgment-holds (eval () (1 (1 1 1)) s) s)
+(judgment-holds (eval () (1 (2 1 1)) s) s)
+(judgment-holds (eval () (1 ()) s) s)
+
+;tests for choice
+(display "\nChoice\n")
+(judgment-holds (eval () ((/ 1 2) (1 1 1)) s) s)
+(judgment-holds (eval () ((/ 1 2) (2 1 1)) s) s)
+(judgment-holds (eval () ((/ 1 2) ()) s) s)
+
+(display "\nSequence\n")
+(judgment-holds (eval () ((• 1 2) (1 2 3)) s) s)
+(judgment-holds (eval () ((• 1 2) (2 2 3)) s) s)
+(judgment-holds (eval () ((• 1 2) (1 1 3)) s) s)
+
+(display "\nNot\n")
+(judgment-holds (eval () ((! 1) (1 2 3)) s) s)
+(judgment-holds (eval () ((! 1) (2 2 3)) s) s)
+
+(judgment-holds (eval () ((! 1) ()) s) s)
