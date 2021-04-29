@@ -21,8 +21,7 @@
 (define-extended-language evalPeg Grammar
   [E (e s)]
   [s (natural ...)
-     ⊥
-     ε])
+     ⊥])
 
 
 (define-judgment-form evalPeg
@@ -39,6 +38,10 @@
   
   [--------------------------------
    (eval G (natural_1 ()) ⊥)]
+
+  ;Empty
+  [--------------------------------
+   (eval G (ε s) s)]
 
   ;Choice
   [(eval G (e_1 s) s_1)
@@ -72,7 +75,7 @@
 
   [(eval G (e s) ⊥)
    -------------------------------
-   (eval G ((! e) s) ε)]  
+   (eval G ((! e) s) s)]  
   
 )
 
@@ -108,6 +111,18 @@
 (display "\nNot\n")
 (judgment-holds (eval () ((! 1) (1 2 3)) s) s)
 (judgment-holds (eval () ((! 1) (2 2 3)) s) s)
-
 (judgment-holds (eval () ((! 1) ()) s) s)
+
+(display "\nEmpty\n")
+(judgment-holds (eval () (ε (2 2)) s) s)
+(judgment-holds (eval () (ε (1 2 3 4 5 6 7)) s) s)
+
+;Não terminal
+(judgment-holds (eval ((A ε) (B 1)) ((/ B A) (2 2 3 4 5 6 7)) s) s)
+
+;ε* -> vai entrar em loop
+;excluir exp loop = exp bem formadas
+;rastreia exp mal formadas
+;julgamento well formed 
+
 
