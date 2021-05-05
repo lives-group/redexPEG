@@ -5,7 +5,7 @@
 (define-language Peg
    (e natural    ; Terminal
      (/ e e)     ; Choice
-     (• e e) ; Sequence
+     (• e e)     ; Sequence
      (* e)       ; Repetition
      (! e)       ; Not complement
      ε           ; Empty
@@ -20,13 +20,95 @@
 ; Syntax for parsing expression evaluation
 (define-extended-language evalPeg Grammar
   [E (e s)]
-  [s (natural ...)]
-)
+  [s (natural ...)
+     ⊥
+     ε])
 
-#;(define-judgment-form evalPeg
+
+(define-judgment-form evalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
-
   
+  ;Terminal
+  [-------------------------------- 
+   (eval G (natural_1 (natural_1 natural ...)) (natural ...))]
+  
+  [(side-condition (diff? natural_1 natural_2))
+   --------------------------------
+   (eval G (natural_1 (natural_2 natural ...)) ⊥)]
+  
+  [--------------------------------
+   (eval G (natural_1 ()) ⊥)]
 
-)
+  ;Choice
+  [(eval G (e_1 s) s_1)
+   (side-condition (botton? s_1))
+   --------------------------------
+   (eval G ((/ e_1 e_2) s) s_1)]
+
+  [(eval G (e_2 s) s_1)
+  (side-condition (botton? s_1))  
+   -------------------------------
+   (eval G ((/ e_1 e_2) s) s_1)]
+  
+  [------------------------------
+   (eval G ((/ e_1 e_2) ()) ⊥)]
+  
+  ;Sequence
+  [(eval G (e_1 s) s_1)
+   (eval G (e_2 s_1) s_2)
+   ------------------------------
+   (eval G ((• e_1 e_2) s) s_2)]
+  
+  [(eval G (e_1 s) ⊥)
+   ------------------------------
+   (eval G ((• e_1 e_2) s) ⊥)]
+
+  ;Not complement
+  [(eval G (e_1 s) s_1)
+   (side-condition (botton? s_1))
+   ------------------------------
+   (eval G ((! e_1) s) ⊥)]
+  
+  [(eval G (e_1 s) ⊥)
+   -------------------------------
+   (eval G ((! e_1) s) ε)]
+  
+  
+  )
+
+(define-metafunction evalPeg
+  [(diff? natural_1 natural_1) #f]
+  [(diff? natural_1 natural_2) #t]) 
+
+(define-metafunction evalPeg
+  [(botton? ⊥)        #f]
+  [(botton? s_1)      #t])
+
+
+
+
+;tests for terminal
+(display "Terminal\n")
+(judgment-holds (eval () (1 (1 1 1)) s) s)
+(judgment-holds (eval () (1 (2 1 1)) s) s)
+(judgment-holds (eval () (1 ()) s) s)
+
+;tests for choice
+(display "Choice\n")
+(judgment-holds (eval () ((/ 1 2) (1 1 1)) s) s)
+(judgment-holds (eval () ((/ 1 2) (2 1 1)) s) s)
+(judgment-holds (eval () ((/ 1 2) ()) s) s)
+
+;tests for sequence
+(display "Sequence\n")
+(judgment-holds (eval () ((• 1 3) (1 3 2)) s) s)
+(judgment-holds (eval () ((• 1 3) (2 3 2)) s) s)
+(judgment-holds (eval () ((• 1 3) (1 1 2)) s) s)
+
+;tests for not complement
+(display "Not Complement\n")
+(judgment-holds (eval () ((! 1) (1 2 3)) s) s)
+(judgment-holds (eval () ((! 1) (2 2 3)) s) s)
+(judgment-holds (eval () ((! 1) ()) s) s)
+ 
