@@ -9,7 +9,7 @@
      (* e)       ; Repetition
      (! e)       ; Not complement
      ε           ; Empty
-     x)          ; Non-Temrinal 
+     x)          ; Non-Terminal 
     (x variable-not-otherwise-mentioned))
 
 ; Syntax for a PEG grammar
@@ -75,7 +75,30 @@
 
   [(eval G (e s) ⊥)
    -------------------------------
-   (eval G ((! e) s) s)]  
+   (eval G ((! e) s) s)]
+
+  ;Repetition
+  [(eval G (e s) s_1)
+   (side-condition (not-botton? s_1))
+   -------------------------------
+   (eval G ((* e) s) ⊥)]
+
+  [(eval G (e s) s_1)
+   (side-condition (rep s_1))
+   -------------------------------
+   (eval G ((* e) s) s_1)]
+
+  #;[(eval G (e s) s_1)
+   (eval G (e s_1) s_2)
+   (side-condition (rep? s_1 s_2))
+   -------------------------------
+   (eval G ((* e) s) s_1)]
+
+  ;Non-Terminal
+  [(eval ((x_1 e_1)) (x_1 s) s_1)
+   (side-condition (not-botton? s_1))
+   --------------------------------
+   (eval ((x_1 e_1)) (e_1 s) s_1)]
   
 )
 
@@ -88,6 +111,21 @@
   [(botton? ⊥)        #f]
   [(botton? s_1)      #t])
 
+(define-metafunction evalPeg
+  [(not-botton? ⊥)        #t]
+  [(not-botton? s_1)      #f])
+
+
+(define-metafunction evalPeg
+  [(rep ⊥)   #f]
+  [(rep s s_1 s_2 ...) (rep s_1 s_2 ...)]
+  [(rep _ ...)  #t]
+  )
+
+(define-metafunction evalPeg
+  [(rep? s ⊥)                         #f]
+  [(rep? s s s_1 ...)               (rep? s s_1 ...)]
+  [(rep? s s_1)                       #t])
 
 
 
@@ -117,12 +155,17 @@
 (judgment-holds (eval () (ε (2 2)) s) s)
 (judgment-holds (eval () (ε (1 2 3 4 5 6 7)) s) s)
 
+(display "\nRepetition\n")
+(judgment-holds (eval () ((* 2) (4 5 6 7)) s) s)
+(judgment-holds (eval () ((* 2) ()) s) s)
+(judgment-holds (eval () ((* 2) (2 2 4 5 6 7)) s) s) ;era pra consumir todos os 2, na teoria
+
+
 ;Não terminal
-(judgment-holds (eval ((A ε) (B 1)) ((/ B A) (2 2 3 4 5 6 7)) s) s)
+(display "\nNon-Terminal\n")
+(judgment-holds (eval ((A 2)) (A (2 2 3 4 5 6 7)) s) s)
 
 ;ε* -> vai entrar em loop
 ;excluir exp loop = exp bem formadas
 ;rastreia exp mal formadas
 ;julgamento well formed 
-
-
