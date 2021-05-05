@@ -27,12 +27,6 @@
 (define-judgment-form evalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
-
-  ;Non-Terminal
-  [(eval ((x e_1)) (x s) s_1)
-   ;(side-condition (equal? x e_1))
-   --------------------------------
-   (eval ((x e_1)) (e_1 s) s_1)]
   
   ;Terminal
   [-------------------------------- 
@@ -90,14 +84,25 @@
    (eval G ((* e) s) ⊥)]
 
   [(eval G (e s) s_1)
-   (eval G (e s_1) s_2)
-   (side-condition (rep s s_2))
+   (side-condition (rep s_1))
    -------------------------------
    (eval G ((* e) s) s_1)]
 
-  ;
+  #;[(eval G (e s) s_1)
+   (eval G (e s_1) s_2)
+   (side-condition (rep? s_1 s_2))
+   -------------------------------
+   (eval G ((* e) s) s_1)]
+
+  ;Non-Terminal
+  [(eval ((x_1 e_1)) (x_1 s) s_1)
+   (side-condition (not-botton? s_1))
+   --------------------------------
+   (eval ((x_1 e_1)) (e_1 s) s_1)]
   
 )
+
+
 (define-metafunction evalPeg
   [(equal? x x) #t]
   [(equal? x e) #f])
@@ -116,11 +121,17 @@
 
 
 (define-metafunction evalPeg
-  [(rep s ⊥)                         #f]
-  [(rep s s s_1 ...)               (rep s s_1 ...)] 
-  [(rep s s_1)                       #t]
- ; [(rep s s) #t])
-)
+  [(rep ⊥)   #f]
+  [(rep s s_1 s_2 ...) (rep s_1 s_2 ...)]
+  [(rep _ ...)  #t]
+  )
+
+(define-metafunction evalPeg
+  [(rep? s ⊥)                         #f]
+  [(rep? s s s_1 ...)               (rep? s s_1 ...)]
+  [(rep? s s_1)                       #t])
+
+
 
 ;tests for terminal
 (display "Terminal\n")
@@ -153,12 +164,10 @@
 (judgment-holds (eval () ((* 2) ()) s) s)
 (judgment-holds (eval () ((* 2) (2 2 2 2 4 5 6 7)) s) s) ;era pra consumir todos os 2, na teoria
 
-
 ;Não terminal
 (display "\nNon-Terminal\n")
-(judgment-holds (eval ((A 2) (B 1)) ((/ B A) (2 2 3 4 5 6 7)) s) s)
+(judgment-holds (eval ((A 2)) (A (2 2 3 4 5 6 7)) s) s)
 
 ;ε* -> vai entrar em loop
 ;excluir exp loop = exp bem formadas
 ;rastreia exp mal formadas
-;julgamento well formed
