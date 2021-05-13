@@ -22,8 +22,106 @@
   [E (e s)]
   [s (natural ...)
      ⊥]
-  [R e ⊥])
+  [R e ⊥]
+  [D 0 1 ⊥])
 
+(define-judgment-form evalPeg
+  #:mode (⇀ I I O)
+  #:contract (⇀ G e D)
+
+  [-------------------------------
+   (⇀ G ε 0)]
+
+  [-------------------------------
+   (⇀ G natural 1)]
+
+  [-------------------------------
+   (⇀ G natural ⊥)]
+
+  [(lookup G x e)
+   (⇀ G e D)
+   -------------------------------
+   (⇀ G x D)]
+
+  #;[(lookup G x ⊥)
+   -------------------------------
+   (⇀ G x ⊥)]
+
+  ;Sequence
+  [(⇀ G e_1 0)
+   (⇀ G e_2 0)
+   -------------------------------
+   (⇀ G (• e_1 e_2) 0)]
+
+  [(⇀ G e_1 1)
+   (⇀ G e_2 0)
+   -------------------------------
+   (⇀ G (• e_1 e_2) 1)]
+
+  [(⇀ G e_1 1)
+   (⇀ G e_2 1)
+   -------------------------------
+   (⇀ G (• e_1 e_2) 1)]
+
+  [(⇀ G e_1 0)
+   (⇀ G e_2 1)
+   -------------------------------
+   (⇀ G (• e_1 e_2) 1)]
+
+  [(⇀ G e_1 ⊥)
+   -------------------------------
+   (⇀ G (• e_1 e_2) ⊥)]
+  
+  [(⇀ G e_2 0)
+   (⇀ G e_2 ⊥)
+   -------------------------------
+   (⇀ G (• e_1 e_2) ⊥)]
+
+  [(⇀ G e_2 1)
+   (⇀ G e_2 ⊥)
+   -------------------------------
+   (⇀ G (• e_1 e_2) ⊥)]
+
+  ;Choice
+  [(⇀ G e_1 0)
+   -------------------------------
+   (⇀ G (/ e_1 e_2) 0)]
+
+  [(⇀ G e_1 1)
+   -------------------------------
+   (⇀ G (/ e_1 e_2) 1)]
+  
+  [(⇀ G e_1 ⊥)
+   (⇀ G e_2 D)
+   -------------------------------
+   (⇀ G (/ e_1 e_2) D)]
+
+  ;Repetition
+  [(⇀ G e 1)
+   -------------------------------
+   (⇀ G (* e) 1)]
+
+  [(⇀ G e 0)
+   -------------------------------
+   (⇀ G (* e) ⊥)]
+
+  ;Not
+  [(⇀ G e ⊥)
+   -------------------------------
+   (⇀ G (! e) ⊥)]
+
+  [(⇀ G e ⊥)
+   -------------------------------
+   (⇀ G (! e) 0)]
+  
+)
+
+#;(define-judgment-form evalPeg
+  #:mode (wf I I O)
+  #:contract (wf G e boolean)
+  
+)
+  
 (define-judgment-form evalPeg
   #:mode (lookup I I O)
   #:contract (lookup G x R)
@@ -37,8 +135,7 @@
   [(lookup G x_2 R)
    (side-condition (diffs? x_1 x_2))
    --------------------------------
-   (lookup (x_1 e_1 G) x_2 R)]
-  
+   (lookup (x_1 e_1 G) x_2 R)] 
 )
 
 (define-judgment-form evalPeg
@@ -114,10 +211,7 @@
   [(lookup G x ⊥)
    --------------------------------
    (eval G (x s) ⊥)]
-
-  
 )
-
 
 (define-metafunction evalPeg
   [(equal? x x) #t]
@@ -138,6 +232,7 @@
 (define-metafunction evalPeg
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
+
 
 
 ;tests for terminal
@@ -170,9 +265,7 @@
 (judgment-holds (eval ∅ ((* 2) (4 5 6 7)) s) s)
 (judgment-holds (eval ∅ ((* 2) ()) s) s)
 (judgment-holds (eval ∅ ((* 2) (2 2 2 2 3 4)) s) s) ;era pra consumir todos os 2, na teoria
-;(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s) ;não tire esse ; a menos que saiba o que esta fazendo
 
-;Não terminal
 (display "\nNon-Terminal\n")
 (judgment-holds (eval (A 2 ∅) (A (2 3 4 5 6 7)) s) s)
 (judgment-holds (eval (B 1 (A 2 ∅)) (A (2 3 4 5 6 7)) s) s) ;cebolas na gramatica
@@ -181,6 +274,7 @@
 (judgment-holds (lookup (B 1 (A 2 ∅)) C R) R)
 (judgment-holds (lookup ∅ C R) R)
 
-;ε* -> vai entrar em loop
-;excluir exp loop = exp bem formadas
-;rastreia exp mal formadas
+;verificar se tira algo da entrada
+;(display "\nWell-Formed\n")
+;(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s)
+;(judgment-holds (eval ∅ ((* (• ε ε)) (4 5 6 7)) s) s)
