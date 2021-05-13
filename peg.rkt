@@ -101,9 +101,15 @@
 
   [(eval G (e s) s_1)
    (side-condition (botton? s_1))
+   (side-condition (empty? e ε))
    (eval G ((* e) s_1) s_2)
    -------------------------------
    (eval G ((* e) s) s_2)]
+
+  [
+   -------------------------------
+   (eval G ((* ε) s) s)]
+   
 
   ;Non-Terminal
   [(lookup G x e)     
@@ -139,6 +145,10 @@
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
 
+(define-metafunction evalPeg
+  [(empty? e ε)        #f]
+  [(empty? e e)        #t])
+
 
 ;tests for terminal
 (display "Terminal\n")
@@ -152,30 +162,34 @@
 (judgment-holds (eval ∅ ((/ 1 2) (2 1 1)) s) s)
 (judgment-holds (eval ∅ ((/ 1 2) ()) s) s)
 
+;Sequence 
 (display "\nSequence\n")
 (judgment-holds (eval ∅ ((• 1 2) (1 2 3)) s) s)
 (judgment-holds (eval ∅ ((• 1 2) (2 2 3)) s) s)
 (judgment-holds (eval ∅ ((• 1 2) (1 1 3)) s) s)
 
+;Not
 (display "\nNot\n")
 (judgment-holds (eval ∅ ((! 1) (1 2 3)) s) s)
 (judgment-holds (eval ∅ ((! 1) (2 2 3)) s) s)
 (judgment-holds (eval ∅ ((! 1) ()) s) s)
 
+;Empty
 (display "\nEmpty\n")
 (judgment-holds (eval ∅ (ε (2 2)) s) s)
 (judgment-holds (eval ∅ (ε (1 2 3 4 5 6 7)) s) s)
 
+;Repetition
 (display "\nRepetition\n")
 (judgment-holds (eval ∅ ((* 2) (4 5 6 7)) s) s)
 (judgment-holds (eval ∅ ((* 2) ()) s) s)
-(judgment-holds (eval ∅ ((* 2) (2 2 2 2 3 4)) s) s) ;era pra consumir todos os 2, na teoria
-;(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s) ;não tire esse ; a menos que saiba o que esta fazendo
+(judgment-holds (eval ∅ ((* 2) (2 2 2 2 3 4)) s) s) 
+(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s)
 
 ;Não terminal
 (display "\nNon-Terminal\n")
 (judgment-holds (eval (A 2 ∅) (A (2 3 4 5 6 7)) s) s)
-(judgment-holds (eval (B 1 (A 2 ∅)) (A (2 3 4 5 6 7)) s) s) ;cebolas na gramatica
+(judgment-holds (eval (B 1 (A 2 ∅)) (A (2 3 4 5 6 7)) s) s) 
 (judgment-holds (eval (B 1 (A B ∅)) (A (1 2 3 4 5 6 7)) s) s)
 (judgment-holds (eval (B 1 (A B ∅)) (C (1 2 3 4 5 6 7)) s) s)
 (judgment-holds (lookup (B 1 (A 2 ∅)) C R) R)
