@@ -29,15 +29,18 @@
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
 
+  ;Empty
   [-------------------------------
    (⇀ G ε 0)]
 
+  ;Terminal
   [-------------------------------
    (⇀ G natural 1)]
 
   [-------------------------------
    (⇀ G natural ⊥)]
 
+  ;Non-Terminal
   [(lookup G x e)
    (⇀ G e D)
    -------------------------------
@@ -116,11 +119,117 @@
   
 )
 
-#;(define-judgment-form evalPeg
-  #:mode (wf I I O)
-  #:contract (wf G e boolean)
+(define-judgment-form evalPeg
+  #:mode (WF I I O)
+  #:contract (WF G e boolean)
+
+  ;Empty
+  [(⇀ G ε 0)
+   -------------------------
+   (WF G ε #t)]
+
+  [(⇀ G ε 1)
+   --------------------------
+   (WF G ε #f)]
+
+  [(⇀ G ε ⊥)
+   --------------------------
+   (WF G ε #f)]
+
+  ;Natural
+  [(⇀ G natural 1)
+   -------------------------
+   (WF G natural #t)]
+    
+  [(⇀ G natural ⊥)
+   --------------------------
+   (WF G natural #t)]
+    
+  [(⇀ G natural 0)
+   --------------------------
+   (WF G natural #f)]
+
+  ;Non terminal
+  [(⇀ G x D)
+   (WF G x #t)
+   -------------------------
+   (WF G x #t)]
+
+  [(WF G x #f)
+   -------------------------
+   (WF G x #f)]
+
+  ;Sequence
+  [(WF G e_1 #t)
+   (⇀ G e_1 0)
+   (WF G e_2 #t)
+   -------------------------------
+   (WF G (• e_1 e_2) #t)]
+
+  [(WF G e_1 #f) ;para e_1 nao sendo WF
+   -------------------------------
+   (WF G (• e_1 e_2) #f)]
+
+  [(WF G e_1 #t)
+   (⇀ G e_1 ⊥) ;para e_1 != 0
+   (WF G e_2 #f)
+   -------------------------------
+   (WF G (• e_1 e_2) #f)]
+
+  [(WF G e_1 #t)
+   (⇀ G e_1 1) ;para e_1 != 0
+   (WF G e_2 #f)
+   -------------------------------
+   (WF G (• e_1 e_2) #f)]
+
+  ;Choice
+  [(WF G e_1 #t)
+   (WF G e_2 #t)
+   -------------------------------
+   (WF G (/ e_1 e_2) #t)]
+
+  [(WF G e_1 #f) ;para e_1 nao WF
+   (WF G e_2 #t)
+   -------------------------------
+   (WF G (/ e_1 e_2) #f)]
+
+  [(WF G e_1 #t)
+   (WF G e_2 #f) ;para e_2 nao WF
+   -------------------------------
+   (WF G (/ e_1 e_2) #f)]
+
+  [(WF G e_1 #f)
+   (WF G e_2 #f) ;para ambos nao WF
+   -------------------------------
+   (WF G (/ e_1 e_2) #f)]
+
+  ;Repetition
+  [(⇀ G e 1)
+   (WF G e #t)
+   -------------------------------
+   (WF G (* e) #t)]
+
+  [(⇀ G e 0)
+   -------------------------------
+   (WF G (* e) #f)]
+
+  [(⇀ G e ⊥)
+   (WF G e #t)
+   -------------------------------
+   (WF G (* e) #t)]
+
+
+  ;Not
+  [(WF G e #t)
+   -------------------------------
+   (WF G (! e) #t)]
   
-)
+  [(WF G e #f)
+   -------------------------------
+   (WF G (! e) #f)]
+
+ 
+  )
   
 (define-judgment-form evalPeg
   #:mode (lookup I I O)
@@ -274,7 +383,13 @@
 (judgment-holds (lookup (B 1 (A 2 ∅)) C R) R)
 (judgment-holds (lookup ∅ C R) R)
 
-;verificar se tira algo da entrada
-;(display "\nWell-Formed\n")
+(display "\nWell-Formed\n")
 ;(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s)
 ;(judgment-holds (eval ∅ ((* (• ε ε)) (4 5 6 7)) s) s)
+
+(judgment-holds (WF ∅ (* ε) boolean) boolean)
+(judgment-holds (WF ∅ (* 1) boolean) boolean)
+(judgment-holds (WF ∅ 1 boolean) boolean)
+
+;DUVIDAS:
+;n teria que ser E ao inves de e?
