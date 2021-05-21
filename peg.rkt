@@ -23,21 +23,25 @@
   [s (natural ...)
      ⊥]
   [R e ⊥]
-  [D 0 1 ⊥])
+  [D S ⊥]
+  [S 0 1])
 
 (define-judgment-form evalPeg
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
 
+  ;Empty
   [-------------------------------
    (⇀ G ε 0)]
 
+  ;Terminal
   [-------------------------------
    (⇀ G natural 1)]
 
   [-------------------------------
    (⇀ G natural ⊥)]
 
+  ;Non-Terminal
   [(lookup G x e)
    (⇀ G e D)
    -------------------------------
@@ -54,12 +58,7 @@
    (⇀ G (• e_1 e_2) 0)]
 
   [(⇀ G e_1 1)
-   (⇀ G e_2 0)
-   -------------------------------
-   (⇀ G (• e_1 e_2) 1)]
-
-  [(⇀ G e_1 1)
-   (⇀ G e_2 1)
+   (⇀ G e_2 S)
    -------------------------------
    (⇀ G (• e_1 e_2) 1)]
 
@@ -72,24 +71,16 @@
    -------------------------------
    (⇀ G (• e_1 e_2) ⊥)]
   
-  [(⇀ G e_2 0)
+  [(⇀ G e_1 S)
    (⇀ G e_2 ⊥)
    -------------------------------
    (⇀ G (• e_1 e_2) ⊥)]
 
-  [(⇀ G e_2 1)
-   (⇀ G e_2 ⊥)
-   -------------------------------
-   (⇀ G (• e_1 e_2) ⊥)]
 
   ;Choice
-  [(⇀ G e_1 0)
+  [(⇀ G e_1 S)
    -------------------------------
-   (⇀ G (/ e_1 e_2) 0)]
-
-  [(⇀ G e_1 1)
-   -------------------------------
-   (⇀ G (/ e_1 e_2) 1)]
+   (⇀ G (/ e_1 e_2) S)]
   
   [(⇀ G e_1 ⊥)
    (⇀ G e_2 D)
@@ -106,14 +97,17 @@
    (⇀ G (* e) ⊥)]
 
   ;Not
-  [(⇀ G e ⊥)
+  [(⇀ G e S)
    -------------------------------
    (⇀ G (! e) ⊥)]
 
   [(⇀ G e ⊥)
    -------------------------------
    (⇀ G (! e) 0)]
-  
+ 
+  [(⇀ G e ⊥)
+   -------------------------------
+   (⇀ G (! e) 1)]
 )
 
 (define-judgment-form evalPeg
@@ -121,25 +115,16 @@
   #:contract (WF G e boolean)
 
   ;Empty
-  [(⇀ G ε 0)
-   -------------------------
+  [-------------------------
    (WF G ε #t)]
 
   ;Natural
-  [(⇀ G natural 1)
-   -------------------------
+  [-------------------------
    (WF G natural #t)]
-    
-  [(⇀ G natural ⊥)
-   --------------------------
-   (WF G natural #t)]
-    
-  [(⇀ G natural 0)
-   --------------------------
-   (WF G natural #f)]
 
   ;Non terminal
-  [(⇀ G x D)
+  [(lookup G x e)
+   (WF G e #t)
    -------------------------
    (WF G x #t)]
 
@@ -147,6 +132,17 @@
   [(WF G e_1 #t)
    (⇀ G e_1 0)
    (WF G e_2 #t)
+   -------------------------------
+   (WF G (• e_1 e_2) #t)]
+
+  [(WF G e_1 #t)
+   (⇀ G e_1 ⊥) 
+   ;(WF G e_2 #f)
+   -------------------------------
+   (WF G (• e_1 e_2) #t)]
+
+  [(WF G e_1 #t)
+   (⇀ G e_1 1)
    -------------------------------
    (WF G (• e_1 e_2) #t)]
 
@@ -167,15 +163,14 @@
    (WF G (* e) #f)]
 
   [(⇀ G e ⊥)
+   (WF G e #t)
    -------------------------------
-   (WF G (* e) #f)]
-
+   (WF G (* e) #t)]
 
   ;Not
   [(WF G e #t)
    -------------------------------
    (WF G (! e) #t)]
-
  
   )
   
@@ -331,7 +326,32 @@
 (judgment-holds (lookup (B 1 (A 2 ∅)) C R) R)
 (judgment-holds (lookup ∅ C R) R)
 
-;verificar se tira algo da entrada
-;(display "\nWell-Formed\n")
+(display "⇀\n")
+(judgment-holds (⇀ ∅ ε D) D)
+(judgment-holds (⇀ ∅ 1 D) D)
+(judgment-holds (⇀ ∅ (! ε) D) D)
+(judgment-holds (⇀ ∅ (* ε) D) D)
+(judgment-holds (⇀ ∅ (/ 1 ε) D) D)
+(judgment-holds (⇀ ∅ (• 1 (* ε)) D) D)
+
+(display "\nWell-Formed\n")
 ;(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s)
-;(judgment-holds (eval ∅ ((* (• ε ε)) (4 5 6 7)) s) s)
+;(judgment-holds (eval ∅ ((* (• ε ε)) (4 5 6 7)) boolean) boolean)
+
+(judgment-holds (WF ∅ (* ε) boolean) boolean)
+(judgment-holds (WF ∅ (/ 1 ε) boolean) boolean)
+(judgment-holds (WF ∅ (* (/ 1 ε)) boolean) boolean)
+(judgment-holds (WF ∅ (• 1 (* ε)) boolean) boolean)
+(judgment-holds (WF ∅ (* 1) boolean) boolean)
+(judgment-holds (WF ∅ 1 boolean) boolean)
+;(judgment-holds (WF (A (• A 1) ∅) A boolean) boolean) loop
+(judgment-holds (WF (A (• 1 A) ∅) A boolean) boolean)
+;(judgment-holds (WF (A (• ε A) ∅) A boolean) boolean) loop
+
+
+;DUVIDAS:
+;n teria que ser E ao inves de e?
+;fazer a regra da !⇀ para tirar o problema do (* (/ 1 ε)) 
+;fazer uma funçao que verifica se o resultado do judgment da ⇀ eh um 0
+;⇥
+;↛
