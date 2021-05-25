@@ -26,6 +26,32 @@
   [D S ⊥]
   [S 0 1])
 
+
+(define-judgment-form evalPeg
+  #:mode (↛ I I O)
+  #:contract (↛ G D boolean)
+
+  [-------------------------------
+   (↛ G 0 #f)]
+  
+  [-------------------------------
+   (↛ G 1 #t)]
+
+  [-------------------------------
+   (↛ G ⊥ #t)]
+
+  [(↛ G D_1 #f)
+   (↛ G D_2 #t)
+   -------------------------------
+   (↛ G (D_1 D_2) #f)]
+
+  [(↛ G D_1 #t)
+   (↛ G D_2 #f)
+   -------------------------------
+   (↛ G (D_1 D_2) #f)]
+  )
+
+                
 (define-judgment-form evalPeg
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
@@ -102,6 +128,7 @@
    (⇀ G (! e) ⊥)]
 
   [(⇀ G e ⊥)
+   ;(side-condition (not-zero? e))
    -------------------------------
    (⇀ G (! e) 0)]
  
@@ -153,16 +180,28 @@
    (WF G (/ e_1 e_2) #t)]
 
   ;Repetition
-  [(⇀ G e 1)
+
+  
+  #;[(⇀ G e 1)
    (WF G e #t)
    -------------------------------
    (WF G (* e) #t)]
 
-  [(⇀ G e 0)
+  #;[(⇀ G e 0)
    -------------------------------
    (WF G (* e) #f)]
 
-  [(⇀ G e ⊥)
+  [(⇀ G e D)
+   (↛ G D boolean)
+   -------------------------------
+   (WF G (* e) boolean)]
+
+  #;[(⇀ G e D)
+   (↛ G D #f)
+   -------------------------------
+   (WF G (* e) #f)]
+
+  #;[(⇀ G e ⊥)
    (WF G e #t)
    -------------------------------
    (WF G (* e) #t)]
@@ -171,8 +210,8 @@
   [(WF G e #t)
    -------------------------------
    (WF G (! e) #t)]
- 
-  )
+)
+
   
 (define-judgment-form evalPeg
   #:mode (lookup I I O)
@@ -348,9 +387,7 @@
 (judgment-holds (WF (A (• 1 A) ∅) A boolean) boolean)
 ;(judgment-holds (WF (A (• ε A) ∅) A boolean) boolean) loop
 
-
 ;DUVIDAS:
-;n teria que ser E ao inves de e?
 ;fazer a regra da !⇀ para tirar o problema do (* (/ 1 ε)) 
 ;fazer uma funçao que verifica se o resultado do judgment da ⇀ eh um 0
 ;⇥
