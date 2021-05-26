@@ -1,5 +1,6 @@
 #lang racket
 (require redex)
+(provide (all-defined-out))
 
 ; Syntax of parsing expressions
 (define-language Peg
@@ -325,70 +326,3 @@
   [(not-botton? s_1)      #f])
 
 
-
-;tests for terminal
-(display "Terminal\n")
-(judgment-holds (eval ∅ (1 (1 1 1)) s) s)
-(judgment-holds (eval ∅ (1 (2 1 1)) s) s)
-(judgment-holds (eval ∅ (1 ()) s) s)
-
-;tests for choice
-(display "\nChoice\n")
-(judgment-holds (eval ∅ ((/ 1 2) (1 1 1)) s) s)
-(judgment-holds (eval ∅ ((/ 1 2) (2 1 1)) s) s)
-(judgment-holds (eval ∅ ((/ 1 2) ()) s) s)
-
-(display "\nSequence\n")
-(judgment-holds (eval ∅ ((• 1 2) (1 2 3)) s) s)
-(judgment-holds (eval ∅ ((• 1 2) (2 2 3)) s) s)
-(judgment-holds (eval ∅ ((• 1 2) (1 1 3)) s) s)
-
-(display "\nNot\n")
-(judgment-holds (eval ∅ ((! 1) (1 2 3)) s) s)
-(judgment-holds (eval ∅ ((! 1) (2 2 3)) s) s)
-(judgment-holds (eval ∅ ((! 1) ()) s) s)
-
-(display "\nEmpty\n")
-(judgment-holds (eval ∅ (ε (2 2)) s) s)
-(judgment-holds (eval ∅ (ε (1 2 3 4 5 6 7)) s) s)
-
-(display "\nRepetition\n")
-(judgment-holds (eval ∅ ((* 2) (4 5 6 7)) s) s)
-(judgment-holds (eval ∅ ((* 2) ()) s) s)
-(judgment-holds (eval ∅ ((* 2) (2 2 2 2 3 4)) s) s) ;era pra consumir todos os 2, na teoria
-
-(display "\nNon-Terminal\n")
-(judgment-holds (eval (A 2 ∅) (A (2 3 4 5 6 7)) s) s)
-(judgment-holds (eval (B 1 (A 2 ∅)) (A (2 3 4 5 6 7)) s) s) ;cebolas na gramatica
-(judgment-holds (eval (B 1 (A B ∅)) (A (1 2 3 4 5 6 7)) s) s)
-(judgment-holds (eval (B 1 (A B ∅)) (C (1 2 3 4 5 6 7)) s) s)
-(judgment-holds (lookup (B 1 (A 2 ∅)) C R) R)
-(judgment-holds (lookup ∅ C R) R)
-
-(display "⇀\n")
-(judgment-holds (⇀ ∅ ε D) D)
-(judgment-holds (⇀ ∅ 1 D) D)
-(judgment-holds (⇀ ∅ (! ε) D) D)
-(judgment-holds (⇀ ∅ (* ε) D) D)
-(judgment-holds (⇀ ∅ (/ 1 ε) D) D)
-(judgment-holds (⇀ ∅ (• 1 (* ε)) D) D)
-
-(display "\nWell-Formed\n")
-;(judgment-holds (eval ∅ ((* ε) (2 2 2 3)) s) s)
-;(judgment-holds (eval ∅ ((* (• ε ε)) (4 5 6 7)) boolean) boolean)
-
-(judgment-holds (WF ∅ (* ε) boolean) boolean)
-(judgment-holds (WF ∅ (/ 1 ε) boolean) boolean)
-(judgment-holds (WF ∅ (* (/ 1 ε)) boolean) boolean)
-(judgment-holds (WF ∅ (• 1 (* ε)) boolean) boolean)
-(judgment-holds (WF ∅ (* 1) boolean) boolean)
-(judgment-holds (WF ∅ 1 boolean) boolean)
-;(judgment-holds (WF (A (• A 1) ∅) A boolean) boolean) loop
-(judgment-holds (WF (A (• 1 A) ∅) A boolean) boolean)
-;(judgment-holds (WF (A (• ε A) ∅) A boolean) boolean) loop
-
-;DUVIDAS:
-;fazer a regra da !⇀ para tirar o problema do (* (/ 1 ε)) 
-;fazer uma funçao que verifica se o resultado do judgment da ⇀ eh um 0
-;⇥
-;↛
