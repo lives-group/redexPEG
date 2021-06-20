@@ -1,0 +1,18 @@
+#lang racket
+(require redex)
+(require "./peg.rkt")
+(require "./judgments.rkt")
+(provide (all-defined-out))
+
+(define-extended-language Reduct Peg
+  (C (/ C e)
+     (• C e)
+     (* C)
+     (! C)
+     hole))
+
+
+(define red
+  (reduction-relation 
+   Reduct
+   (-->
