@@ -1,7 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-(require "./judgments.rkt")
+;(require "./judgments.rkt")
 (provide (all-defined-out))
 
 (define-extended-language Reduct Peg
@@ -15,17 +15,15 @@
 (define red
   (reduction-relation 
    Reduct
-   ;#:domain (C s)
-
+   ;#:domain C 
    ;Choice relation
-   (--> (in-hole C (natural_1 (natural_1 natural ...)))
-        (in-hole C (natural ...))
-        "Terminal")
-
+   (--> (in-hole C (/ e_1 e_2))
+       ; (side-condition (equal? e_1 s))
+        (in-hole C e_1)
+        "Choice-fst")
+;nao sei como eu coloco a entrada
 
 
    )
   )
-
-(traces red (term (1 (1 2 3))))
 
