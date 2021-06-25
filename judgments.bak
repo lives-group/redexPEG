@@ -7,6 +7,8 @@
 ; Syntax for parsing expression evaluation
 (define-extended-language evalPeg Grammar
   [E (e s)]
+  [s (natural ...)
+     ⊥]
   [R e ⊥]
   [D S ⊥]
   [S 0 1])

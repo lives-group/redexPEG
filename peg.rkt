@@ -14,8 +14,14 @@
      x)          ; Non-Terminal 
     (x variable-not-otherwise-mentioned))
 
+
+(define-extended-language pegInput Peg
+  [s (natural ...)
+     ⊥])
+
 ; Syntax for a PEG grammar
-(define-extended-language Grammar Peg
+(define-extended-language Grammar pegInput
   [G (x e G) ∅] ; A grammar is a set of nonterminal definition
 )
+
 
