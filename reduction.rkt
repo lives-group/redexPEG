@@ -21,7 +21,7 @@
   (state ((C ...) e dir s s D nat))  
   ;s1 lista de marcas, pontos da entrada que a gnt marcou
   ;s2 oq a gnt viu da entrada (consumiu)
-         )
+  )
 ;seta pra cima - saindo da expressão - finalizou a analise
 ;seta pra baixo: entrando
 
@@ -46,41 +46,43 @@
         "Terminal () ⊥")
 
    ;Empty
-   (--> ((C ...)ε ↓ (natural ...) s_1 D nat)
-        ((C ...)ε ↑ (natural ...) s_1 suc nat)
+   (--> ((C ...) ε ↓ (natural ...) s_1 D nat)
+        ((C ...) ε ↑ (natural ...) s_1 suc nat)
         "Empty")
- #|
+   #|
    quando falhar, a gnt tem que voltar até o nat ser 0.
 quando ele ta saindo com bot ou entrando, vai voltando ate chegar na setinha pra baixo com 0.
 faz voltar com a redução
 quando tiver oplus, tira o oplus, tira de uma lista e coloca no começo da outra, até ter 0 no nat
 ai muda a setinha pra cima e ver se da certo ou errado
+|#
    ;Choice
    ;esquerdo deu certo: 
-   (--> ((C ...) (/ e_1 e_2) ↓ (natural ...) D)
-        (((/ h e_2) C ...) e_1 ↓ (natural ...) D) ;h serve tentar e e_2 para memorizar
+   (--> ((C ...) (/ e_1 e_2) ↓ (natural_1 ...) (natural ...) D nat)
+        (((/ h e_2) C ...) e_1 ↓ (natural_1 ...) (natural ...) D nat) ;h serve tentar e e_2 para memorizar
         "Alternancia-1")
 
-   (--> (((/ h e_2) C ...) e_1 ↑ (natural ...) suc) 
-        ((C ...) (/ e_1 e_2) ↑ (natural ...) suc)
+   (--> (((/ h e_2) C ...) e_1 ↑ (natural ...) (natural ...) suc (⊕ nat)) 
+        ((C ...) (/ e_1 e_2) ↑ (natural ...) (natural ...) suc (⊕ nat))
         "Alternancia-1.1")
-
-   (--> (((/ h e_2) C ...) e_1 ↑ (natural ...) ⊥) 
-        (((/ e_1 h) C ...) e_2 ↓ (natural ...) ⊥)
+   
+   (--> (((/ h e_2) C ...) e_1 ↑ (natural ...) s_1 ⊥ nat) 
+        (((/ e_1 h) C ...) e_2 ↓ (natural ...) s_1 ⊥ nat)
         "Alternancia-1.2")
-
-   (--> (((/ e_1 h) C ...) e_2 ↑ (natural ...) suc) 
-        ((C ...) (/ e_1 e_2) ↑ (natural ...) suc)
+   
+   (--> (((/ e_1 h) C ...) e_2 ↑ (natural ...) (natural ...) suc (⊕ nat)) 
+        ((C ...) (/ e_1 e_2) ↑ (natural ...) (natural ...) suc (⊕ nat))
         "Alternancia-1.3")
 
-   (--> (((/ e_1 h) C ...) e_2 ↑ (natural ...) ⊥) 
-        ((C ...) (/ e_1 e_2) ↑ (natural ...) ⊥)
+   (--> (((/ e_1 h) C ...) e_2 ↑ (natural ...) s_1 ⊥ nat) 
+        ((C ...) (/ e_1 e_2) ↑ (natural ...) s_1 ⊥ nat)
         "Alternancia-1.4")
-  
+
+   #|
    ;Sequence
 
-   (--> ((C ...) (• e_1 e_2) ↓ (natural ...) D)
-        (((• h e_2) C ...) e_1 ↓ (natural ...) D)
+   (--> ((C ...) (• e_1 e_2) ↓ (natural ...) D nat)
+        (((• h e_2) C ...) e_1 ↓ (natural ...) D nat)
         "Sequencia-1")
    ;saindo do e_1 deu bom
    (--> (((• h e_2) C ...) e_1 ↑ (natural ...) suc)
@@ -121,7 +123,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
   [(diff? e_1 e_2)     #t])
 
 ;(display "\nAlternancia\n")
-(traces red (term (() 1 ↓ (1 2 3) () ⊥ 0)))
+;(traces red (term (() 1 ↓ (1 2 3) () ⊥ 0)))
 ;(traces red (term (() 1 ↓ (2) suc)))
 ;(traces red (term (() 1 ↓ () suc)))
 #|
@@ -134,6 +136,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(stepper red (term (() (/ (• 1 2) (• 1 3)) ↓ (1 3 3) ⊥))) ;dá errado pq ele n salva a entrada inicial
 
 ;Choice
+(traces red (term (() (/ 1 2) ↓ (1 2 3) () ⊥ 0)))
+(traces red (term (() (/ 1 2) ↓ (2 3) () ⊥ 0)))
 ;(traces red (term ((/ 1 2) (1 2 3))))
 ;(traces red (term ((/ 1 2) (3 3 3))))
 

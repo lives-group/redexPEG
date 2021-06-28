@@ -2,7 +2,7 @@
 (require redex)
 (require "./peg.rkt")
 (require "./judgments.rkt")
-(require "./reduction.rkt")
+;(require "./reduction.rkt")
 
 ;Tests
 
