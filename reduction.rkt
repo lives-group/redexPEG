@@ -60,89 +60,109 @@ ai muda a setinha pra cima e ver se da certo ou errado
    ;esquerdo deu certo: 
    (--> ((C ...) (/ e_1 e_2) ↓ (natural_1 ...) (natural ...) D nat)
         (((/ h e_2) C ...) e_1 ↓ (natural_1 ...) (natural ...) D nat) ;h serve tentar e e_2 para memorizar
-        "Alternancia-1")
+        "Alternancia-Entra")
 
    (--> (((/ h e_2) C ...) e_1 ↑ (natural ...) (natural ...) suc (⊕ nat)) 
         ((C ...) (/ e_1 e_2) ↑ (natural ...) (natural ...) suc (⊕ nat))
-        "Alternancia-1.1")
+        "Alternancia-SUC-first")
    
    (--> (((/ h e_2) C ...) e_1 ↑ (natural ...) s_1 ⊥ nat) 
         (((/ e_1 h) C ...) e_2 ↓ (natural ...) s_1 ⊥ nat)
-        "Alternancia-1.2")
+        "Alternancia-BOT-first")
    
    (--> (((/ e_1 h) C ...) e_2 ↑ (natural ...) (natural ...) suc (⊕ nat)) 
         ((C ...) (/ e_1 e_2) ↑ (natural ...) (natural ...) suc (⊕ nat))
-        "Alternancia-1.3")
+        "Alternancia-SUC-second")
 
    (--> (((/ e_1 h) C ...) e_2 ↑ (natural ...) s_1 ⊥ nat) 
         ((C ...) (/ e_1 e_2) ↑ (natural ...) s_1 ⊥ nat)
-        "Alternancia-1.4")
+        "Alternancia-BOT-second")
 
-   #|
+   
    ;Sequence
 
-   (--> ((C ...) (• e_1 e_2) ↓ (natural ...) D nat)
-        (((• h e_2) C ...) e_1 ↓ (natural ...) D nat)
-        "Sequencia-1")
+   (--> ((C ...) (• e_1 e_2) ↓ (natural_1 ...) (natural ...) D nat)
+        (((• h e_2) C ...) e_1 ↓ (natural_1 ...) (natural ...) D nat)
+        "Sequencia-Entra")
+   
    ;saindo do e_1 deu bom
-   (--> (((• h e_2) C ...) e_1 ↑ (natural ...) suc)
-        (((• e_1 h) C ...) e_2 ↓ (natural ...) suc)
-        "Sequencia-2")
+   (--> (((• h e_2) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural_3 ...) suc (⊕ nat))
+        (((• e_1 h) C ...) e_2 ↓ (natural_1 natural_2 ...) (natural_3 ...) suc (⊕ nat))
+        "Sequencia-SUC-first")
    
    ;saindo do e_1 deu ruim
-   (--> (((• h e_2) C ...) e_1 ↑ (natural ...) ⊥)
-        ((C ...) (• e_1 e_2) ↑ (natural ...) ⊥)
-        "Sequencia-2.2")
+   (--> (((• h e_2) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural_3 ...) ⊥ nat)
+        ((C ...) (• e_1 e_2) ↑ (natural_1 natural_2 ...) (natural_3 ...) ⊥ nat)
+        "Sequencia-BOT-first")
    
    ;saindo do e_2 deu bom
-   (--> (((• e_1 h) C ...) e_2 ↑ (natural ...) suc)
-        ((C ...) (• e_1 e_2) ↑ (natural ...) suc)
-        "Sequencia-3")
-   ;saindo do e_2 deu ruim
-   (--> (((• e_1 h) C ...) e_2 ↑ (natural ...) ⊥)
-        ((C ...) (• e_1 e_2) ↑ (natural ...) ⊥)
-        "Sequencia-3.3")
-
+   (--> (((• e_1 h) C ...) e_2 ↑ (natural_1 natural_2 ...) (natural_3 ...) suc (⊕ nat))
+        ((C ...) (• e_1 e_2) ↑ (natural_1 natural_2 ...) (natural_3 ...) suc (⊕ nat))
+        "Sequencia-SUC-second")
    
+   ;saindo do e_2 deu ruim
+   (--> (((• e_1 h) C ...) e_2 ↑ (natural_1 natural_2 ...) (natural_3 natural_4 ...) ⊥ nat)
+        (((• e_1 h) C ...) e_2 ↑ (natural_3 natural_1 natural_2 ...) (natural_4 ...) ⊥ 0)
+        (side-condition (not (empty? (term (natural_4 ...)))))
+        "Sequencia-BOT-second")
+   
+   (--> (((• e_1 h) C ...) e_2 ↑ (natural_1 natural_2 ...) (natural_3 natural_4 ...) ⊥ nat)
+        ((C ...) (• e_1 e_2) ↑ (natural_3 natural_1 natural_2 ...) (natural_4 ...) ⊥ 0)
+        (side-condition (empty? (term (natural_4 ...))))
+        "Sequencia-Final")
+
 
    ;Repetition
 
-   (--> (in-hole (C ...)((* e_1) (e_1 natural ...)))
-        (in-hole (C ...)((* e_1) (natural ...)))
-        "Repetition-1")
+   (--> ((C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) D nat)
+        (((* h) C ...) e_1 ↓ (natural_1 natural_2 ...) (natural ...) D nat)
+        "Repetition-Entra")
 
-   (--> (in-hole (C ...)((* e_1) (e_2 natural ...)))
-        (in-hole (C ...)(e_2 natural ...))
-        "Repetition-2"
-        ;(side-condition (diff? e_1 e_2)) ;como usa side contidion
-        )|#
+   (--> (((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc (⊕ nat))
+        (((* h) C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc (⊕ nat))
+        (side-condition (term (not (diff? e_1 natural_1))))
+        "Repetition-SUC")
+
+   (--> (((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) ⊥ nat)
+        ((C ...) (* e_1) ↑ (natural_1 natural_2 ...) (natural ...) ⊥ nat)
+        (side-condition (term (diff? e_1 natural_1)))
+        "Repetition-BOT")
+
+   ;Non-Terminal
+   (--> ((C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D nat)
+        (((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D nat)
+        "Non-Terminal-Entra")
+   (--> (((! h) C ...)  ↑ (natural_1 ...) (natural ...) suc nat)
+        ((C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ nat)
+        "Non-Terminal-BOT")
+   (--> (((! h) C ...)  ↑ (natural_1 ...) (natural ...) ⊥ nat)
+        ((C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (⊕ nat))
+        "Non-Terminal-SUC")
+   
+
    )
   )
 (define-metafunction Reduct
   [(diff? e_1 e_1)     #f]
   [(diff? e_1 e_2)     #t])
 
-;(display "\nAlternancia\n")
+;Terminal
 ;(traces red (term (() 1 ↓ (1 2 3) () ⊥ 0)))
-;(traces red (term (() 1 ↓ (2) suc)))
-;(traces red (term (() 1 ↓ () suc)))
-#|
-(display "\nAlternancia\n")
-(stepper red (term (() (/ 1 2) ↓ (1 2) ⊥)))
-(stepper red (term (() (/ 1 2) ↓ (2 1) ⊥)))
-(stepper red (term (() (/ 1 2) ↓ (3 1) ⊥)))
-|#
-;(stepper red (term (() (• 1 2) ↓ (1 2 3) ⊥)))
-;(stepper red (term (() (/ (• 1 2) (• 1 3)) ↓ (1 3 3) ⊥))) ;dá errado pq ele n salva a entrada inicial
 
 ;Choice
-(traces red (term (() (/ 1 2) ↓ (1 2 3) () ⊥ 0)))
-(traces red (term (() (/ 1 2) ↓ (2 3) () ⊥ 0)))
-;(traces red (term ((/ 1 2) (1 2 3))))
-;(traces red (term ((/ 1 2) (3 3 3))))
+;(traces red (term (() (/ 1 2) ↓ (1 2 3) () ⊥ 0)))
+;(traces red (term (() (/ 1 2) ↓ (2 3) () ⊥ 0)))
 
 ;Sequence
-;(traces red (term ((• 1 2) (1 2 3))))
+;(traces red (term (() (• 1 3) ↓ (1 2 3) () ⊥ 0)))
+;(traces red (term (() (• (• 1 2) (• 1 3)) ↓ (1 2 1 5 5) () ⊥ 0)))
 
 ;Repetition
-;(traces red (term ((* 1) (1 1 1 1 2))))
+;(traces red (term (() (* 1) ↓ (1 1 2) () ⊥ 0)))
+
+;Non-terminal
+(traces red (term (() (! 1) ↓ (1 1 2) () ⊥ 0)))
+(traces red (term (() (! 2) ↓ (1 1 2) () ⊥ 0)))
+
+;
+;(traces red (term (() (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ 0))) ;dá errado pq ele n salva a entrada inicial
