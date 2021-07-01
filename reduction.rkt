@@ -131,13 +131,13 @@ ai muda a setinha pra cima e ver se da certo ou errado
    ;Non-Terminal
    (--> ((C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D nat)
         (((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D nat)
-        "Non-Terminal-Entra")
-   (--> (((! h) C ...)  ↑ (natural_1 ...) (natural ...) suc nat)
+        "Not-Entra")
+   (--> (((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc nat)
         ((C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ nat)
-        "Non-Terminal-BOT")
-   (--> (((! h) C ...)  ↑ (natural_1 ...) (natural ...) ⊥ nat)
+        "Not-BOT")
+   (--> (((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ nat)
         ((C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (⊕ nat))
-        "Non-Terminal-SUC")
+        "Not-SUC")
    
 
    )
@@ -160,9 +160,9 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;Repetition
 ;(traces red (term (() (* 1) ↓ (1 1 2) () ⊥ 0)))
 
-;Non-terminal
+;Not
 (traces red (term (() (! 1) ↓ (1 1 2) () ⊥ 0)))
-(traces red (term (() (! 2) ↓ (1 1 2) () ⊥ 0)))
+;(traces red (term (() (! 2) ↓ (1 1 2) () ⊥ 0)))
 
 ;
 ;(traces red (term (() (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ 0))) ;dá errado pq ele n salva a entrada inicial
