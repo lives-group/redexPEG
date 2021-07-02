@@ -118,24 +118,31 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ (C ...) (• e_1 e_2) ↑ (natural_1 natural_2 ...) (natural_3 natural_4 ...) ⊥ (nat ...))
         "Sequencia-BOT-second")
 
-#|
-volta na repetição quando dá falha
-cada vez que a repet dá certo, podemos tirar do topo
+
+;volta na repetição quando dá falha
+;cada vez que a repet dá certo, podemos tirar do topo
    ;Repetition
 
    (--> (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) D (nat ...))
-        (((* h) C ...) e_1 ↓ (natural_1 natural_2 ...) (natural ...) D (nat ...))
+        (G ⊢ ((* h) C ...) e_1 ↓ (natural_1 natural_2 ...) (natural ...) D (nat ...))
         "Repetition-Entra")
+   ;AQUI ERA PRA ELE VOLTAR NA REPETIÇÃO E DAR SUCESSO, MAS NÃO ENTRA AQUI NUNCA
+   (--> (G ⊢ (C ...) (* e_1) ↓ () (natural ...) suc (nat ...))
+        (G ⊢ (C ...) (* e_1) ↑ () (natural ...) suc (nat ...))
+        "Repetition-SUC-Sai")
 
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc ((⊕ nat_1) nat_2 ...))
-        (G ⊢ ((* h) C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc ((⊕ nat_1) nat_2 ...))
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc (nat_1 nat_2 ...))
+        (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc (nat_1 nat_2 ...))
         (side-condition (term (not (diff? e_1 natural_1))))
         "Repetition-SUC")
 
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) ⊥ (nat ...))
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) ⊥ (0 nat ...))
         (G ⊢ (C ...) (* e_1) ↑ (natural_1 natural_2 ...) (natural ...) ⊥ (nat ...))
-        (side-condition (term (diff? e_1 natural_1)))
-        "Repetition-BOT")|#
+        "Repetition-BOT")
+
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) ⊥ ((⊕ nat_1) nat_2 ...))
+        (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural_3 ...) ⊥ (nat_1 nat_2 ...))
+        "Repetition-BOT-restore")
 #|
 
    ;Not
@@ -169,12 +176,18 @@ cada vez que a repet dá certo, podemos tirar do topo
 ;(traces red (term (∅ ⊢ () (• (• 1 2) (• 1 3)) ↓ (1 2 1 5 5) () ⊥ (0))))
 
 ;Repetition
-;(traces red (term (∅ ⊢ () (* 1) ↓ (1 1 2) () ⊥ (0))))
+;(traces red (term (∅ ⊢ () (* 1) ↓ (1 1 1 1 2) () ⊥ (0))))
+(traces red (term (∅ ⊢ () (* 1) ↓ (1 1 1 1) () ⊥ (0))))
 
 ;Not
 ;(traces red (term (∅ ⊢ () (! 1) ↓ (1 1 2) () ⊥ (0))))
 ;(traces red (term (∅ ⊢ () (! 2) ↓ (1 1 2) () ⊥ (0))))
 
-;
+;ALTERNANCIA COM REPETIÇÃO E TERMINAL
+;(traces red (term (∅ ⊢ () (/ (* 1) 1) ↓ (1 1 1 1 2) () ⊥ (0))))
+
+;SEQUENCIAS E ALTERNANCIAS
 ;(traces red (term (∅ ⊢ () (• 1 (• 2 (/ (• 3 4) (• 3 5)))) ↓ (1 2 3 5) () ⊥ (0))))
-(traces red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
+
+;ALTERNANCIA COM SEQUENCIA
+;(traces red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
