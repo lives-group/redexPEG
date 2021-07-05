@@ -119,15 +119,15 @@ ai muda a setinha pra cima e ver se da certo ou errado
         "Sequencia-BOT-second")
 
 
-;volta na repetição quando dá falha
-;cada vez que a repet dá certo, podemos tirar do topo
+   ;volta na repetição quando dá falha
+   ;cada vez que a repet dá certo, podemos tirar do topo
    ;Repetition
 
    (--> (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) D (nat ...))
         (G ⊢ ((* h) C ...) e_1 ↓ (natural_1 natural_2 ...) (natural ...) D (nat ...))
         "Repetition-Entra")
-   ;AQUI ERA PRA ELE VOLTAR NA REPETIÇÃO E DAR SUCESSO, MAS NÃO ENTRA AQUI NUNCA
-   (--> (G ⊢ (C ...) (* e_1) ↓ () (natural ...) suc (nat ...))
+   
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (nat ...))
         (G ⊢ (C ...) (* e_1) ↑ () (natural ...) suc (nat ...))
         "Repetition-SUC-Sai")
 
@@ -143,20 +143,26 @@ ai muda a setinha pra cima e ver se da certo ou errado
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) ⊥ ((⊕ nat_1) nat_2 ...))
         (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural_3 ...) ⊥ (nat_1 nat_2 ...))
         "Repetition-BOT-restore")
-#|
+
 
    ;Not
-   (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D nat)
-        (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D nat)
+   (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D (nat ....))
+        (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (nat ...))
         "Not-Entra")
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc nat)
-        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ nat)
+   
+   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (nat ...))
+        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
         "Not-BOT")
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ nat)
-        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (⊕ nat))
+   
+   
+   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
+        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (nat ...))
         "Not-SUC")
-   lista de não terminais - 
-|#
+
+   ;Non-terminals
+
+   
+
    )
   )
 (define-metafunction Reduct
@@ -177,7 +183,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
 ;Repetition
 ;(traces red (term (∅ ⊢ () (* 1) ↓ (1 1 1 1 2) () ⊥ (0))))
-(traces red (term (∅ ⊢ () (* 1) ↓ (1 1 1 1) () ⊥ (0))))
+;(traces red (term (∅ ⊢ () (* 1) ↓ (1 1 1 1) () ⊥ (0))))
 
 ;Not
 ;(traces red (term (∅ ⊢ () (! 1) ↓ (1 1 2) () ⊥ (0))))
