@@ -150,18 +150,22 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (nat ...))
         "Not-Entra")
    
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (nat ...))
+ 
+  (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (nat ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
         "Not-BOT")
-   
+ 
    
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (nat ...))
         "Not-SUC")
-
-   ;Non-terminals
-
    
+   ;Non-terminals
+   ;acho que ta tudo errado
+   (--> ((C_1 C_2 ...) ⊢ (C ...) (C_1 C_3 ...) ↓ (C ...) (natural ...) D (nat ...)) ;;precisa de ser uma lista de n-terminal? aaaaa to perdido
+        ((C_2 ...) ⊢ (C ...) C_1 ↓ (C ...) (natural ...) D (nat ...))
+        "Non-terminals-entra")
+  
 
    )
   )
