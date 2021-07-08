@@ -5,14 +5,14 @@
 
 ; Syntax of parsing expressions
 (define-language Peg
-   (e natural    ; Terminal
+  (e natural    ; Terminal
      (/ e e)     ; Choice
      (• e e)     ; Sequence
      (* e)       ; Repetition
      (! e)       ; Not complement
      ε           ; Empty
      x)          ; Non-Terminal 
-    (x variable-not-otherwise-mentioned))
+  (x variable-not-otherwise-mentioned))
 
 
 (define-extended-language pegInput Peg
@@ -22,6 +22,6 @@
 ; Syntax for a PEG grammar
 (define-extended-language Grammar pegInput
   [G (x e G) ∅] ; A grammar is a set of nonterminal definition
-)
+  )
 
 

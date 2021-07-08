@@ -1,6 +1,8 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./judgments.rkt")
+;(require "./reduction.rkt")
 
 ;Tests
 
@@ -88,6 +90,8 @@
 (test-equal (judgment-holds (WF (A (• 1 A) ∅) A boolean) boolean) (list (term #t)))
 ;(judgment-holds (WF (A (• ε A) ∅) A boolean) boolean) loop
 (test-results)
+
+
 ;DUVIDAS:
 ;fazer a regra da !⇀ para tirar o problema do (* (/ 1 ε)) 
 ;fazer uma funçao que verifica se o resultado do judgment da ⇀ eh um 0
