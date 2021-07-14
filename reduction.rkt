@@ -42,10 +42,12 @@
    (--> (G ⊢ (C ...) natural_1 ↓ (natural_1 natural_2 ...) (natural_3 ...) D (nat_1 nat_2 ...))
         (G ⊢ (C ...) natural_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) suc ((⊕ nat_1) nat_2 ...))
         "Terminal")
+
    (--> (G ⊢ (C ...) natural_1 ↓ (natural_2 natural ...) s_1 D (nat ...))
         (G ⊢ (C ...) natural_1 ↑ (natural_2 natural ...) s_1 ⊥ (nat ...))
         (side-condition (term (diff? natural_1 natural_2)))      ;o resultado é um boolean
         "Terminal ⊥")
+
    (--> (G ⊢ (C ...) natural_1 ↓ () s_1 D (nat ...))
         (G ⊢ (C ...) natural_1 ↑ () s_1 ⊥ (nat ...))
         "Terminal () ⊥")
@@ -150,16 +152,22 @@ ai muda a setinha pra cima e ver se da certo ou errado
    (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D   (nat .... ))
         (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (nat ...))
         "Not-Entra")
-   
  
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (nat ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥    (nat ...))
         "Not-BOT")
- 
-   
+
+   (--> (G ⊢ (C ...) (! e_1) ↑ (natural ...) (natural_1 natural_2 ...) ⊥ ((⊕ nat_1) nat_2 ...)) 
+        (G ⊢ (C ...) (! e_1) ↑ (natural_1 natural ...) (natural_2 ...) ⊥ (nat_1 nat_2 ...)) 
+        "Not-BOT-restore")
+  
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (nat ...))
         "Not-SUC")
+
+   (--> (G ⊢ (C ...) (! e_1) ↑ (natural ...) (natural_1 natural_2 ...) suc ((⊕ nat_1) nat_2 ...)) 
+        (G ⊢ (C ...) (! e_1) ↑ (natural_1 natural ...) (natural_2 ...) suc (nat_1 nat_2 ...)) 
+        "Not-SUC-restore")
 
    ;;corrigir o not quando dar suc e bot para voltar a entrada
    
@@ -226,5 +234,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term ((A 2 ∅) ⊢ () A ↓ (3 4 5 6 7) () ⊥ (0))))
 ;(traces red (term ((A 2 ∅) ⊢ () B ↓ (2 3 4 5 6 7) () ⊥ (0))))
 
-;(stepper red (term (∅ ⊢ () (• (! 0) (• 1 2)) ↓ (1 2 3) () ⊥ (0))))
+
+;(stepper red (term (∅ ⊢ () (• (! 0) (• 1 2)) ↓ (1 2 3) () ⊥ (0)))) ;esse da certo
+;(stepper red (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))) ;esse no meio da umas bifurcações mas no final da certo
 ;(stepper red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
+;(traces red (term (∅ ⊢ () (/ (! (• 1 2)) (• 1 0)) ↓ (1 2 3) () ⊥ (0)))); esse da certo tb
