@@ -69,8 +69,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((/ h e_2) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 nat ...)) ;h serve tentar e e_2 para memorizar
         "Alternancia-Entra")
 
-   (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural_1 ...) (natural_2 ...) suc (nat_1 nat_2 ...))
-        (G ⊢ (C ...) (/ e_1 e_2) ↑ (natural_1 ...) (natural_2 ...) suc (nat_2 ...))
+   (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural_1 ...) (natural_2 ...) suc (nat_1 nat_2 ...)) ;nat1 vai virar o quanto a gnt consumiu no e_1
+        (G ⊢ (C ...) (/ e_1 e_2) ↑ (natural_1 ...) (natural_2 ...) suc (nat_2 ...) nat_1)
         "Alternancia-SUC-first")
    
    (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural ...) s_1 ⊥ (0 nat ...)) 
@@ -93,7 +93,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ (nat_1 nat_2 ...)) 
         "Alternancia-BOT-second-restore")
 
-   
+   ; quando ele sair dando suc, é pra guardar o quanto ele consumiu
    ;Sequence
 
    (--> (G ⊢ (C ...) (• e_1 e_2) ↓ (natural_1 ...) (natural ...) D (nat ...))
@@ -102,7 +102,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
    
    ;saindo do e_1 deu bom
    (--> (G ⊢ ((• h e_2) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural_3 ...) suc (nat ...))
-        (G ⊢ ((• e_1 h) C ...) e_2 ↓ (natural_1 natural_2 ...) (natural_3 ...) suc (nat ...))
+        (G ⊢ ((• e_1 h) C ...) e_2 ↓ (natural_1 natural_2 ...) (natural_3 ...) suc (nat ...)) ;soma 1, pq ele consome 1
         "Sequencia-SUC-first")
    
    ;saindo do e_1 deu ruim
@@ -153,13 +153,13 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 nat ...))
         "Not-Entra")
  
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (0 nat ...))
-        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
+   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (0 nat ...) nat_1) ;nat_1 é a info de quantos simbolos foram consumidos quando deu suc
+        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ (nat_1 nat ...)) ;n é pra ser aqui, mas é essa ideia
         "Not-BOT")
 
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) suc ((⊕ nat_1) nat_2 ...)) 
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) suc (nat_1 nat_2 ...)) 
-        "Not-BOT-restore")
+        "Not-BOT-restore") ;
   
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (0 nat ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (nat ...))
@@ -169,7 +169,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ (nat_1 nat_2 ...)) 
         "Not-SUC-restore")
 
-   ;;corrigir o not quando dar suc e bot para voltar a entrada
+   ;corrigir TUDO.
    
 
    ;Non-terminals
@@ -241,6 +241,22 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term (∅ ⊢ () (/ (! (• 1 2)) (• 1 0)) ↓ (1 2 3) () ⊥ (0)))); esse da certo tb
 
 ;(traces red (term (∅ ⊢ () (! 1) ↓ (1 2 3) () ⊥ (0))))
-;(traces red (term (∅ ⊢ () (! (• 1 3)) ↓ (1 2 3) () ⊥ (0))))
+;(stepper red (term (∅ ⊢ () (! (• 1 3)) ↓ (1 2 3) () ⊥ (0))))
+;(traces red (term (∅ ⊢ () (* (! (• 1 2))) ↓ (1 3) () ⊥ (0))))
 
 
+#;(stepper red (term ((A (/ (• 0 (• A 1)) ε)
+                    (B (/ (• 1 (• B 2)) ε)
+                    (C (/ 0 (/ 1 2))
+                    (S (• (! (! A)) (• (* 0) (• B (! C)))) ∅))))
+                    ⊢ () S ↓ (0 1 2) () ⊥ (0))))
+
+#;(stepper red (term ((A (/ (• 0 A) ε) ∅)
+                    ⊢ () (! (/ (• 0 0) ε)) ↓ (0 0 0 1 2) () ⊥ (0))))
+
+
+(stepper red (term (∅ ⊢ () (/ (• (/ (• 0 0) (/ (• 0 1) (• 0 2))) (• 1 3)) (• 0 1)) ↓ (0 1 1 4) () ⊥ (0))))
+
+
+
+                    
