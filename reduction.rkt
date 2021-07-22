@@ -236,11 +236,13 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term ((A 2 ∅) ⊢ () (/ A 1) ↓ (1 1 2 3) () ⊥ (0))))
 
 ;(stepper red (term (∅ ⊢ () (• (! 0) (• 1 2)) ↓ (1 2 3) () ⊥ (0)))) ;esse da certo
-;(traces red (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))) ;esse no meio da umas bifurcações mas no final da certo
+;(traces red (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))) 
 ;(stepper red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
 ;(traces red (term (∅ ⊢ () (/ (! (• 1 2)) (• 1 0)) ↓ (1 2 3) () ⊥ (0)))); esse da certo tb
 
 ;(traces red (term (∅ ⊢ () (! 1) ↓ (1 2 3) () ⊥ (0))))
 ;(traces red (term (∅ ⊢ () (! (• 1 3)) ↓ (1 2 3) () ⊥ (0))))
 
+
+;(apply-reduction-relation* red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
 
