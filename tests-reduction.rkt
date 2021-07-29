@@ -56,18 +56,16 @@
   (test-results))
 
 (tests-reduction)
-#|
-pq
- (traces red (term ((A (/ (• 0 (• A 1)) ε)
-                    (B (/ (• 1 (• B 2)) ε)
-                    (C (/ 0 (/ 1 2))
-                    (S (• (! (! A)) (• (* 0) (• B (! C)))) ∅))))
-                    ⊢ () S ↓ (0 1 2) () ⊥ (0))))
 
-da resultado diferente de 
-(apply-reduction-relation* red (term ((A (/ (• 0 (• A 1)) ε)
-                    (B (/ (• 1 (• B 2)) ε)
-                    (C (/ 0 (/ 1 2))
-                    (S (• (! (! A)) (• (* 0) (• B (! C)))) ∅))))
-                    ⊢ () S ↓ (0 1 2) () ⊥ (0))))
-|#
+
+(define (reduction-right? exp)
+  (= 1 (length (apply-reduction-relation red exp)))
+  )
+
+(redex-check Reduct
+             (G ⊢ (C ...) e dir s s D (natural ...))
+             (reduction-right? (term (G ⊢ (C ...) e dir s s D (natural ...)))))
+
+
+
+
