@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./judgments.rkt")
 (require "./reduction.rkt")
 
 (display "Testes\n")
@@ -55,15 +56,24 @@
                    ⊢ () S ↑ () (2 1 0) suc (3))))
   (test-results))
 
-(tests-reduction)
+;(tests-reduction)
 
 
 (define (reduction-right? exp)
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
+(define-metafunction Reduct
+  input-grammar : state -> G
+  [(input-grammar (G ⊢ (C ...) e dir s s D (natural ...))) G])
+
+(define-metafunction Reduct
+  input-peg : state -> C
+  [(input-peg (G ⊢ (C ...) e dir s s D (natural ...))) (C ...)])
+
 (redex-check Reduct
-             (G ⊢ (C ...) e dir s s D (natural ...))
+             #:satisfying (WF (input-grammar state) (input-peg state))
+             ;(G ⊢ (C ...) e dir s s D (natural ...))
              (reduction-right? (term (G ⊢ (C ...) e dir s s D (natural ...)))))
 
 
