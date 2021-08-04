@@ -33,6 +33,17 @@
 ;nat ser transformado em uma lista de numeros
 ;quando aparecer um choice, colocar um 0 na frente
 ;quando sair do choice com sucesso, tira o topo da lista
+(define-metafunction Reduct
+  input-grammar : state -> G
+  [(input-grammar (G ⊢ (C ...) e dir s s D (natural ...))) G])
+
+(define-metafunction Reduct
+  input-peg : state -> C
+  [(input-peg (G ⊢ (C ...) e dir s s D (natural ...))) (C ...)])
+
+(define-metafunction Reduct
+  input-result : state -> D
+  [(input-result (G ⊢ (C ...) e dir s s D (natural ...))) D])
 
 (define red
   (reduction-relation 

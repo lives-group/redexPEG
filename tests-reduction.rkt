@@ -2,7 +2,7 @@
 (require redex)
 (require "./peg.rkt")
 (require "./judgments.rkt")
-(require "./reduction.rkt")
+;(require "./reduction.rkt")
 
 (display "Testes\n")
 
@@ -63,18 +63,11 @@
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
-(define-metafunction Reduct
-  input-grammar : state -> G
-  [(input-grammar (G ⊢ (C ...) e dir s s D (natural ...))) G])
-
-(define-metafunction Reduct
-  input-peg : state -> C
-  [(input-peg (G ⊢ (C ...) e dir s s D (natural ...))) (C ...)])
-
 (redex-check Reduct
              #:satisfying (WF (input-grammar state) (input-peg state))
-             ;(G ⊢ (C ...) e dir s s D (natural ...))
-             (reduction-right? (term (G ⊢ (C ...) e dir s s D (natural ...)))))
+             state
+             (not (eq? (input-result (apply-reduction-relation red (term state)))
+                       (term ⊥))))
 
 
 
