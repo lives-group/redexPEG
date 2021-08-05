@@ -1,8 +1,8 @@
 #lang racket
-(require redex/reduction-semantics)
+(require redex)
 (require "./peg.rkt")
 (require "./judgments.rkt")
-(require "./reduction.rkt")
+;(require "./reduction.rkt")
 
 (display "Testes\n")
 
@@ -35,7 +35,7 @@
             (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))
             (term (∅ ⊢ () (• (• 1 2) (! 0)) ↑ (3) (2 1) suc (2))))
 
-  ;NON-TERMINAL 
+  ;NON-TERMINAL MALUCO
   (test-->> red 
             (term ((A (/ (• 0 (• A 1)) ε)
                       (B (/ (• 1 (• B 2)) ε)
@@ -64,17 +64,11 @@
   )
 
 (redex-check Reduct
-             
              #:satisfying (WF (input-grammar state) (input-peg state))
-             ;nao acontece nada so fica rodando, loop?
-             
-              (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
-                       (term ⊥))
-             #:attempts 1000)
+             state
+             (not (eq? (input-result (apply-reduction-relation red (term state)))
+                       (term ⊥))))
 
 
-#;(redex-check Reduct
-             #:satisfying (WF (input-grammar state) (input-peg state))
-             
-#:attempts 10000)
+
 

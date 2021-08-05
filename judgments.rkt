@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./reduction.rkt")
 (provide (all-defined-out))
 
 

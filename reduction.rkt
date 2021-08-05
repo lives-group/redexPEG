@@ -39,7 +39,7 @@
 
 (define-metafunction Reduct
   input-peg : state -> C
-  [(input-peg (G ⊢ (C ...) e dir s s D (natural ...))) (C ...)])
+  [(input-peg (G ⊢ (C ...) e dir s s D (natural ...))) e])
 
 (define-metafunction Reduct
   input-result : state -> D
@@ -48,7 +48,7 @@
 (define red
   (reduction-relation 
    Reduct
-   
+   #:domain state
    ;Terminal
    
    (--> (G ⊢ (C ...) natural_1 ↓ (natural_1 natural_2 ...) (natural_3 ...) D (natural_4 natural_5 ...))
