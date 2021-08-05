@@ -1,6 +1,6 @@
 #lang racket
-(require redex/reduction-semantics)
-;(require "./peg.rkt")
+(require redex)
+(require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
 
@@ -63,14 +63,16 @@
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
-(redex-check Reduct
+#;(redex-check Reduct
              
              #:satisfying (WF (input-grammar state) (input-peg state))
-             ;nao acontece nada so fica rodando, loop?
+          
              
               (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
-                       (term ⊥))
+                        (term ⊥))
              #:attempts 1000)
+;nao usar o WF
+;usar o eval e comparar com o da reduct
 
 
 #;(redex-check Reduct
@@ -78,3 +80,19 @@
              
 #:attempts 10000)
 
+(define (get-result l)
+  
+  (if (eq? (list-ref (car l) 7) 'suc)
+      (list (list-ref (car l) 5))
+      (list '⊥))
+
+    )
+
+;fazer uma meta funçao para verificar se uma gramatica é WF 
+(get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (1 3 3) () ⊥ (0)))))
+
+
+#;(test-equal
+          (judgment-holds (eval ∅ ((• 1 2) (1 2 3)) s) s)
+          (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (1 2 3) () ⊥ (0))))
+          )
