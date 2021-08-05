@@ -1,7 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-(require "./judgments.rkt")
+;(require "./judgments.rkt")
 (provide (all-defined-out))
 
 (define-extended-language Reduct Grammar 
@@ -57,7 +57,7 @@
 
    (--> (G ⊢ (C ...) natural_1 ↓ (natural_2 natural ...) s_1 D (natural_3 ...))
         (G ⊢ (C ...) natural_1 ↑ (natural_2 natural ...) s_1 ⊥ (natural_3 ...))
-        (side-condition (term (diff? natural_1 natural_2)))      ;o resultado é um boolean
+        (side-condition (term (diff-exp? natural_1 natural_2)))      ;o resultado é um boolean
         "Terminal ⊥")
 
    (--> (G ⊢ (C ...) natural_1 ↓ () s_1 D (natural_2 ...))
@@ -91,7 +91,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
         (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
-        (side-condition (term (diff? natural_3 0)))
+        (side-condition (term (diff-exp? natural_3 0)))
         "Alternancia-BOT-first-restore")
    
    (--> (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural_1 ...) (natural_2 ...) suc (natural_3 natural_4 natural_5 ...)) 
@@ -104,7 +104,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
         (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
-        (side-condition (term (diff? natural_3 0)))
+        (side-condition (term (diff-exp? natural_3 0)))
         "Alternancia-BOT-second-restore")
 
    ; quando ele sair dando suc, é pra guardar o quanto ele consumiu
@@ -150,7 +150,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc (natural_3 natural_4 natural_5 ...))
         (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc ((⊕ natural_3 natural_4) natural_5 ...))
-        (side-condition (term (not (diff? e_1 natural_1))))
+        (side-condition (term (not (diff-exp? e_1 natural_1))))
         "Repetition-SUC")
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) ⊥ (0 natural_4 ...))
@@ -159,7 +159,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) ⊥ (natural_4 natural_5 ...))
         (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural_3 ...) ⊥ ((dec natural_4) natural_5 ...))
-        (side-condition (term (diff? natural_4 0)))
+        (side-condition (term (diff-exp? natural_4 0)))
         "Repetition-BOT-restore")
 
   
@@ -174,7 +174,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) suc (natural_3 natural_4 ...)) 
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) suc ((dec natural_3) natural_4 ...))
-        (side-condition (term (diff? natural_3 0)))
+        (side-condition (term (diff-exp? natural_3 0)))
         "Not-BOT-restore")
   
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (0 natural_4 ...))
@@ -183,7 +183,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
-        (side-condition (term (diff? natural_3 0)))
+        (side-condition (term (diff-exp? natural_3 0)))
         "Not-SUC-restore")
 
    ;corrigir TUDO.
@@ -192,7 +192,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
    ;Non-terminals
    ;acho que ta tudo errado
    (--> (G ⊢ (C ...) x ↓ (natural_1 ...) (natural ...) D (natural_4 ...))  
-        (G ⊢ ((NT x) C ...) (lookup G x) ↓ (natural_1 ...) (natural ...) D (natural_4 ...))
+        (G ⊢ ((NT x) C ...) (lookup-red G x) ↓ (natural_1 ...) (natural ...) D (natural_4 ...))
         "Non-terminals-entra")
 
    (--> (G ⊢ ((NT x) C ...) e ↑ (natural_1 ...) (natural ...) D (natural_4 ...))  
@@ -204,16 +204,16 @@ ai muda a setinha pra cima e ver se da certo ou errado
   )
 
 (define-metafunction Reduct
-  [(diff? e_1 e_1)     #f]
-  [(diff? e_1 e_2)     #t]
+  [(diff-exp? e_1 e_1)     #f]
+  [(diff-exp? e_1 e_2)     #t]
 
   )
 
 (define-metafunction Reduct
   
-  [(lookup (x e G) x) e]
-  [(lookup (x_1 e G) x_2) (lookup G x_2)]
-  [(lookup ∅ x) ,(error 'lookup "not found: ~e" (term x))]
+  [(lookup-red (x e G) x) e]
+  [(lookup-red (x_1 e G) x_2) (lookup-red G x_2)]
+  [(lookup-red ∅ x) ,(error 'lookup-red "not found: ~e" (term x))]
   )
 
 (define-metafunction Reduct

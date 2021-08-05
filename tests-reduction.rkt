@@ -1,6 +1,6 @@
 #lang racket
 (require redex/reduction-semantics)
-(require "./peg.rkt")
+;(require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
 
