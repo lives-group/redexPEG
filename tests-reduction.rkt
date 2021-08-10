@@ -63,18 +63,19 @@
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
-(redex-check Reduct
-             
-             #:satisfying (WF (input-grammar state) (input-peg state))
-             ;nao acontece nada so fica rodando, loop?
-             
-              (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
-                       (term ⊥))
+(redex-check Reduct       
+             #:satisfying (WF (input-grammar state) (input-peg state))             
+             (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
+                  (term ⊥))
              #:attempts 1000)
 
+(redex-check Reduct
+             state
+             (reduction-right? (term state))
+             #:attempts 1000)
 
 #;(redex-check Reduct
-             #:satisfying (WF (input-grammar state) (input-peg state))
+               #:satisfying (WF (input-grammar state) (input-peg state))
              
-#:attempts 10000)
+               #:attempts 10000)
 
