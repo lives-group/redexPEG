@@ -279,6 +279,11 @@
    -------------------------------
    (eval G ((* e) s) s_2)]
 
+ #; [;(eval G (e ()) s_1)
+   ;(side-condition (empty? s))
+   ----------------------------
+   (eval G ((* e) ()) ⊥)]
+
   ;Non-Terminal
   [(lookup G x e)     
    (eval G (e s) s_1)
@@ -310,4 +315,7 @@
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
 
+(define-metafunction evalPeg
+  [(empty? ⊥) #f]
+  [(empty? s) #t])
 
