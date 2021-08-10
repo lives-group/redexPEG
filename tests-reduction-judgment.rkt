@@ -6,7 +6,7 @@
 
 
 (define (get-result l)
-  
+
   (if (eq? (list-ref (car l) 7) 'suc)
       (list (list-ref (car l) 5))
       (list '⊥))
@@ -97,14 +97,14 @@
  )
 
 (test-equal
- (judgment-holds (eval ∅ ((/ (! (• 1 2)) (• 1 0)) (1 2 3)) s) s) ;judgment retornando '()
+ (judgment-holds (eval ∅ ((/ (! (• 1 2)) (• 1 0)) (1 2 3)) s) s) 
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (/ (! (• 1 2)) (• 1 0)) ↓ (1 2 3) () ⊥ (0)))))
  )
 
 
 (test-results)
 
-(display "\nEmpty\n")
+(display "\nRepetition\n")
 
 (test-equal
  (judgment-holds (eval ∅ ((* 1) (1 1 1 1 2)) s) s) 
@@ -116,7 +116,7 @@
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ (2) () ⊥ (0)))))
  )
 
-#;(test-equal
+(test-equal
  (judgment-holds (eval ∅ ((* 1) ()) s) s) ;judgment retornando '(())
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ () () ⊥ (0)))))
  )

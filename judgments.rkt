@@ -270,10 +270,11 @@
 
   ;Repetition
   [(eval G (e s) ⊥)
+   (side-condition (empty? s))
    -------------------------------
    (eval G ((* e) s) s)]
-  [
-   -------------------------------
+  
+  [-------------------------------
    (eval G ((* e) ()) ⊥)]
 
   [(eval G (e s) s_1)
@@ -313,4 +314,7 @@
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
 
+(define-metafunction evalPeg
+  [(empty? ()) #f]
+  [(empty? s) #t])
 
