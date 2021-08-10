@@ -108,6 +108,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
         "Alternancia-BOT-second-restore")
 
    ; quando ele sair dando suc, é pra guardar o quanto ele consumiu
+
+
    ;Sequence
 
    (--> (G ⊢ (C ...) (• e_1 e_2) ↓ (natural_1 ...) (natural ...) D (natural_2 ...))
@@ -138,6 +140,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    ;volta na repetição quando dá falha
    ;cada vez que a repet dá certo, podemos tirar do topo
+
+
    ;Repetition
 
    (--> (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) D (natural_4 ...))
@@ -164,6 +168,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
   
    ;Not
+
    (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D   (natural_4 ... ))
         (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 natural_4 ...))
         "Not-Entra")
@@ -190,7 +195,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
    
 
    ;Non-terminals
-   ;acho que ta tudo errado
+
    (--> (G ⊢ (C ...) x ↓ (natural_1 ...) (natural ...) D (natural_4 ...))  
         (G ⊢ ((NT x) C ...) (lookup-red G x) ↓ (natural_1 ...) (natural ...) D (natural_4 ...))
         "Non-terminals-entra")

@@ -1,6 +1,7 @@
-ai #lang racket
+#lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./judgments.rkt")
 (require "./reduction.rkt")
 
 (display "Testes\n")
@@ -34,7 +35,7 @@ ai #lang racket
             (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))
             (term (∅ ⊢ () (• (• 1 2) (! 0)) ↑ (3) (2 1) suc (2))))
 
-  ;NON-TERMINAL MALUCO
+  ;NON-TERMINAL 
   (test-->> red 
             (term ((A (/ (• 0 (• A 1)) ε)
                       (B (/ (• 1 (• B 2)) ε)
@@ -55,17 +56,43 @@ ai #lang racket
                    ⊢ () S ↑ () (2 1 0) suc (3))))
   (test-results))
 
-(tests-reduction)
+;(tests-reduction)
 
 
 (define (reduction-right? exp)
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
+<<<<<<< HEAD
+(redex-check Reduct       
+             #:satisfying (WF (input-grammar state) (input-peg state))             
+             (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
+                  (term ⊥))
+             #:attempts 1000)
+=======
+#;(redex-check Reduct
+             
+               #:satisfying (WF (input-grammar state) (input-peg state))
+          
+             
+               (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
+                    (term ⊥))
+               #:attempts 1000)
+;nao usar o WF
+;usar o eval e comparar com o da reduct
+>>>>>>> f5f608da8f3ef61f7c740bb35c1f3afb1a8f2cb8
+
 (redex-check Reduct
-             (G ⊢ (C ...) e dir s s D (natural ...))
-             (reduction-right? (term (G ⊢ (C ...) e dir s s D (natural ...)))))
+             state
+             (reduction-right? (term state))
+             #:attempts 1000)
 
+#;(redex-check Reduct
+               #:satisfying (WF (input-grammar state) (input-peg state))
+             
+               #:attempts 10000)
+<<<<<<< HEAD
+=======
 
-
+>>>>>>> f5f608da8f3ef61f7c740bb35c1f3afb1a8f2cb8
 

@@ -1,6 +1,6 @@
 #lang racket
-(require redex/reduction-semantics)
-;(require "./peg.rkt")
+(require redex)
+(require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
 
@@ -68,6 +68,17 @@
              (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
                   (term ⊥))
              #:attempts 1000)
+
+#;(redex-check Reduct
+             
+               #:satisfying (WF (input-grammar state) (input-peg state))
+          
+             
+               (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
+                    (term ⊥))
+               #:attempts 1000)
+;nao usar o WF
+;usar o eval e comparar com o da reduct
 
 (redex-check Reduct
              state

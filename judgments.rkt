@@ -241,7 +241,7 @@
    (eval G ((/ e_1 e_2) s) s_1)]
 
   [(eval G (e_2 s) s_1)
-   (side-condition (botton? s_1))  
+   (eval G (e_1 s) ⊥)  
    -------------------------------
    (eval G ((/ e_1 e_2) s) s_1)]
 
