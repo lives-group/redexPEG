@@ -231,7 +231,8 @@
    (eval G (natural_1 ()) ⊥)]
 
   ;Empty
-  [--------------------------------
+  [
+   --------------------------------
    (eval G (ε s) s)]
 
   ;Choice
@@ -316,5 +317,5 @@
 
 (define-metafunction evalPeg
   [(empty? ()) #f]
-  [(empty? s) #t])
+  [(empty? s)  #t])
 
