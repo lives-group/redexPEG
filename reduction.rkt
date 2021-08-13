@@ -191,7 +191,6 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (side-condition (term (diff-exp? natural_3 0)))
         "Not-SUC-restore")
 
-   ;corrigir TUDO.
    
 
    ;Non-terminals

@@ -1,1 +1,0 @@
-("8.1" ta6nt ("8ed419e6c2b13fc3858df5ef07dffb86683648f5" . "f91e9ee73ac1b875c6d2a9d7c19ea2ca522c7e77") #"C:\\Users\\rsara\\OneDrive\\Documentos\\Bolsas\\Racket\\Git\\redexAPEG\\.\\peg.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))

@@ -24,7 +24,12 @@
 ;colocar numa lista qualquer as exp que a gnt acha que é bem formada
 ;final a lista é igual a 1 -> testar
 ;fazer uma meta funçao para verificar se uma gramatica é WF 
-;(get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (1 3 3) () ⊥ (0)))))
+;(get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (1 3 3) () ⊥ (0)))
+
+
+;(define (isWF ))
+
+
 
 (display "\nTerminal\n")
 (test-equal
@@ -76,17 +81,17 @@
 (test-equal
  (judgment-holds (eval ∅ ((• 1 2) (2 2 3)) s) s)
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (2 2 3) () ⊥ (0)))))
-)
+ )
 
 (test-equal
  (judgment-holds (eval ∅ ((• 1 2) (1 1 3)) s) s)
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (1 1 3) () ⊥ (0)))))
-)
+ )
 
 (test-equal
  (judgment-holds (eval ∅ ((• 1 2) ()) s) s)
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ () () ⊥ (0)))))
-)
+ )
 
 (test-results)
 
@@ -127,7 +132,7 @@
  )
 
 (test-equal
- (judgment-holds (eval ∅ ((* 1) ()) s) s) ;judgment retornando '(())
+ (judgment-holds (eval ∅ ((* 1) ()) s) s) 
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ () () ⊥ (0)))))
  )
 
