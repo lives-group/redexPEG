@@ -291,6 +291,10 @@
    (eval G (x s) ⊥)]
   )
 
+#;(define-metafunction evalPeg
+  [(is-WF x) ])
+
+
 (define-metafunction evalPeg
   [(equal? x x) #t]
   [(equal? x e) #f])

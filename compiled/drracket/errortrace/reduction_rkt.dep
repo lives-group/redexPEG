@@ -1,0 +1,1 @@
+("8.2" ta6le ("f18aa0619c2ea7a58b643bf40d4eb3b8c47a9142" . "87348a916482114cef55b09be18d406a3310be13") #"/home/danifp/Desktop/ou/redexTestes/redexAPEG/./peg.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))
