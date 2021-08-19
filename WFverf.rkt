@@ -17,16 +17,30 @@
 ;fazer um extend-language e criar uma funçao que verifica as coisas?
 ;como colocar a gramatica
 
-(define (is-WF exp);vai vir a expressao por exemplo (/ (/ 1 2) 2)
 
-(if (not (empty? exp))
-  (if (eq? (list-ref (car exp) 0) natural)
-      (is-WF (cdr exp))
-      
-      
-      
+(define (get-exp l type)
+
+  (if (eq? type "j")
+      (list (list-ref (list-ref (car l) 2) 0))
+      (list (list-ref (car l) 3))
+      )
   )
-)
 
-)
-(is-WF (list '(/ (/ 1 2) 2)))
+(define (is-WF e type);vai vir a expressao por exemplo (/ (/ 1 2) 2)
+
+  (define exp (get-exp e type))
+  (print (car exp))
+  (if (not (null? exp))
+      (cond [(number? (car exp)) (display "\nNatural WF\n")]
+            [(eq? (car exp) (term ε)) #t]
+            [(eq? exp (term (! e))) (is-WF exp type)]
+            [(eq? exp (term (* e))) (is-WF exp type)]
+            [(eq? exp (term (• e_1 e_2))) (is-WF exp type)]
+            [(eq? (car exp) '(/ e_1 e_2)) (and (is-WF (term e_1) type) (is-WF (term e_2) type))]            
+            [else "Blub"]
+            )
+      "Blubb")
+  )
+
+(is-WF '((eval ∅ (1 (2 1 1)) s) s) "j")
+(is-WF '((∅ ⊢ () (/ 1 2) ↓ (2 1 1) () ⊥ (0))) "r")

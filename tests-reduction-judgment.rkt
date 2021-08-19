@@ -13,13 +13,6 @@
 
   )
 
-(define (WF l)
-  (cond [(eq? (list-ref (car l) 3) (list '(• 1 2))) (display "uhuul")]
-        [else (print (list-ref (car l) 3))])
-  )
-
-
-
 
 (display "\nTerminal\n")
 (test-equal
