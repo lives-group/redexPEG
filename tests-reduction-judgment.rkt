@@ -114,7 +114,7 @@
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ (2) () ⊥ (0)))))
  )
 
-(test-equal
+(test-equal ;;lembrar desse
  (judgment-holds (eval ∅ ((* 1) ()) s) s) 
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ () () ⊥ (0)))))
  )

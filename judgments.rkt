@@ -38,7 +38,7 @@
   )
 
                 
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg ;usar esse no is-WF
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
 
@@ -247,7 +247,7 @@
    (eval G ((/ e_1 e_2) s) s_1)]
 
   #;[------------------------------
-   (eval G ((/ e_1 e_2) ()) ⊥)]
+     (eval G ((/ e_1 e_2) ()) ⊥)]
 
   ;Sequence
   [(eval G (e_1 s) s_1)
@@ -292,7 +292,7 @@
   )
 
 #;(define-metafunction evalPeg
-  [(is-WF x) ])
+    [(is-WF x) ])
 
 
 (define-metafunction evalPeg

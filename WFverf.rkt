@@ -16,7 +16,7 @@
 
 ;fazer um extend-language e criar uma funçao que verifica as coisas?
 ;como colocar a gramatica
-
+;lembrar dos testes que deram errado
 
 (define (get-exp l type)
 
@@ -26,7 +26,7 @@
       )
   )
 
-(define (is-WF e type);vai vir a expressao por exemplo (/ (/ 1 2) 2)
+(define (is-WF e type);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
 
   (define exp (get-exp e type))
   (print (car exp))
@@ -35,12 +35,16 @@
             [(eq? (car exp) (term ε)) #t]
             [(eq? exp (term (! e))) (is-WF exp type)]
             [(eq? exp (term (* e))) (is-WF exp type)]
-            [(eq? exp (term (• e_1 e_2))) (is-WF exp type)]
+            [(eq? exp (term (• e_1 e_2))) (judgment-hold ⇀ G )] ;usar o judgment ⇀ pra testar se consome algo 
             [(eq? (car exp) '(/ e_1 e_2)) (and (is-WF (term e_1) type) (is-WF (term e_2) type))]            
             [else "Blub"]
             )
-      "Blubb")
+
+      "")
   )
 
 (is-WF '((eval ∅ (1 (2 1 1)) s) s) "j")
 (is-WF '((∅ ⊢ () (/ 1 2) ↓ (2 1 1) () ⊥ (0))) "r")
+
+
+
