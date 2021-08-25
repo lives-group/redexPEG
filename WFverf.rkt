@@ -18,33 +18,40 @@
 ;como colocar a gramatica
 ;lembrar dos testes que deram errado
 
-(define (get-exp l type)
+#;(define (get-exp l)
 
   (if (eq? type "j")
       (list (list-ref (list-ref (car l) 2) 0))
       (list (list-ref (car l) 3))
       )
   )
+(define (verf-rep exp) ;VERIFICAR OQ CONSOME NO REP
+ (if (eq? (judgment-holds (⇀ ∅ exp D) D) (term 1)) ;acho que isso ta errado
+    (display "deu true no verf-rep") ;#t
+    (display exp) ;#f
+  )
+)
 
-(define (is-WF e type);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
+#;(define (verf-seq exp)
+(if (eq? )
 
-  (define exp (get-exp e type))
-  (print (car exp))
+  )
+)
+
+(define (is-WF exp);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
+
+;  (define exp (get-exp e type))
+ ; (print (car exp))
   (if (not (null? exp))
-      (cond [(number? (car exp)) (display "\nNatural WF\n")]
-            [(eq? (car exp) (term ε)) #t]
-            [(eq? exp (term (! e))) (is-WF exp type)]
-            [(eq? exp (term (* e))) (is-WF exp type)]
-            [(eq? exp (term (• e_1 e_2))) (judgment-hold ⇀ G )] ;usar o judgment ⇀ pra testar se consome algo 
-            [(eq? (car exp) '(/ e_1 e_2)) (and (is-WF (term e_1) type) (is-WF (term e_2) type))]            
-            [else "Blub"]
+      (cond [(number? (car exp))                       #t]
+            [(eq? (car exp) (term ε))                  #t]
+            [(eq? (list-ref (list-ref (car exp) 2) 0) (term (!)))         (is-WF (list-ref (car exp) 2))] ;NAO SEI PQ TA DANDO ERRADO NAO CONSIGO PEGAR O ! DA EXP
+            [(eq? exp (term (G (* e_1))))         (verf-rep exp)]
+            [(eq? exp (term (G (• e_1 e_2)))) #t] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
+            [(eq? (car exp) (term (G (/ e_1 e_2)))) (and (is-WF (term e_1)) (is-WF (term e_2)))]            
+            [else "Deu errado"]
             )
 
-      "")
+      "null")
   )
-
-(is-WF '((eval ∅ (1 (2 1 1)) s) s) "j")
-(is-WF '((∅ ⊢ () (/ 1 2) ↓ (2 1 1) () ⊥ (0))) "r")
-
-
 

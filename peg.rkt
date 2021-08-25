@@ -5,7 +5,7 @@
 
 ; Syntax of parsing expressions
 (define-language Peg
-  (e natural    ; Terminal
+  (e natural     ; Terminal
      (/ e e)     ; Choice
      (• e e)     ; Sequence
      (* e)       ; Repetition
