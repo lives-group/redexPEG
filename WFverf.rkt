@@ -59,14 +59,25 @@
       
   )
 
-(define (verf-seq exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
+#;(define (verf-seq exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
   
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
   (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
-      #t
       #f
+      #t
       )
   )
+
+(define (verf-judg exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
+  
+  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
+  (if (member 0 (judgment-holds (⇀ ∅ ,exp D) D))
+      #f
+      #t
+      )
+  )
+
+
 
 (define (verf-rep exp) ;VERIFICAR OQ CONSOME NO REP
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
@@ -92,10 +103,10 @@
             [(eq? id (term !))                        (is-WF (list (list-ref exp 1)))]
             [(eq? id (term /))                        (and (is-WF (list (list (list-ref exp 1)))) (is-WF (list (list (list-ref exp 2)))))] 
             [(eq? id (term •))                        (and (is-WF (list (list (list-ref exp 1))))
-                                                           (verf-seq   (list-ref exp 1))
-                                                           (is-WF (list (list (list-ref exp 2)))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
+                                                           (or (verf-judg   (list-ref exp 1)) (is-WF (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
             [(eq? id (term *))                        (and (is-WF (list (list (list-ref exp 1))))
-                                                           (verf-rep exp))]     
+                                                           (verf-judg exp))] 
+;nao terminal colocar o judgment no lookup    
             [else "Deu errado"]
             )
 
@@ -107,12 +118,13 @@
     [(consome? e_1 e_2)     #t]
 
     )
-
-;(is-WF (list '(∅ (1))))
-;(is-WF (list '(∅ (ε))))
-;(is-WF (list '(∅ (! (1)))))
-;(is-WF (list '(∅ (/ 1 2))))
-;(is-WF (list '(∅ (/ (/ 1 2) 2))))
-;(is-WF (list '(∅ (! (/ 1 2)))))
-;(is-WF (list '(∅ (• 1 2)))) ;--------------- NAO FUNCIONA
-;(is-WF (list '(∅ (* ε))))    ;---------------- NAO FUNCIONA 
+;testar mais
+(is-WF (list '(∅ (1))))
+(is-WF (list '(∅ (ε))))
+(is-WF (list '(∅ (! (1)))))
+(is-WF (list '(∅ (/ 1 2))))
+(is-WF (list '(∅ (/ (/ 1 2) 2))))
+(is-WF (list '(∅ (! (/ 1 2)))))
+(is-WF (list '(∅ (• 1 2)))) 
+(is-WF (list '(∅ (* ε))))    
+(is-WF (list '(∅ (* (! 0)))))
