@@ -18,38 +18,6 @@
 ;como colocar a gramatica
 ;lembrar dos testes que deram errado
 
-#;(define (get-exp l)
-
-    (if (eq? type "j")
-        (list (list-ref (list-ref (car l) 2) 0))
-        (list (list-ref (car l) 3))
-        )
-    )
-
-
-#;(define (verf-seq exp)
-    (if (eq? )
-
-        )
-    )
-
-#;(define (is-WF exp);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
-
-    ;  (define exp (get-exp e type))
-    ; (print (car exp))
-    (if (not (null? exp))
-        (cond [(number? exp)                       #t]
-              [(eq? (car exp) (term ε))                  #t]
-              [(eq? (list-ref (car exp) 0) (term !))
-               (is-WF (list-ref (car exp) 1))] ;NAO SEI PQ TA DANDO ERRADO NAO CONSIGO PEGAR O ! DA EXP
-              [(eq? exp (term (G (* e_1))))         (verf-rep exp)]
-              [(eq? exp (term (G (• e_1 e_2)))) #t] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
-              [(eq? (car exp) (term (G (/ e_1 e_2)))) (and (is-WF (term e_1)) (is-WF (term e_2)))]            
-              [else "Deu errado"]
-              )
-
-        "null")
-    )
 
 (define (get-exp e)
 
@@ -61,12 +29,12 @@
 
 #;(define (verf-seq exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
   
-  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
-  (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
-      #f
-      #t
-      )
-  )
+    ;(print (judgment-holds (⇀ ∅ ,exp D) D))
+    (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
+        #f
+        #t
+        )
+    )
 
 (define (verf-judg exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
   
@@ -96,21 +64,25 @@
   
   (print exp)
   (display " - ")
-  
-  (if (not (null? exp))
-      (cond [(number? id)                             #t]
-            [(eq? id (term ε))                        #t]
-            [(eq? id (term !))                        (is-WF (list (list-ref exp 1)))]
-            [(eq? id (term /))                        (and (is-WF (list (list (list-ref exp 1)))) (is-WF (list (list (list-ref exp 2)))))] 
-            [(eq? id (term •))                        (and (is-WF (list (list (list-ref exp 1))))
-                                                           (or (verf-judg   (list-ref exp 1)) (is-WF (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
-            [(eq? id (term *))                        (and (is-WF (list (list (list-ref exp 1))))
-                                                           (verf-judg exp))] 
-;nao terminal colocar o judgment no lookup    
-            [else "Deu errado"]
-            )
+  (if (eq? '∅ (car (car e)));verifica se é empty o G 
+      (if (not (null? exp))
+          (cond [(number? id)                             #t]
+                [(eq? id (term ε))                        #t]
+                [(eq? id (term !))                        (is-WF (list (list-ref exp 1)))]
+                [(eq? id (term /))                        (and (is-WF (list (list (list-ref exp 1)))) (is-WF (list (list (list-ref exp 2)))))] 
+                [(eq? id (term •))                        (and (is-WF (list (list (list-ref exp 1))))
+                                                               (or (verf-judg   (list-ref exp 1)) (is-WF (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
+                [(eq? id (term *))                        (and (is-WF (list (list (list-ref exp 1))))
+                                                               (verf-judg exp))]
+            
+                ;nao terminal colocar o judgment no lookup    
+                [else "Deu errado"]
+                )
 
-      "null")
+          "null")
+  
+      (is-WF (judgment-holds (lookup (car (car e)) exp R) R));ta dando errado
+      )
   )
 
 #;(define-metafunction Reduct
