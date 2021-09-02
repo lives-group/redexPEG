@@ -18,49 +18,17 @@
 ;como colocar a gramatica
 ;lembrar dos testes que deram errado
 
-#;(define (get-exp l)
-
-    (if (eq? type "j")
-        (list (list-ref (list-ref (car l) 2) 0))
-        (list (list-ref (car l) 3))
-        )
-    )
-
-
-#;(define (verf-seq exp)
-    (if (eq? )
-
-        )
-    )
-
-#;(define (is-WF exp);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
-
-    ;  (define exp (get-exp e type))
-    ; (print (car exp))
-    (if (not (null? exp))
-        (cond [(number? exp)                       #t]
-              [(eq? (car exp) (term ε))                  #t]
-              [(eq? (list-ref (car exp) 0) (term !))
-               (is-WF (list-ref (car exp) 1))] ;NAO SEI PQ TA DANDO ERRADO NAO CONSIGO PEGAR O ! DA EXP
-              [(eq? exp (term (G (* e_1))))         (verf-rep exp)]
-              [(eq? exp (term (G (• e_1 e_2)))) #t] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
-              [(eq? (car exp) (term (G (/ e_1 e_2)))) (and (is-WF (term e_1)) (is-WF (term e_2)))]            
-              [else "Deu errado"]
-              )
-
-        "null")
-    )
 
 
 
 #;(define (verf-seq exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
   
-  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
-  (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
-      #f
-      #t
-      )
-  )
+    ;(print (judgment-holds (⇀ ∅ ,exp D) D))
+    (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
+        #f
+        #t
+        )
+    )
 
 (define (verf-rep exp) ;VERIFICAR OQ CONSOME NO REP
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
@@ -80,6 +48,15 @@
       )
   )
 
+(define (verf-judg-nt grammar exp) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
+  
+  (print exp)
+  (display " - ")
+  (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R))
+      #f
+      #t
+      )
+  )
 
 (define (get-exp e)
 
@@ -89,34 +66,49 @@
       
   )
 
-(define (is-WF e);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
+(define (is-WF grammar e);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
   
-  (define grammar (list-ref (car e) 0))
+  ;(define grammar (list-ref (car e) 0))
   ;exp -> list
+  
+  
   (define exp (get-exp e))
   (define id (car exp))
-  
   (print exp)
   (display " - ")
 
-  (if (eq? grammar (term ∅))
-      "blub"
-      
-      )
+  ;(if (eq? '∅ grammar);verifica se é empty o G 
   (if (not (null? exp))
       (cond [(number? id)                             #t]
             [(eq? id (term ε))                        #t]
-            [(eq? id (term !))                        (is-WF (list (list-ref exp 1)))]
-            [(eq? id (term /))                        (and (is-WF (list (list (list-ref exp 1)))) (is-WF (list (list (list-ref exp 2)))))] 
-            [(eq? id (term •))                        (and (is-WF (list (list (list-ref exp 1))))
-                                                           (or (verf-judg   (list-ref exp 1)) (is-WF (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
-            [(eq? id (term *))                        (and (is-WF (list (list (list-ref exp 1))))
-                                                           (verf-judg exp))] 
-;nao terminal colocar o judgment no lookup    
+            [(eq? id (term !))                        (is-WF grammar (list (list-ref exp 1)))]
+            [(eq? id (term /))                        (and (is-WF grammar (list (list (list-ref exp 1)))) (is-WF grammar (list (list (list-ref exp 2)))))] 
+            [(eq? id (term •))                        (and (is-WF grammar (list (list (list-ref exp 1))))
+                                                           (or (verf-judg   (list-ref exp 1)) (is-WF grammar (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
+            [(eq? id (term *))                        (and (is-WF grammar (list (list (list-ref exp 1))))
+                                                           (verf-judg exp))]
+            
+            ;nao terminal colocar o judgment no lookup    
             [else "Deu errado"]
             )
 
       "null")
+  ;(is-WF (judgment-holds (lookup ,(car (car e)) ,exp R) R));ta dando errado
+  )
+  
+
+(define (inicio e)
+  (define grammar (car (car e)))
+  (define exp (list-ref (car e) 1))
+  (define id (car exp))
+  
+  (print grammar)
+  (display " - ")
+
+  (if (eq? (term ∅) grammar)
+      (is-WF grammar e)
+      (verf-judg-nt grammar (car exp)))
+
   )
 
 #;(define-metafunction Reduct
@@ -125,12 +117,15 @@
 
     )
 ;testar mais
-(is-WF (list '(∅ (1))))
-(is-WF (list '(∅ (ε))))
-(is-WF (list '(∅ (! (1)))))
-(is-WF (list '(∅ (/ 1 2))))
-(is-WF (list '(∅ (/ (/ 1 2) 2))))
-(is-WF (list '(∅ (! (/ 1 2)))))
-(is-WF (list '(∅ (• 1 2)))) 
-(is-WF (list '(∅ (* ε))))    
-(is-WF (list '(∅ (* (! 0)))))
+(inicio (list '(∅ (1))))
+(inicio (list '(∅ (ε))))
+(inicio (list '(∅ (! (1)))))
+(inicio (list '(∅ (/ 1 2))))
+(inicio (list '(∅ (/ (/ 1 2) 2))))
+(inicio (list '(∅ (! (/ 1 2)))))
+(inicio (list '(∅ (• 1 2)))) 
+(inicio (list '(∅ (* ε))))    
+(inicio (list '(∅ (* (! 0)))))
+
+(inicio (list '((A 2 ∅) (A))))
+(inicio (list '((A 2 ∅) (C))))

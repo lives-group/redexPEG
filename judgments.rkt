@@ -123,7 +123,7 @@
    (⇀ G (! e) 1)]
   )
 
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg 
   #:mode (WF I I O)
   #:contract (WF G e boolean)
 
@@ -199,7 +199,7 @@
   )
 
   
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg ;usar no is-WF
   #:mode (lookup I I O)
   #:contract (lookup G x R)
   
