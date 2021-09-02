@@ -19,26 +19,6 @@
 ;lembrar dos testes que deram errado
 
 
-
-
-#;(define (verf-seq exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
-  
-    ;(print (judgment-holds (⇀ ∅ ,exp D) D))
-    (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
-        #f
-        #t
-        )
-    )
-
-(define (verf-rep exp) ;VERIFICAR OQ CONSOME NO REP
-  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
-  (define result (judgment-holds (⇀ ∅ ,exp D) D))
-  (if (eq? result '(⊥)) 
-      #f
-      #t
-      )
-  )
-
 (define (verf-judg exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
   
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
@@ -66,14 +46,11 @@
       
   )
 
-(define (is-WF grammar e);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
-  
-  ;(define grammar (list-ref (car e) 0))
-  ;exp -> list
-  
+(define (is-WF grammar e) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
   
   (define exp (get-exp e))
   (define id (car exp))
+  
   (print exp)
   (display " - ")
 
@@ -87,8 +64,7 @@
                                                            (or (verf-judg   (list-ref exp 1)) (is-WF grammar (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
             [(eq? id (term *))                        (and (is-WF grammar (list (list (list-ref exp 1))))
                                                            (verf-judg exp))]
-            
-            ;nao terminal colocar o judgment no lookup    
+              
             [else "Deu errado"]
             )
 
@@ -96,11 +72,10 @@
   ;(is-WF (judgment-holds (lookup ,(car (car e)) ,exp R) R));ta dando errado
   )
   
-
+;FUNÇÃO QUE INICIA TUDO - define a gramática e verifica por ela
 (define (inicio e)
   (define grammar (car (car e)))
   (define exp (list-ref (car e) 1))
-  (define id (car exp))
   
   (print grammar)
   (display " - ")
@@ -111,21 +86,31 @@
 
   )
 
-#;(define-metafunction Reduct
-    [(consome? e_1 e_1)     (judgment-holds (⇀ ∅ exp D) D)]
-    [(consome? e_1 e_2)     #t]
-
-    )
 ;testar mais
+(display "\nTerminal\n")
 (inicio (list '(∅ (1))))
+
+(display "\nEmpty\n")
 (inicio (list '(∅ (ε))))
+
+(display "\nNot\n")
 (inicio (list '(∅ (! (1)))))
+(inicio (list '(∅ (! (/ 1 2)))))
+
+(display "\nAlternancia\n")
 (inicio (list '(∅ (/ 1 2))))
 (inicio (list '(∅ (/ (/ 1 2) 2))))
-(inicio (list '(∅ (! (/ 1 2)))))
-(inicio (list '(∅ (• 1 2)))) 
+
+(display "\nSequência\n")
+(inicio (list '(∅ (• 1 2))))
+
+(display "\nRepetição\n")
 (inicio (list '(∅ (* ε))))    
 (inicio (list '(∅ (* (! 0)))))
 
+(display "\nNão Terminal\n")
 (inicio (list '((A 2 ∅) (A))))
 (inicio (list '((A 2 ∅) (C))))
+(inicio (list '((B 1 (A B ∅)) (B))))
+(inicio (list '((B 1 (A B ∅)) (C))))
+(inicio (list '((A (• 1 A) ∅) (A))))
