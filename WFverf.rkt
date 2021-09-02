@@ -40,7 +40,7 @@
 
 (define (get-exp e)
 
-  (if (eq? (list-ref (car e) 0) (term ∅))
+  (if (eq? (list-ref e 0) (term ∅))
       (list-ref (car e) 1)
       (car e))
       
@@ -59,13 +59,13 @@
       (cond [(number? id)                             #t]
             [(eq? id (term ε))                        #t]
             [(eq? id (term !))                        (is-WF grammar (list (list-ref exp 1)))]
-            [(eq? id (term /))                        (and (is-WF grammar (list (list (list-ref exp 1)))) (is-WF grammar (list (list (list-ref exp 2)))))] 
+            [(eq? id (term /))                        (and (is-WF grammar (list-ref exp 1)) (is-WF grammar (list-ref exp 2)))] 
             [(eq? id (term •))                        (and (is-WF grammar (list (list (list-ref exp 1))))
                                                            (or (verf-judg   (list-ref exp 1)) (is-WF grammar (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
             [(eq? id (term *))                        (and (is-WF grammar (list (list (list-ref exp 1))))
                                                            (verf-judg exp))]
               
-            [else "Deu errado"]
+            [else #f]
             )
 
       "null")
