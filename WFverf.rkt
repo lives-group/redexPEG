@@ -51,18 +51,21 @@
         "null")
     )
 
-(define (get-exp e)
 
-  (if (eq? (list-ref (car e) 0) (term ∅))
-      (list-ref (car e) 1)
-      (car e))
-      
-  )
 
 #;(define (verf-seq exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
   
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
   (if (eq? (judgment-holds (⇀ ∅ ,exp D) D) (list '(1 ⊥)))
+      #f
+      #t
+      )
+  )
+
+(define (verf-rep exp) ;VERIFICAR OQ CONSOME NO REP
+  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
+  (define result (judgment-holds (⇀ ∅ ,exp D) D))
+  (if (eq? result '(⊥)) 
       #f
       #t
       )
@@ -78,25 +81,28 @@
   )
 
 
+(define (get-exp e)
 
-(define (verf-rep exp) ;VERIFICAR OQ CONSOME NO REP
-  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
-  (define result (judgment-holds (⇀ ∅ ,exp D) D))
-  (if (eq? result '(⊥)) 
-      #f
-      #t
-      )
+  (if (eq? (list-ref (car e) 0) (term ∅))
+      (list-ref (car e) 1)
+      (car e))
+      
   )
 
 (define (is-WF e);vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
   
+  (define grammar (list-ref (car e) 0))
   ;exp -> list
   (define exp (get-exp e))
   (define id (car exp))
   
   (print exp)
   (display " - ")
-  
+
+  (if (eq? grammar (term ∅))
+      "blub"
+      
+      )
   (if (not (null? exp))
       (cond [(number? id)                             #t]
             [(eq? id (term ε))                        #t]
