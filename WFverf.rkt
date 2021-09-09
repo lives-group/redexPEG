@@ -31,11 +31,11 @@
 (define (verf-judg-nt grammar exp) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
 
   (define result (judgment-holds (lookup ,grammar ,exp R) R))
-  (display "aqui oh " )
-  (print result)
+  
+  ;(print result)
   (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R))
       #f
-      #t
+      (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
       )
   )
 
@@ -55,18 +55,24 @@
       (let ((id (car e)))
         (cond [(eq? id '/)  (and (is-WF grammar (cadr e)) (is-WF grammar (caddr e)))]
               [(eq? id '•)  (and (is-WF grammar (cadr e))
-                                 (or (verf-judg   (cadr e))
+                                 (or (if (eq? grammar '∅)
+                                         (verf-judg   (cadr e))
+                                         (verf-judg (verf-judg-nt grammar (cadr e))))
                                      (is-WF grammar (caddr e))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) ]
               [(eq? id '!)  (is-WF grammar (cadr e))]
               [(eq? id '*)  (and (is-WF grammar (cadr e))
-                                 (verf-judg (cadr e)))]
-              [else (display "Deu ruim") #f]
+                                 (if (eq? grammar '∅) ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
+                                                       ;pra ele n usar o não terminal puro.
+                                     (verf-judg (cadr e))
+                                     (verf-judg (verf-judg-nt grammar (cadr e)))))]
+              [else (display "Deu ruim com lista") #f]
               )
 
         )
       (cond [(number? e) #t]
             [(eq? e 'ε)  #t]
-            [else (verf-judg-nt grammar e)]
+            [(not (eq? grammar '∅)) (is-WF grammar (verf-judg-nt grammar e))]
+            [else (display "Deu ruim sem lista") #f]
             )
       )
   #|
@@ -112,16 +118,30 @@
   )
 
 ;testar mais
+
+(display "\nAlternancia\n")
 (is-WF '∅ '(/ 1 2))
 (is-WF '∅ '(/ (/ (/ 1 2) 1) 2))
 (is-WF '∅ '(/ (/ (/ 1 2) 1) (/ 1 2)))
+
+(display "\nSequência\n")
 (is-WF '∅ '(• 1 2))
+
+(display "\nNot\n")
 (is-WF '∅ '(! (• 1 2)))
+
+(display "\nRepetição\n")
 (is-WF '∅ '(* (• 1 2)))
 (is-WF '∅ '(* ε))
+
+(display "\nNão Terminal\n")
+
+(is-WF '(B ε ∅) 'B)
 (is-WF '(B ε (A B ∅)) '(* B))
 (is-WF '(B 1 (A B ∅)) '(/ B A))
 (is-WF '(B 1 (A B ∅)) '(/ A B))
+(is-WF '(B 1 (A ε ∅)) '(/ (* A) B))
+
 #|
 (display "\nTerminal\n")
 (inicio (list '(∅ (1))))
