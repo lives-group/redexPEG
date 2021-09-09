@@ -19,10 +19,10 @@
 ;lembrar dos testes que deram errado
 
 
-(define (verf-judg exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA
+(define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
-  (if (member 0 (judgment-holds (⇀ ∅ ,exp D) D))
+  (if (member 0 (judgment-holds (⇀ ,grammar ,exp D) D))
       #f
       #t
       )
@@ -33,7 +33,7 @@
   (define result (judgment-holds (lookup ,grammar ,exp R) R))
   
   ;(print result)
-  (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R))
+  (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
       #f
       (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
       )
@@ -56,50 +56,26 @@
         (cond [(eq? id '/)  (and (is-WF grammar (cadr e)) (is-WF grammar (caddr e)))]
               [(eq? id '•)  (and (is-WF grammar (cadr e))
                                  (or (if (eq? grammar '∅)
-                                         (verf-judg   (cadr e))
-                                         (verf-judg (verf-judg-nt grammar (cadr e))))
+                                         (zero⇀? grammar (cadr e))
+                                         (zero⇀? grammar (verf-judg-nt grammar (cadr e))))
                                      (is-WF grammar (caddr e))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) ]
               [(eq? id '!)  (is-WF grammar (cadr e))]
               [(eq? id '*)  (and (is-WF grammar (cadr e))
                                  (if (eq? grammar '∅) ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
-                                                       ;pra ele n usar o não terminal puro.
-                                     (verf-judg (cadr e))
-                                     (verf-judg (verf-judg-nt grammar (cadr e)))))]
-              [else (display "Deu ruim com lista") #f]
+                                     ;pra ele n usar o não terminal puro.
+                                     (zero⇀? grammar (cadr e))
+                                     (zero⇀? grammar (verf-judg-nt grammar (cadr e)))))]; passar a grammar no verf-judg para nao precisar de verf a gramatica
+              [else (display "Deu ruim com lista") #f] 
               )
 
         )
       (cond [(number? e) #t]
             [(eq? e 'ε)  #t]
-            [(not (eq? grammar '∅)) (is-WF grammar (verf-judg-nt grammar e))]
+            [(not (eq? grammar '∅)) (and (zero⇀? grammar e) (is-WF grammar (verf-judg-nt grammar e)))]
             [else (display "Deu ruim sem lista") #f]
             )
       )
-  #|
-  #;(define exp (get-exp e))
-  #;(define id (car e))
-  
-  (print exp)
-  (display " - ")
-
-  ;(if (eq? '∅ grammar);verifica se é empty o G 
-  (if (not (null? exp))
-      (cond [(number? id)                             #t]
-            [(eq? id (term ε))                        #t]
-            [(eq? id (term !))                        (is-WF grammar (list (list-ref exp 1)))]
-            [(eq? id '/)                        (and (is-WF grammar (list (list (list-ref exp 1)))) (is-WF grammar (list (list (list-ref exp 2)))))] 
-            [(eq? id (term •))                        (and (is-WF grammar (list (list (list-ref exp 1))))
-                                                           (or (verf-judg   (list-ref exp 1)) (is-WF grammar (list (list (list-ref exp 2))))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) 
-            [(eq? id (term *))                        (and (is-WF grammar (list (list (list-ref exp 1))))
-                                                           (verf-judg exp))]
-              
-            [else (display "Deu ruim\n") #f];Non terminal
-            )
-
-      "null")
-  ;(is-WF (judgment-holds (lookup ,(car (car e)) ,exp R) R));ta dando errado
-  )
-  |#
+ 
   )
 ;FUNÇÃO QUE INICIA TUDO - define a gramática e verifica por ela
 (define (inicio e)
@@ -118,6 +94,7 @@
   )
 
 ;testar mais
+;concertar o tchutchu tilt
 
 (display "\nAlternancia\n")
 (is-WF '∅ '(/ 1 2))
@@ -141,7 +118,11 @@
 (is-WF '(B 1 (A B ∅)) '(/ B A))
 (is-WF '(B 1 (A B ∅)) '(/ A B))
 (is-WF '(B 1 (A ε ∅)) '(/ (* A) B))
+;(is-WF '(A (• A 1) ∅) 'A) ;CUIDADO!
 
+
+(display "\n Testes \n")
+(is-WF '∅ '(• 0 (* (/ (! 1) 2))))
 #|
 (display "\nTerminal\n")
 (inicio (list '(∅ (1))))
