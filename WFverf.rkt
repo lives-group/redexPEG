@@ -61,8 +61,8 @@
                                      (is-WF grammar (caddr e))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) ]
               [(eq? id '!)  (is-WF grammar (cadr e))]
               [(eq? id '*)  (and (is-WF grammar (cadr e))
-                                 (if (eq? grammar '∅) ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
-                                     ;pra ele n usar o não terminal puro.
+                                 (if (eq? grammar '∅)                 ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
+                                                                      ;pra ele n usar o não terminal puro.
                                      (zero⇀? grammar (cadr e))
                                      (zero⇀? grammar (verf-judg-nt grammar (cadr e)))))]; passar a grammar no verf-judg para nao precisar de verf a gramatica
               [else (display "Deu ruim com lista") #f] 
