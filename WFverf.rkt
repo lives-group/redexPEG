@@ -68,7 +68,7 @@
         )
       (cond [(number? e) #t]
             [(eq? e 'ε)  #t]
-            [(not (eq? grammar '∅)) (and (zero⇀? grammar e) (is-WF grammar (verf-judg-nt grammar e)))]
+            [(not (eq? grammar '∅)) (is-WF grammar (verf-judg-nt grammar e))] 
             [else (display "Deu ruim sem lista") #f]
             )
       )
@@ -110,7 +110,8 @@
 
 (display "\nNão Terminal\n")
 
-(is-WF '(B ε ∅) 'B)
+(is-WF '(B ε ∅) 'B) ;ta dando errado pq na linha 71 ta testando se consome 0, o empty consome 0 ai ta dando #f nao era pra dar
+(is-WF '(B 1 ∅) 'B)
 (is-WF '(B ε (A B ∅)) '(* B))
 (is-WF '(B 1 (A B ∅)) '(/ B A))
 (is-WF '(B 1 (A B ∅)) '(/ A B))
