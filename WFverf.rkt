@@ -22,21 +22,31 @@
 (define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))
+  
   (if (member 0 (judgment-holds (⇀ ,grammar ,exp D) D))
       #f
       #t
       )
   )
 
-(define (verf-judg-nt grammar exp) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
+(define (verf-judg-nt grammar exp non-terminal) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
 
   (define result (judgment-holds (lookup ,grammar ,exp R) R))
-  
-  ;(print result)
-  (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
-      #f
-      (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
-      )
+ 
+  (let (non-terminal (cons exp non-terminal)))
+  (print exp)
+  (print non-terminal)
+  (if (not (null? (cdr non-terminal)))
+      (if (check-duplicates non-terminal)
+          #f
+          (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
+              #f
+              (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
+              ))
+      (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
+          #f
+          (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
+          ))
   )
 
 #;(define (get-exp e)
@@ -47,18 +57,28 @@
       
     )
 
-(define (is-WF grammar e) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
+(define (verifica-list-nonterminal non-terminal)
+
+  (if (null? non-terminal)
+      #t
+      (let ((first (car non-terminal)))
+        (if (member first (cdr non-terminal))
+            #f
+            (verifica-list-nonterminal (car non-terminal)))
+        )))
+
+(define (is-WF grammar e non-terminal) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
 
   (print e)
   (display " - ")
   (if (list? e)
       (let ((id (car e)))
-        (cond [(eq? id '/)  (and (is-WF grammar (cadr e)) (is-WF grammar (caddr e)))]
-              [(eq? id '•)  (and (is-WF grammar (cadr e))
+        (cond [(eq? id '/)  (and (is-WF grammar (cadr e) non-terminal) (is-WF grammar (caddr e) non-terminal))]
+              [(eq? id '•)  (and (is-WF grammar (cadr e) non-terminal)
                                  (or (zero⇀? grammar (cadr e))
-                                     (is-WF grammar (caddr e))))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) ]
-              [(eq? id '!)  (is-WF grammar (cadr e))]
-              [(eq? id '*)  (and (is-WF grammar (cadr e))
+                                     (is-WF grammar (caddr e) non-terminal)))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) ]
+              [(eq? id '!)  (is-WF grammar (cadr e) non-terminal)]
+              [(eq? id '*)  (and (is-WF grammar (cadr e) non-terminal)
                                  ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
                                  ;pra ele n usar o não terminal puro.
                                  (zero⇀? grammar (cadr e)))]; passar a grammar no verf-judg para nao precisar de verf a gramatica
@@ -68,7 +88,8 @@
         )
       (cond [(number? e) #t]
             [(eq? e 'ε)  #t]
-            [(not (eq? grammar '∅)) (is-WF grammar (verf-judg-nt grammar e))] 
+            [(not (eq? grammar '∅)) (is-WF grammar (verf-judg-nt grammar e non-terminal) non-terminal)
+                                    ] 
             [else (display "Deu ruim sem lista") #f]
             )
       )
@@ -94,33 +115,33 @@
 ;concertar o tchutchu tilt
 
 (display "\nAlternancia\n")
-(is-WF '∅ '(/ 1 2))
-(is-WF '∅ '(/ (/ (/ 1 2) 1) 2))
-(is-WF '∅ '(/ (/ (/ 1 2) 1) (/ 1 2)))
+(is-WF '∅ '(/ 1 2) '())
+(is-WF '∅ '(/ (/ (/ 1 2) 1) 2) '())
+(is-WF '∅ '(/ (/ (/ 1 2) 1) (/ 1 2)) '())
 
 (display "\nSequência\n")
-(is-WF '∅ '(• 1 2))
+(is-WF '∅ '(• 1 2) '())
 
 (display "\nNot\n")
-(is-WF '∅ '(! (• 1 2)))
+(is-WF '∅ '(! (• 1 2)) '())
 
 (display "\nRepetição\n")
-(is-WF '∅ '(* (• 1 2)))
-(is-WF '∅ '(* ε))
+(is-WF '∅ '(* (• 1 2)) '())
+(is-WF '∅ '(* ε) '())
 
 (display "\nNão Terminal\n")
 
-(is-WF '(B ε ∅) 'B) ;ta dando errado pq na linha 71 ta testando se consome 0, o empty consome 0 ai ta dando #f nao era pra dar
-(is-WF '(B 1 ∅) 'B)
-(is-WF '(B ε (A B ∅)) '(* B))
-(is-WF '(B 1 (A B ∅)) '(/ B A))
-(is-WF '(B 1 (A B ∅)) '(/ A B))
-(is-WF '(B 1 (A ε ∅)) '(/ (* A) B))
-;(is-WF '(A (• A 1) ∅) 'A) ;CUIDADO!
+(is-WF '(B ε ∅) 'B '()) ;ta dando errado pq na linha 71 ta testando se consome 0, o empty consome 0 ai ta dando #f nao era pra dar
+(is-WF '(B 1 ∅) 'B '())
+(is-WF '(B ε (A B ∅)) '(* B) '())
+(is-WF '(B 1 (A B ∅)) '(/ B A) '())
+(is-WF '(B 1 (A B ∅)) '(/ A B) '())
+(is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
+;(is-WF '(A (• A 1) ∅) 'A '()) ;CUIDADO!
 
 
 (display "\n Testes \n")
-(is-WF '∅ '(• 0 (* (/ (! 1) 2))))
+(is-WF '∅ '(• 0 (* (/ (! 1) 2))) '())
 #|
 (display "\nTerminal\n")
 (inicio (list '(∅ (1))))
