@@ -29,23 +29,17 @@
       )
   )
 
+(define nt '())
 (define (verf-judg-nt grammar exp non-terminal) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
 
   (define result (judgment-holds (lookup ,grammar ,exp R) R))
-  (set! non-terminal (append non-terminal exp))
-
-  (if (not (null? (list non-terminal)))
-      (if (check-duplicates (list non-terminal))
-          #f
-          (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
-              #f
-              (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
-              ))
-      (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
-          #f
-          (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
-          ))
-  )
+  
+ 
+  (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
+      #f
+      (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
+      ))
+  
 
 #;(define (get-exp e)
 
@@ -55,15 +49,19 @@
       
     )
 
-(define (verifica-list-nonterminal non-terminal)
-
-  (if (null? non-terminal)
-      #t
-      (let ((first (car non-terminal)))
-        (if (member first (cdr non-terminal))
-            #f
-            (verifica-list-nonterminal (car non-terminal)))
-        )))
+(define (verifica-list-nonterminal grammar exp)
+  (define result (judgment-holds (lookup ,grammar ,exp R) R))
+  (if (or (number? result) (eq? 'ε result) (member '⊥ result))
+      nt
+      (set! nt (append nt (list exp))))
+  (display " - ")
+  (display nt)
+  (if (not (null? (list nt)))
+      (if (check-duplicates nt)
+          #f
+          #t)
+      #t)
+  )
 
 (define (is-WF grammar e non-terminal) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
 
@@ -86,7 +84,10 @@
         )
       (cond [(number? e) #t]
             [(eq? e 'ε)  #t]
-            [(not (eq? grammar '∅)) (is-WF grammar (verf-judg-nt grammar e non-terminal) non-terminal)
+            [(not (eq? grammar '∅)) (if (verifica-list-nonterminal grammar e)
+                                        (is-WF grammar (verf-judg-nt grammar e non-terminal) non-terminal)
+                                        #f)
+                                         
                                     ] 
             [else (display "Deu ruim sem lista") #f]
             )
@@ -130,13 +131,19 @@
 (display "\nNão Terminal\n")
 
 (is-WF '(B ε ∅) 'B '()) ;ta dando errado pq na linha 71 ta testando se consome 0, o empty consome 0 ai ta dando #f nao era pra dar
+(set! nt '())
 (is-WF '(B 1 ∅) 'B '())
+(set! nt '())
 (is-WF '(B ε (A B ∅)) '(* B) '())
+(set! nt '())
 (is-WF '(B 1 (A B ∅)) '(/ B A) '())
+(set! nt '())
 (is-WF '(B 1 (A B ∅)) '(/ A B) '())
+(set! nt '())
 (is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
+(set! nt '())
 ;(is-WF '(A (• A 1) ∅) 'A '()) ;CUIDADO!
-
+;(is-WF '(A B (B C (C A ∅))) 'A '())
 
 (display "\n Testes \n")
 (is-WF '∅ '(• 0 (* (/ (! 1) 2))) '())
