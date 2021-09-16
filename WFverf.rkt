@@ -3,7 +3,7 @@
 (require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
-
+(provide (all-defined-out))
 
 ;implementar o algoritmo do artigo do ford?
 ;usar o judgment wf para obter resultados imediatos
@@ -49,15 +49,15 @@
       
     )
 
-(define (verifica-list-nonterminal grammar exp)
+(define (verifica-list-nonterminal grammar exp non-terminal)
   (define result (judgment-holds (lookup ,grammar ,exp R) R))
-  (if (or (number? result) (eq? 'ε result) (member '⊥ result))
-      nt
-      (set! nt (append nt (list exp))))
+  #;(if (or (number? result) (eq? 'ε result) (member '⊥ result))
+        non-terminal
+        (set! non-terminal (append non-terminal (list exp))))
   (display " - ")
-  (display nt)
-  (if (not (null? (list nt)))
-      (if (check-duplicates nt)
+  (display non-terminal)
+  (if (not (null? (list non-terminal)))
+      (if (check-duplicates non-terminal)
           #f
           #t)
       #t)
@@ -84,11 +84,9 @@
         )
       (cond [(number? e) #t]
             [(eq? e 'ε)  #t]
-            [(not (eq? grammar '∅)) (if (verifica-list-nonterminal grammar e)
-                                        (is-WF grammar (verf-judg-nt grammar e non-terminal) non-terminal)
-                                        #f)
-                                         
-                                    ] 
+            [(not (eq? grammar '∅)) (if (verifica-list-nonterminal grammar e non-terminal)
+                                        (is-WF grammar (verf-judg-nt grammar e non-terminal) (cons e non-terminal)) 
+                                        #f)] 
             [else (display "Deu ruim sem lista") #f]
             )
       )
@@ -131,17 +129,17 @@
 (display "\nNão Terminal\n")
 
 (is-WF '(B ε ∅) 'B '()) ;ta dando errado pq na linha 71 ta testando se consome 0, o empty consome 0 ai ta dando #f nao era pra dar
-(set! nt '())
+
 (is-WF '(B 1 ∅) 'B '())
-(set! nt '())
+
 (is-WF '(B ε (A B ∅)) '(* B) '())
-(set! nt '())
+
 (is-WF '(B 1 (A B ∅)) '(/ B A) '())
-(set! nt '())
+
 (is-WF '(B 1 (A B ∅)) '(/ A B) '())
-(set! nt '())
+
 (is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
-(set! nt '())
+
 ;(is-WF '(A (• A 1) ∅) 'A '()) ;CUIDADO!
 ;(is-WF '(A B (B C (C A ∅))) 'A '())
 

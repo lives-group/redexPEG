@@ -3,6 +3,7 @@
 (require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
+(require "./WFverf.rkt")
 
 (display "Testes\n")
 
@@ -64,7 +65,7 @@
   )
 
 (redex-check Reduct       
-             #:satisfying (WF (input-grammar state) (input-peg state))             
+             #:satisfying (is-WF (input-grammar state) (input-peg state))             
              (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
                   (term ⊥))
              #:attempts 1000)

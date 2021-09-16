@@ -72,7 +72,7 @@
 (test-equal (judgment-holds (⇀ ∅ (! ε) D) D) (list (term ⊥)))
 (test-equal (judgment-holds (⇀ ∅ (* ε) D) D) (list (term 0)))
 (test-equal (judgment-holds (⇀ ∅ (/ 1 ε) D) D) (term (0 1)))
-(test-equal (judgment-holds (⇀ ∅ (• 1 (* ε)) D) D) (list (term ⊥)))
+(test-equal (judgment-holds (⇀ ∅ (• 1 (* ε)) D) D) (term (1 ⊥)))
 (test-results)
 
 ;Tests for Well-Formed
