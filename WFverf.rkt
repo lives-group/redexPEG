@@ -32,12 +32,10 @@
 (define (verf-judg-nt grammar exp non-terminal) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
 
   (define result (judgment-holds (lookup ,grammar ,exp R) R))
- 
-  (let (non-terminal (cons exp non-terminal)))
-  (print exp)
-  (print non-terminal)
-  (if (not (null? (cdr non-terminal)))
-      (if (check-duplicates non-terminal)
+  (define new-list (append non-terminal exp))
+  
+  (if (not (null? (list new-list)))
+      (if (check-duplicates (list new-list))
           #f
           (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
               #f
