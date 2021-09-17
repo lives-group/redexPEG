@@ -144,8 +144,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    ;Repetition
 
-   (--> (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) D (natural_4 ...))
-        (G ⊢ ((* h) C ...) e_1 ↓ (natural_1 natural_2 ...) (natural ...) D (0 natural_4 ...))
+   (--> (G ⊢ (C ...) (* e_1) ↓ s_1 s_2 D (natural_4 ...))
+        (G ⊢ ((* h) C ...) e_1 ↓ s_1 s_2 D (0 natural_4 ...))
         "Repetition-Entra")
    
    (--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (natural_4 ...))
@@ -157,8 +157,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (side-condition (term (not (diff-exp? e_1 natural_1))))
         "Repetition-SUC")
 
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) ⊥ (0 natural_4 ...))
-        (G ⊢ (C ...) (* e_1) ↑ (natural_1 natural_2 ...) (natural ...) suc (natural_4 ...))
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ s_1 s_2 ⊥ (0 natural_4 ...))
+        (G ⊢ (C ...) (* e_1) ↑ s_1 s_2 suc (natural_4 ...))
         "Repetition-BOT")
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) ⊥ (natural_4 natural_5 ...))
@@ -191,7 +191,6 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (side-condition (term (diff-exp? natural_3 0)))
         "Not-SUC-restore")
 
-   ;corrigir TUDO.
    
 
    ;Non-terminals

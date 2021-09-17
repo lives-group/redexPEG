@@ -64,10 +64,16 @@
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
-(redex-check Reduct       
+#;(redex-check Reduct       
              #:satisfying (is-WF (input-grammar state) (input-peg state))             
              (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
                   (term ⊥))
+             #:attempts 1000)
+
+(redex-check Reduct
+             #:satisfying (is-WF (input-grammar state) (input-peg state) '())             
+             (eq? (term (input-result (apply-reduction-relation red (term state))))
+                  (term (judgment-holds (eval (input-grammar state) ((input-peg state) (input-term state)) s) s)))
              #:attempts 1000)
 
 #;(redex-check Reduct

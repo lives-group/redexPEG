@@ -3,6 +3,7 @@
 (require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
+(require "./WFverf.rkt")
 
 (display "Testes\n")
 
@@ -63,13 +64,12 @@
   (= 1 (length (apply-reduction-relation red exp)))
   )
 
-<<<<<<< HEAD
 (redex-check Reduct       
-             #:satisfying (WF (input-grammar state) (input-peg state))             
+             #:satisfying (is-WF (input-grammar state) (input-peg state))             
              (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
                   (term ⊥))
              #:attempts 1000)
-=======
+
 #;(redex-check Reduct
              
                #:satisfying (WF (input-grammar state) (input-peg state))
@@ -80,7 +80,6 @@
                #:attempts 1000)
 ;nao usar o WF
 ;usar o eval e comparar com o da reduct
->>>>>>> f5f608da8f3ef61f7c740bb35c1f3afb1a8f2cb8
 
 (redex-check Reduct
              state
@@ -91,8 +90,4 @@
                #:satisfying (WF (input-grammar state) (input-peg state))
              
                #:attempts 10000)
-<<<<<<< HEAD
-=======
-
->>>>>>> f5f608da8f3ef61f7c740bb35c1f3afb1a8f2cb8
 
