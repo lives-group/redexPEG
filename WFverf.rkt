@@ -19,6 +19,16 @@
 ;lembrar dos testes que deram errado
 
 
+(define-judgment-form Peg
+  #:mode (WF? I I O)
+  #:contract (WF? G e boolean)
+
+  [(side-condition (is-WF G e '()))
+   -------------------------------
+   (WF? G e #t)]
+  )
+
+
 (define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
   ;(print (judgment-holds (⇀ ∅ ,exp D) D))

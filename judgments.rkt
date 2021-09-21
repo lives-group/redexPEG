@@ -2,6 +2,7 @@
 (require redex)
 (require "./peg.rkt")
 (require "./reduction.rkt")
+;(require "./WFverf.rkt")
 (provide (all-defined-out))
 
 
@@ -11,7 +12,6 @@
   [R e ⊥]
   [D S ⊥]
   [S 0 1])
-
 
 (define-judgment-form evalPeg
   #:mode (↛ I I O)
