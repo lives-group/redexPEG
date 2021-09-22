@@ -19,7 +19,7 @@
 ;lembrar dos testes que deram errado
 
 
-(define-judgment-form Peg
+#;(define-judgment-form Peg
   #:mode (WF? I I O)
   #:contract (WF? G e boolean)
 
@@ -27,7 +27,11 @@
    -------------------------------
    (WF? G e #t)]
   )
-
+(define-metafunction evalPeg
+   
+  [(WF? grammar e non-terminal) (is-WF grammar e non-terminal)]
+  
+  )
 
 (define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
@@ -64,8 +68,8 @@
   #;(if (or (number? result) (eq? 'ε result) (member '⊥ result))
         non-terminal
         (set! non-terminal (append non-terminal (list exp))))
-  (display " - ")
-  (display non-terminal)
+  ;(display " - ")
+  ;(display non-terminal)
   (if (not (null? (list non-terminal)))
       (if (check-duplicates non-terminal)
           #f
@@ -75,8 +79,8 @@
 
 (define (is-WF grammar e non-terminal) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
 
-  (print e)
-  (display " - ")
+  ;(print e)
+  ;(display " - ")
   (if (list? e)
       (let ((id (car e)))
         (cond [(eq? id '/)  (and (is-WF grammar (cadr e) non-terminal) (is-WF grammar (caddr e) non-terminal))]
@@ -88,7 +92,7 @@
                                  ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
                                  ;pra ele n usar o não terminal puro.
                                  (zero⇀? grammar (cadr e)))]; passar a grammar no verf-judg para nao precisar de verf a gramatica
-              [else (display "Deu ruim com lista") #f] 
+              [else  #f] 
               )
 
         )
@@ -97,7 +101,7 @@
             [(not (eq? grammar '∅)) (if (verifica-list-nonterminal grammar e non-terminal)
                                         (is-WF grammar (verf-judg-nt grammar e non-terminal) (cons e non-terminal)) 
                                         #f)] 
-            [else (display "Deu ruim sem lista") #f]
+            [else  #f]
             )
       )
  
@@ -138,7 +142,7 @@
 
 (display "\nNão Terminal\n")
 
-(is-WF '(B ε ∅) 'B '()) ;ta dando errado pq na linha 71 ta testando se consome 0, o empty consome 0 ai ta dando #f nao era pra dar
+(is-WF '(B ε ∅) 'B '()) 
 
 (is-WF '(B 1 ∅) 'B '())
 
@@ -150,8 +154,8 @@
 
 (is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
 
-;(is-WF '(A (• A 1) ∅) 'A '()) ;CUIDADO!
-;(is-WF '(A B (B C (C A ∅))) 'A '())
+(is-WF '(A (• A 1) ∅) 'A '()) 
+(is-WF '(A B (B C (C A ∅))) 'A '())
 
 (display "\n Testes \n")
 (is-WF '∅ '(• 0 (* (/ (! 1) 2))) '())
