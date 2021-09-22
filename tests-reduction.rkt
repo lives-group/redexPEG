@@ -69,12 +69,12 @@
                (not (eq? (term (input-result (apply-reduction-relation red (term state)))))
                     (term ⊥))
                #:attempts 1000)
-
+(display "\nRedex-Check WF?\n")
 (redex-check Reduct
-             #:satisfying (WF? (input-grammar G) (input-peg e))             
+             #:satisfying (WF? (input-grammar state) (input-peg state))             
              (eq? (term (input-result (apply-reduction-relation red (term state))))
                   (judgment-holds (eval (input-grammar state) ((input-peg state) (input-term state)) s) s))
-             #:attempts 1000)
+             #:attempts 100000)
 
 
 #;(redex-check Reduct
@@ -88,7 +88,7 @@
 ;nao usar o WF
 ;usar o eval e comparar com o da reduct
 
-(redex-check Reduct
+#;(redex-check Reduct
              state
              (reduction-right? (term state))
              #:attempts 1000)
