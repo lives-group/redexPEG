@@ -71,10 +71,11 @@
              #:attempts 1000)
 
 (redex-check Reduct
-             #:satisfying (diff? (input-grammar state) (input-peg state) )             
+             #:satisfying (WF? (input-grammar G) (input-peg e))             
              (eq? (term (input-result (apply-reduction-relation red (term state))))
                   (term (judgment-holds (eval (input-grammar state) ((input-peg state) (input-term state)) s) s)))
              #:attempts 1000)
+
 
 #;(redex-check Reduct
              

@@ -19,7 +19,7 @@
 ;lembrar dos testes que deram errado
 
 
-#;(define-judgment-form Peg
+(define-judgment-form Peg
   #:mode (WF? I I O)
   #:contract (WF? G e boolean)
 
@@ -27,7 +27,8 @@
    -------------------------------
    (WF? G e #t)]
   )
-(define-metafunction evalPeg
+
+#;(define-metafunction evalPeg
    
   [(WF? grammar e non-terminal) (is-WF grammar e non-terminal)]
   
