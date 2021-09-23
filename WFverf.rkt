@@ -26,6 +26,10 @@
   [(side-condition (is-WF G e '()))
    -------------------------------
    (WF? G e #t)]
+  
+  [(side-condition (eq? #f (is-WF G e '())))
+   -------------------------------
+   (WF? G e #f)]
   )
 
 #;(define-metafunction evalPeg

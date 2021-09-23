@@ -17,9 +17,9 @@
      suc)
   (nat 0
        (⊕ nat))
-  (dir ↑
-       ↓)
-  (state (G ⊢ (C ...) e dir s s D (natural ...))) 
+  (dir ↓
+       ↑)
+  (state (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) 
   ;(state (G ⊢ (C ...) e dir s s D (nat ...)))  
   ;s1 lista de marcas, pontos da entrada que a gnt marcou
   ;s2 oq a gnt viu da entrada (consumiu)
@@ -34,20 +34,20 @@
 ;quando aparecer um choice, colocar um 0 na frente
 ;quando sair do choice com sucesso, tira o topo da lista
 (define-metafunction Reduct
-  input-grammar : state -> G
-  [(input-grammar (G ⊢ (C ...) e dir s s D (natural ...))) G])
+  input-grammar : state -> G ;tipo
+  [(input-grammar (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) G])
 
 (define-metafunction Reduct
-  input-peg : state -> C
-  [(input-peg (G ⊢ (C ...) e dir s s D (natural ...))) e])
+  input-peg : state -> e
+  [(input-peg (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) e])
 
 (define-metafunction Reduct
   input-result : state -> D
-  [(input-result (G ⊢ (C ...) e dir s s D (natural ...))) D])
+  [(input-result (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) D])
 
 (define-metafunction Reduct
   input-term : state -> s
-  [(input-term (G ⊢ (C ...) e dir s s D (natural ...))) D])
+  [(input-term (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) s])
 
 (define red
   (reduction-relation 
@@ -237,7 +237,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
   )
 
 ;Terminal
-(stepper red (term (∅ ⊢ () 1 ↓ (1 2 3) () ⊥ (0))))
+;(stepper red (term (∅ ⊢ () 1 ↓ (1 2 3) () ⊥ (0))))
 ;(traces red (term (∅ ⊢ () 1 ↓ (2 3) () ⊥ (0))))
 
 ;Choice
@@ -263,7 +263,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term (∅ ⊢ () (• 1 (• 2 (/ (• 3 4) (• 3 5)))) ↓ (1 2 3 5) () ⊥ (0))))
 
 ;ALTERNANCIA COM SEQUENCIA
-(stepper red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
+;(stepper red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
 
 ;NON-TERMINAL
 ;(traces red (term ((A 2 ∅) ⊢ () A ↓ (2 3 4 5 6 7) () ⊥ (0))))
