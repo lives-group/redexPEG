@@ -42,8 +42,9 @@
   [(input-peg (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) e])
 
 (define-metafunction Reduct
-  input-result : state -> D
-  [(input-result (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) D])
+  input-result : state -> s
+  [(input-result (G ⊢ (C ...) e dir s_1 s_2 ⊥ (natural ...))) ⊥]
+  [(input-result (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) s_1])
 
 (define-metafunction Reduct
   input-term : state -> s

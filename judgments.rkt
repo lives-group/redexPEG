@@ -299,8 +299,8 @@
 
 
 (define-metafunction evalPeg
-  [(equal? x x) #t]
-  [(equal? x e) #f])
+  [(equals? x x) #t]
+  [(equals? x e) #f])
 
 (define-metafunction evalPeg
   [(diff? natural_1 natural_1) #f]

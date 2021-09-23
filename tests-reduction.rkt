@@ -70,13 +70,16 @@
                     (term ⊥))
                #:attempts 1000)
 
+
+;documentar tudo isso
+;fazer uma função que verifica se o termo tá com a setinha pra baixo e se atende nosso is-WF
 (display "\nRedex-Check WF?\n")
 (redex-check Reduct
              (G ⊢ (C ...) e ↓ (natural ...) () D (0))
-             ;#:satisfying (WF? (input-grammar state) (input-peg state))             
-             (test-equal (list (term (input-result ,(car (apply-reduction-relation red (term (G ⊢ (C ...) e ↓ (natural ...) () D (0))))))))
-                         (judgment-holds (eval G (e (natural ...)) s) s))
-             #:attempts 10)
+             #:satisfying (WF? (G e ))             
+             (equal? (term (input-result ,(car (apply-reduction-relation* red (term (G ⊢ (C ...) e ↓ (natural ...) () D (0)))))))
+                  (car (judgment-holds (eval G (e (natural ...)) s) s)))
+             #:attempts 100000)
 
 
 #;(redex-check Reduct
