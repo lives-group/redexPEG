@@ -321,4 +321,3 @@
 (define-metafunction evalPeg
   [(empty? ()) #f]
   [(empty? s)  #t])
-

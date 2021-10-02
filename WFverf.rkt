@@ -20,16 +20,13 @@
 
 
 (define-judgment-form Peg
-  #:mode (WF? I I O)
-  #:contract (WF? G e boolean)
+  #:mode (WF? I O)
+  #:contract (WF? state boolean)
 
-  [(side-condition (is-WF G e '()))
+  [(side-condition (is-WF (input-grammar state) (input-peg state) '()))
    -------------------------------
-   (WF? G e #t)]
+   (WF? state #t)]
   
-  [(side-condition (eq? #f (is-WF G e '())))
-   -------------------------------
-   (WF? G e #f)]
   )
 
 #;(define-metafunction evalPeg

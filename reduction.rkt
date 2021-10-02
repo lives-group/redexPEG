@@ -48,7 +48,7 @@
 
 (define-metafunction Reduct
   input-term : state -> s
-  [(input-term (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) s])
+  [(input-term (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) s_1])
 
 (define red
   (reduction-relation 

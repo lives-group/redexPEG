@@ -20,12 +20,13 @@
 
 
 (define-judgment-form Peg
-  #:mode (WF? I I O)
-  #:contract (WF? G e boolean)
+  #:mode (WF? I O)
+  #:contract (WF? (G ⊢ (C ...) e ↓ (natural ...) () D (0)) boolean)
 
   [(side-condition (is-WF G e '()))
    -------------------------------
-   (WF? G e #t)]
+   (WF? (G ⊢ (C ...) e ↓ (natural ...) () D (0)) #t)]
+  
   )
 
 #;(define-metafunction evalPeg
