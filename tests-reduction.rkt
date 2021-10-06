@@ -72,6 +72,8 @@
 
 
 ;documentar tudo isso
+;fazer uma metafunction para mascarar o gerador, metafunction receber o parametro do gerador, para o gerador pegar uma peg valida(WF
+;satisfying de uma metafunction
 ;fazer uma função que verifica se o termo tá com a setinha pra baixo e se atende nosso is-WF
 (display "\nRedex-Check WF?\n")
 (redex-check Reduct
