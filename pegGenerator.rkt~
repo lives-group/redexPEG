@@ -45,8 +45,9 @@
   (if (and  (not (null? e)) (member (car e) Σ) (not (member (car e) rep)) )
       (genGrammar Σ p n L (cdr e) (list rep (car e)) (cons grammar (cons (car e) (sample (genPeg Σ (car (sample (gen:one-of '(0 1 2)) 1)) n L) 1))))
       (if (null? (cdr e))
-          "null";;retorna null pq cdr do e fica '()
-          (genGrammar Σ p n L (cdr e) rep grammar))      )
+          "null"
+          (genGrammar Σ p n L (cdr e) rep grammar))
+      )
       
   )
 
@@ -70,9 +71,7 @@
 ;cont -> deve ser 1
 
 ;(sample (gen:one-of '(a b c)) 10)
-(sample (genPeg '(a b c) 1 0 '()) 1)
-(cdr (sample (genPeg '(a b c) 1 0 '()) 1))
-(genGrammar '(a b c) 1 0 '() (sample (genPeg '(a b c) 1 0 '()) 1) '() '())
+
 (genState '(a b c) 1 0 '() 1)
 (genState '(a b c) 1 0 '() 1)
 (genState '(a b c) 2 0 '() 1)
