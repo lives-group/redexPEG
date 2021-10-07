@@ -64,7 +64,10 @@
 
   (list grammar  '⊢ '() peg '↓ entrada '() '⊥ '(0))
   )
-  
+;n -> numero de nao terminal
+;L -> lista
+;P -> profundidade lista
+;Σ -> lista de elementos de um alfabeto
 
 ;(sample (gen:one-of '(a b c)) 10)
 
