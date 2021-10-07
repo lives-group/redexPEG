@@ -66,10 +66,15 @@
   )
 ;n -> numero de nao terminal
 ;L -> lista
-;P -> profundidade lista
+;p -> profundidade lista
 ;Σ -> lista de elementos de um alfabeto
+;cont -> deve ser 1
 
 ;(sample (gen:one-of '(a b c)) 10)
 
 (genState '(a b c) 1 0 '() 1)
-(genState '(a b c) 1 0 '() 2)
+(genState '(a b c) 1 0 '() 1)
+(genState '(a b c) 2 0 '() 1)
+(genState '(a b c) 3 0 '() 1)
+
+
