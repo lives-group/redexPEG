@@ -44,14 +44,16 @@
 ;definir quantos nao terminais
 ;pra cada n terminal damos o genPeg
 ; e -> peg correspondente pra pegar os NT e achar a gramática
-;receber a lista de gramática
+;receber a lista de gramática - L
 ;usar o map pra gerar uma peg pra cada nt
 ;é pra gerar bem formada já
 ;usa o is-WF ??
 
 ;gerar uma expressão pro nt: verifica se a exp é bem formada (se caso a exp tiver um nt tbm, verifica se o não terminal ja existe.....)
 
-(define (genGrammar Σ p n L e rep grammar)
+
+(define (genGramar Σ p n L e rep grammar)
+  
   (if (and  (not (empty? e)) (member (car (list e)) n) )
       (genGrammar Σ p n L (rest (list e)) (list rep (car (list e))) (cons grammar (cons (car (list e))
                                                                          (sample (genPeg Σ (car (sample (gen:one-of '(0 1 2)) 1)) n L) 1))))
@@ -61,6 +63,13 @@
       
   )
 
+(define (genGrammar Σ p n L e rep grammar)
+  
+  (map (lambda (i)
+         (cons i (sample (genPeg Σ p n L) 1)))
+         n)
+      
+  )
 
 
 ;n -> numero de NT
@@ -79,10 +88,10 @@
 (define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
   (define grammar '∅)
-  (genGrammar Σ p n L (car peg) '() grammar)
+  (define grammar2 (genGrammar Σ p n L (car peg) '() grammar))
   (define entrada (sample (gen:one-of '(0 1 2 3)) cont))
 
-  (list grammar  '⊢ '() (car peg) '↓ entrada '() '⊥ '(0))
+  (list (cons grammar2 grammar)  '⊢ '() (car peg) '↓ entrada '() '⊥ '(0))
   )
 ;n -> numero de nao terminal
 ;L -> lista
