@@ -87,11 +87,11 @@
 
 (define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
-  (define grammar '∅)
-  (define grammar2 (genGrammar Σ p n L (car peg) '() grammar))
+  (define empty-grammar '(∅))
+  (define grammar (genGrammar Σ p n L (car peg) '() empty-grammar))
   (define entrada (sample (gen:one-of '(0 1 2 3)) cont))
 
-  (list (cons grammar2 grammar)  '⊢ '() (car peg) '↓ entrada '() '⊥ '(0))
+  (list (cons grammar empty-grammar)  '⊢ '() (car peg) '↓ entrada '() '⊥ '(0))
   )
 ;n -> numero de nao terminal
 ;L -> lista
