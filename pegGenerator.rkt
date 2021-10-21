@@ -26,21 +26,30 @@
 
 (define myGen (make-pseudo-random-generator))
 
-(define (genPeg Σ p n L)
+
+;nullable: anulavel ou nao (consome ou nao) proibe de gerar algo nulavel? 
+;L: lista de nao terminais
+(define (genPeg Σ p L nullable)
   (if (equal? p 0)
-      (gen:choice (gen:one-of Σ) (gen:const 'ε))
-      (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) n L)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) n L) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) )
-                  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) n L)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) n L) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                  (gen:bind (genPeg Σ (- p 1) n L)
+      (if nullable
+          (gen:choice (gen:one-of Σ) (gen:const 'ε))
+          (gen:one-of Σ))
+      (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) )
+                  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
+                  (gen:bind (genPeg Σ (- p 1) L nullable)
                             (lambda (t) (gen:const `(! ,t)) ))
-                  (gen:bind (genPeg Σ (- p 1) n L)
+                  (gen:bind (genPeg Σ (- p 1) L #f)
                             (lambda (t) (gen:const `(* ,t)) ))
-                  (gen:one-of n)
+                  (gen:one-of L)
                   )
       )  
   )
+
+
+;gerar o par do parsing com o tipo ??
+;lista de pares (nt, (nullable, prefixo de variaveis))
 
 ;definir quantos nao terminais
 ;pra cada n terminal damos o genPeg
@@ -64,7 +73,7 @@
       
     )
 
-(define (genGramar Σ p n L e rep grammar)
+#;(define (genGramar Σ p n L e rep grammar)
   
   (map (lambda (i)
          (list* i (sample (genPeg Σ p n L) 1))) ;;ta gerando gramatica errada, "fechando os termos"

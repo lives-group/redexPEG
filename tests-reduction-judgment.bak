@@ -13,18 +13,16 @@
 
   )
 
-(define (WF l)
-  (cond [(eq? (list-ref (car l) 3) (list '(• 1 2))) (display "uhuul")]
-        [else (print (list-ref (car l) 3))])
-  )
-
-
-
 
 (display "\nTerminal\n")
 (test-equal
  (judgment-holds (eval ∅ (1 (1 1 1)) s) s)
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () 1 ↓ (1 1 1) () ⊥ (0)))))
+ )
+
+(test-equal
+ (judgment-holds (eval ∅ (1 (1 1 1)) s) s)
+ (get-result (apply-reduction-relation* red (genState '(0 1 2) 1 (genSymbols 3) '() 1)))
  )
 
 (test-equal
@@ -121,7 +119,7 @@
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ (2) () ⊥ (0)))))
  )
 
-(test-equal
+(test-equal ;;lembrar desse
  (judgment-holds (eval ∅ ((* 1) ()) s) s) 
  (get-result (apply-reduction-relation* red (term (∅ ⊢ () (* 1) ↓ () () ⊥ (0)))))
  )
