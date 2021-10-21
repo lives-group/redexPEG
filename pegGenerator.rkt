@@ -56,7 +56,7 @@
   
   (if (and  (not (empty? e)) (member (car (list e)) n) )
       (genGrammar Σ p n L (rest (list e)) (list rep (car (list e))) (cons grammar (cons (car (list e))
-                                                                         (sample (genPeg Σ (car (sample (gen:one-of '(0 1 2)) 1)) n L) 1))))
+                                                                                        (sample (genPeg Σ (car (sample (gen:one-of '(0 1 2)) 1)) n L) 1))))
       (if (empty? e)
           "null";;retorna null pq cdr do e fica '()
           (genGrammar Σ p n L (rest e) rep grammar))      )
@@ -66,8 +66,8 @@
 (define (genGrammar Σ p n L e rep grammar)
   
   (map (lambda (i)
-         (cons i (sample (genPeg Σ p n L) 1)))
-         n)
+         (cons i (sample (genPeg Σ p n L) 1))) ;;ta gerando gramatica errada, "fechando os termos"
+       n)
       
   )
 

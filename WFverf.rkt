@@ -108,21 +108,22 @@
       )
  
   )
-;FUNÇÃO QUE INICIA TUDO - define a gramática e verifica por ela
+;FUNÇÃO QUE INICIA TUDO
 (define (inicio e)
-  (define grammar (car (car e)))
-  (define exp (list-ref (car e) 1))
-  ;(define exp (get-exp e))
-  
-  (print grammar)
-  ;(print e)
-  (display " - ")
-
-  (if (eq? (term ∅) grammar)
-      (is-WF grammar e)
-      (verf-judg-nt grammar (car exp)))
+  (is-WF (getGrammar e) (getExp e) '())
 
   )
+
+(define (getGrammar expL)
+  (car expL)
+  (display (car expL))
+)
+
+(define (getExp expL) 
+  (list-ref (cdr expL) 2)
+  (display "\n")
+(display (list-ref (cdr expL) 2))
+)
 
 ;testar mais
 ;concertar o tchutchu tilt
