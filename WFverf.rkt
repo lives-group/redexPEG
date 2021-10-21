@@ -109,8 +109,8 @@
  
   )
 ;FUNÇÃO QUE INICIA TUDO
-(define (inicio e)
-  (is-WF (getGrammar e) (getExp e) '())
+(define (test-WF e)
+  (is-WF (car e) (list-ref (cdr e) 2) '())
 
   )
 

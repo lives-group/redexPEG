@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./WFverf.rkt")
 (define +Gen (make-pseudo-random-generator))
 (require rackcheck)
 
@@ -52,22 +53,29 @@
 ;gerar uma expressão pro nt: verifica se a exp é bem formada (se caso a exp tiver um nt tbm, verifica se o não terminal ja existe.....)
 
 
+#;(define (genGramar Σ p n L e rep grammar)
+  
+    (if (and  (not (empty? e)) (member (car (list e)) n) )
+        (genGrammar Σ p n L (rest (list e)) (list rep (car (list e))) (cons grammar (cons (car (list e))
+                                                                                          (sample (genPeg Σ (car (sample (gen:one-of '(0 1 2)) 1)) n L) 1))))
+        (if (empty? e)
+            "null";;retorna null pq cdr do e fica '()
+            (genGrammar Σ p n L (rest e) rep grammar))      )
+      
+    )
+
 (define (genGramar Σ p n L e rep grammar)
   
-  (if (and  (not (empty? e)) (member (car (list e)) n) )
-      (genGrammar Σ p n L (rest (list e)) (list rep (car (list e))) (cons grammar (cons (car (list e))
-                                                                                        (sample (genPeg Σ (car (sample (gen:one-of '(0 1 2)) 1)) n L) 1))))
-      (if (empty? e)
-          "null";;retorna null pq cdr do e fica '()
-          (genGrammar Σ p n L (rest e) rep grammar))      )
+  (map (lambda (i)
+         (list* i (sample (genPeg Σ p n L) 1))) ;;ta gerando gramatica errada, "fechando os termos"
+       n)
       
   )
 
 (define (genGrammar Σ p n L e rep grammar)
-  
-  (map (lambda (i)
-         (cons i (sample (genPeg Σ p n L) 1))) ;;ta gerando gramatica errada, "fechando os termos"
-       n)
+  (if (equal? (length n) 1)
+      (list (car n) (car (sample (genPeg Σ p n L) 1)) '∅)
+      (list (car n) (car (sample (genPeg Σ p n L) 1)) (genGrammar Σ p (cdr n) L e rep grammar)))
       
   )
 
@@ -88,11 +96,15 @@
 (define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
   (define empty-grammar '(∅))
-  (define grammar (genGrammar Σ p n L (car peg) '() empty-grammar))
+  (define grammar (genGrammar Σ p n L (car peg) '() '()))
   (define entrada (sample (gen:one-of '(0 1 2 3)) cont))
 
-  (list (cons grammar empty-grammar)  '⊢ '() (car peg) '↓ entrada '() '⊥ '(0))
+  (if (test-WF (list grammar '⊢ '() (car peg) '↓ entrada '() '⊥ '(0)))
+      (list grammar '⊢ '() (car peg) '↓ entrada '() '⊥ '(0))
+      (genState Σ p n L cont))
   )
+
+
 ;n -> numero de nao terminal
 ;L -> lista
 ;p -> profundidade lista
@@ -109,6 +121,7 @@
 
 (display "\nGera Estado\n")
 (genState '(0 1 2) 1 (genSymbols 3) '() 1)
+(test-WF (genState '(0 1 2) 1 (genSymbols 3) '() 1))
 (genState '(0 1 2) 1 (genSymbols 3) '() 1)
 (genState '(0 1 2) 2 (genSymbols 3) '() 1)
 (genState '(0 1 2) 3 (genSymbols 3) '() 1)
