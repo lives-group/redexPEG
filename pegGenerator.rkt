@@ -35,7 +35,7 @@
           (gen:choice (gen:one-of Σ) (gen:const 'ε))
           (gen:one-of Σ))
       (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) )
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
                   (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
                             (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
                   (gen:bind (genPeg Σ (- p 1) L nullable)
