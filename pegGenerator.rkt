@@ -30,40 +30,92 @@
 ;nullable: anulavel ou nao (consome ou nao) proibe de gerar algo nulavel? 
 ;L: lista de nao terminais
 (define (genPeg Σ p L nullable)
-    (if (equal? p 0)
-        (if nullable
-            (gen:choice (gen:one-of Σ) (gen:const 'ε))
-            (gen:one-of Σ))
-        (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                              (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
-                    (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                              (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                    (gen:bind (genPeg Σ (- p 1) L nullable)
-                              (lambda (t) (gen:const `(! ,t)) ))
-                    (gen:bind (genPeg Σ (- p 1) L #f)
-                              (lambda (t) (gen:const `(* ,t)) ))
-                    (gen:one-of L)
-                    )
-        )  
-    )
-
-#;(define (genPeg Σ p L nullable)
   (if (equal? p 0)
       (if nullable
-          (list (gen:choice (gen:one-of Σ) (gen:const 'ε)) nullable '∅)
-          (list (gen:one-of Σ) #f '∅))
-      (list (gen:choice (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
-                                  (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable)) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) ) ;;colocar condiçao aqui?
-                        (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
-                                  (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                        (gen:bind (car (genPeg Σ (- p 1) L nullable))
-                                  (lambda (t) (gen:const `(! ,t)) ))
-                        (gen:bind (car (genPeg Σ (- p 1) L #f))
-                                  (lambda (t) (gen:const `(* ,t)) ))
-                        (gen:one-of L) 
-                        )  nullable '∅)
+          (gen:choice (gen:one-of Σ) (gen:const 'ε))
+          (gen:one-of Σ))
+      (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
+                  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
+                  (gen:bind (genPeg Σ (- p 1) L nullable)
+                            (lambda (t) (gen:const `(! ,t)) ))
+                  (gen:bind (genPeg Σ (- p 1) L #f)
+                            (lambda (t) (gen:const `(* ,t)) ))
+                  (gen:one-of L)
+                  )
       )  
   )
+
+;retornar uma lista
+;E0: lista de termos: (expressão, nullable, headset)
+;p: profundidade
+(define (genInitAllPeg Σ V)
+  (append (list (list 'ε #t null))
+          (map (lambda (t) (list t #f null)) Σ)
+          (map (lambda (v) (list v (car (sample (gen:one-of '(#f #t)) 1)) (list v))) V))
+  )
+
+(define (genPegWF E0 p)
+  (if (equal? p 0)
+      (gen:one-of E0)
+      (gen:choice (gen:bind (genPegWF E0 (- p 1))
+                            (lambda (e1) (gen:bind (genPegWF E0 (- p 1))
+                                                   (lambda (e2) (gen:const (mkSeq e1 e2)))))
+                            )
+                  (gen:bind (genPegWF E0 (- p 1))
+                            (lambda (e1) (gen:bind (genPegWF E0 (- p 1))
+                                                   (lambda (e2) (gen:const (mkAlt e1 e2)))))
+                            )
+                  (gen:bind (gen:filter (genPegWF E0 (- p 1))
+                                        (lambda (t) (not (cadr t))))
+                            (lambda (e) (gen:const (mkRep e)))
+                                                   )
+                            )
+      )
+  )
+
+(define (genPegExpr Σ V p)
+  (define e0 (genInitAllPeg Σ V))
+  (display e0)
+  (display "\n")
+  (sample (genPegWF e0 p) 10)
+  )
+
+(define (mkSeq e1 e2)
+  (list `(• ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) (if (cadr e1)
+                                                               (append (caddr e1) (caddr e2))
+                                                               (caddr e1)))
+  )
+;(mkSeq '(3 #t (3)) '((• 2 ε) #f (4)))
+
+(define (mkAlt e1 e2)
+  (list `(/ ,(car e1) ,(car e2)) (or (cadr e1) (cadr e2)) (append (caddr e1) (caddr e2))
+        )
+  )
+
+(define (mkRep e)
+  (list `(* ,(car e)) #t (caddr e))
+        
+  )
+         
+#;(define (genPeg Σ p L nullable)
+    (if (equal? p 0)
+        (if nullable
+            (list (gen:choice (gen:one-of Σ) (gen:const 'ε)) nullable '∅)
+            (list (gen:one-of Σ) #f '∅))
+        (list (gen:choice (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
+                                    (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable)) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) ) ;;colocar condiçao aqui?
+                          (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
+                                    (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
+                          (gen:bind (car (genPeg Σ (- p 1) L nullable))
+                                    (lambda (t) (gen:const `(! ,t)) ))
+                          (gen:bind (car (genPeg Σ (- p 1) L #f))
+                                    (lambda (t) (gen:const `(* ,t)) ))
+                          (gen:one-of L) 
+                          )  nullable '∅)
+        )  
+    )
 
 
 ;gerar o par do parsing com o tipo ??
