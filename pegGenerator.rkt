@@ -30,20 +30,38 @@
 ;nullable: anulavel ou nao (consome ou nao) proibe de gerar algo nulavel? 
 ;L: lista de nao terminais
 (define (genPeg Σ p L nullable)
+    (if (equal? p 0)
+        (if nullable
+            (gen:choice (gen:one-of Σ) (gen:const 'ε))
+            (gen:one-of Σ))
+        (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                              (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
+                    (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                              (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
+                    (gen:bind (genPeg Σ (- p 1) L nullable)
+                              (lambda (t) (gen:const `(! ,t)) ))
+                    (gen:bind (genPeg Σ (- p 1) L #f)
+                              (lambda (t) (gen:const `(* ,t)) ))
+                    (gen:one-of L)
+                    )
+        )  
+    )
+
+#;(define (genPeg Σ p L nullable)
   (if (equal? p 0)
       (if nullable
-          (gen:choice (gen:one-of Σ) (gen:const 'ε))
-          (gen:one-of Σ))
-      (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
-                  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                  (gen:bind (genPeg Σ (- p 1) L nullable)
-                            (lambda (t) (gen:const `(! ,t)) ))
-                  (gen:bind (genPeg Σ (- p 1) L #f)
-                            (lambda (t) (gen:const `(* ,t)) ))
-                  (gen:one-of L)
-                  )
+          (list (gen:choice (gen:one-of Σ) (gen:const 'ε)) nullable '∅)
+          (list (gen:one-of Σ) #f '∅))
+      (list (gen:choice (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
+                                  (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable)) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) ) ;;colocar condiçao aqui?
+                        (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
+                                  (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
+                        (gen:bind (car (genPeg Σ (- p 1) L nullable))
+                                  (lambda (t) (gen:const `(! ,t)) ))
+                        (gen:bind (car (genPeg Σ (- p 1) L #f))
+                                  (lambda (t) (gen:const `(* ,t)) ))
+                        (gen:one-of L) 
+                        )  nullable '∅)
       )  
   )
 
@@ -75,11 +93,11 @@
 
 #;(define (genGramar Σ p n L e rep grammar)
   
-  (map (lambda (i)
-         (list* i (sample (genPeg Σ p n L) 1))) ;;ta gerando gramatica errada, "fechando os termos"
-       n)
+    (map (lambda (i)
+           (list* i (sample (genPeg Σ p n L) 1))) ;;ta gerando gramatica errada, "fechando os termos"
+         n)
       
-  )
+    )
 
 (define (genGrammar Σ p n L e rep grammar)
   (if (equal? (length n) 1)
