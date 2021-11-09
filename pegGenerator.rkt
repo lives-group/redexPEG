@@ -9,7 +9,7 @@
     [(Gpeg natural) peg]
   
     )
-;trocar o nome desse arq aqui que testee ta mt feio
+
 
 ;n -> lista de nomes de nao terminais
 ;L -> lista
@@ -85,7 +85,7 @@
 (define (mkPegExpr ♣ p)
   (if (= p 0)
       (gen:one-of ♣)
-      (gen:choice (gen:bind ( mkPegExpr ♣ (- p 1))
+      (gen:choice (gen:bind (mkPegExpr ♣ (- p 1))
                             (lambda (x) (gen:bind ( mkPegExpr ♣ (- p 1) )
                                                   (lambda (y) (gen:const (mkSeq x y) )) ) ))
                   (gen:bind (mkPegExpr ♣ (- p 1))
@@ -140,12 +140,30 @@
   (gen:filter g (lambda (t) (equal? #f (cadr t)))))
 
 (define (filterE0 ♣)
-  (map (lambda (e)
-         (when (not (cadr e))
-           e
-           ))
-       ♣)
+  (filter (lambda (e)
+            (not (cadr e))
+            
+            )
+          ♣
+          )
   )
+
+(define (En e0 n)
+  (if (= n 0)
+      e0
+      ( append (En e0 (- n 1))
+               (for/list [(ee  (En e0 (- n 1)) )]
+                 (append (for/list [(ed  (En e0 (- n 1)) )]
+                           (list (mkAlt ee ed) (mkSeq ee ed)) 
+                           )
+                         (list (mkNot ee) (mkKle ee))
+                         )
+                 )
+               )
+      )
+  )
+(display "funçao do elton\n")
+ ;(En (E0 '(0 1) '(A B)) 1)
 
 (define (mkGrammar ♣ p)
   (if (= p 0)
