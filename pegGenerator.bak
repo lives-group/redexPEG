@@ -27,98 +27,125 @@
 (define myGen (make-pseudo-random-generator))
 
 
-;nullable: anulavel ou nao (consome ou nao) proibe de gerar algo nulavel? 
-;L: lista de nao terminais
-(define (genPeg Σ p L nullable)
-  (if (equal? p 0)
-      (if nullable
-          (gen:choice (gen:one-of Σ) (gen:const 'ε))
-          (gen:one-of Σ))
-      (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
-                  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
-                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                  (gen:bind (genPeg Σ (- p 1) L nullable)
-                            (lambda (t) (gen:const `(! ,t)) ))
-                  (gen:bind (genPeg Σ (- p 1) L #f)
-                            (lambda (t) (gen:const `(* ,t)) ))
-                  (gen:one-of L)
-                  )
-      )  
+
+;assando a peg pra ficar prontinha!
+;Σ -> alfabeto de terminais (ex: 0 1 2)
+;V -> lista de não terminais (ex: A B)
+;p -> profundidade da peg
+;n -> número de pegs que queremos que gere com o SAMPLE
+(define (bakePeg Σ V p n)
+  (define X0 (E0 Σ V))
+  (display X0)
+  (display "\n")
+  (sample (mkPegExpr X0 p) n)
   )
 
-;retornar uma lista
 ;E0: lista de termos: (expressão, nullable, headset)
-;p: profundidade
-(define (genInitAllPeg Σ V)
-  (append (list (list 'ε #t null))
-          (map (lambda (t) (list t #f null)) Σ)
-          (map (lambda (v) (list v (car (sample (gen:one-of '(#f #t)) 1)) (list v))) V))
+;ex:((ε #t ()) (0 #f ()) (1 #f ()) (2 #f ()) (A #t (A)) (B #t (B)))
+(define (E0 Σ V)
+  (append (list (list 'ε #t empty) )
+          (map (lambda (e) (list e #f empty)) Σ)
+          (map (lambda (e) (list e (car (sample (gen:one-of (list #t #f)) 1)) (list e) )) V)
+          )
   )
 
-(define (genPegWF E0 p)
-  (if (equal? p 0)
-      (gen:one-of E0)
-      (gen:choice (gen:bind (genPegWF E0 (- p 1))
-                            (lambda (e1) (gen:bind (genPegWF E0 (- p 1))
-                                                   (lambda (e2) (gen:const (mkSeq e1 e2)))))
-                            )
-                  (gen:bind (genPegWF E0 (- p 1))
-                            (lambda (e1) (gen:bind (genPegWF E0 (- p 1))
-                                                   (lambda (e2) (gen:const (mkAlt e1 e2)))))
-                            )
-                  (gen:bind (gen:filter (genPegWF E0 (- p 1))
-                                        (lambda (t) (not (cadr t))))
-                            (lambda (e) (gen:const (mkRep e)))
-                                                   )
-                            )
+(define (gen:non-ε g)
+  (gen:filter g (lambda (t) (not (eq? (car t) 'ε) )) ) )
+
+(define (kruskal V nullable)
+  
+  )
+
+;gera a peg total
+;♣: E0 -> lista inicial gerada com a função E0
+(define (mkPegExpr ♣ p)
+  (if (= p 0)
+      (gen:one-of ♣)
+      (gen:choice (gen:bind ( mkPegExpr ♣ (- p 1))
+                            (lambda (x) (gen:bind ( mkPegExpr ♣ (- p 1) )
+                                                  (lambda (y) (gen:const (mkSeq x y) )) ) ))
+                  (gen:bind (mkPegExpr ♣ (- p 1))
+                            (lambda (x) (gen:bind (mkPegExpr ♣ (- p 1))
+                                                  (lambda (y) (gen:const (mkAlt x y) )) ) ))
+                  (gen:bind (gen:filter (mkPegExpr ♣ (- p 1)) (lambda (x) (not (cadr x)) ))
+                            (lambda (y) (gen:const (mkKle y) ) ))
+                  (gen:bind (mkPegExpr ♣ (- p 1))
+                            (lambda (y) (gen:const (mkNot y) ) ))
+                  (mkPegExpr ♣ (- p 1))
+                  )
       )
   )
 
-(define (genPegExpr Σ V p)
-  (define e0 (genInitAllPeg Σ V))
-  (display e0)
-  (display "\n")
-  (sample (genPegWF e0 p) 10)
-  )
 
+
+;gera peg com •
 (define (mkSeq e1 e2)
-  (list `(• ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) (if (cadr e1)
-                                                               (append (caddr e1) (caddr e2))
-                                                               (caddr e1)))
+  (if(eq? (car e1) 'ε)
+     e2
+     (if (eq? (car e2) 'ε)
+         e1
+         (list `(• ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) ( if (cadr e1)
+                                                                       (set-union (caddr e1) (caddr e2))
+                                                                       (caddr e1)
+                                                                       ) )
+         )
+     )
   )
-;(mkSeq '(3 #t (3)) '((• 2 ε) #f (4)))
 
+;gera peg com /
 (define (mkAlt e1 e2)
-  (list `(/ ,(car e1) ,(car e2)) (or (cadr e1) (cadr e2)) (append (caddr e1) (caddr e2))
-        )
+  (list `(/ ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) (set-union (caddr e1) (caddr e2) ) )
   )
 
-(define (mkRep e)
-  (list `(* ,(car e)) #t (caddr e))
-        
+;gera peg com *
+(define (mkKle e1)
+  (list `(* ,(car e1) ) #t (caddr e1) )
   )
-         
-#;(define (genPeg Σ p L nullable)
-    (if (equal? p 0)
-        (if nullable
-            (list (gen:choice (gen:one-of Σ) (gen:const 'ε)) nullable '∅)
-            (list (gen:one-of Σ) #f '∅))
-        (list (gen:choice (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
-                                    (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable)) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) ) ;;colocar condiçao aqui?
-                          (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable))
-                                    (lambda (t)  (gen:bind (car (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                          (gen:bind (car (genPeg Σ (- p 1) L nullable))
-                                    (lambda (t) (gen:const `(! ,t)) ))
-                          (gen:bind (car (genPeg Σ (- p 1) L #f))
-                                    (lambda (t) (gen:const `(* ,t)) ))
-                          (gen:one-of L) 
-                          )  nullable '∅)
-        )  
-    )
+
+;gera peg com !
+(define (mkNot e1 )
+  (list `(! ,(car e1) ) #t ( caddr e1 ) )
+  )
+(bakePeg '(0 1 2) '(A B) 2 1)
 
 
-;gerar o par do parsing com o tipo ??
+
+;NAO FUNCIONA MAS É UMA TENTATIVA
+
+(define (filterGrammar g)
+  (gen:filter g (lambda (t) (equal? #f (cadr t)))))
+
+(define (filterE0 ♣)
+  (map (lambda (e)
+         (when (not (cadr e))
+             e
+             ))
+         ♣)
+  )
+
+(define (mkGrammar ♣ p)
+  (if (= p 0)
+      (gen:one-of (filterE0 ♣))
+      (gen:choice (gen:bind ( mkGrammar ♣ (- p 1))
+                            (lambda (x) (gen:bind ( mkGrammar ♣ (- p 1) )
+                                                  (lambda (y) (gen:const (mkSeq x y) )) ) ))
+                  (gen:bind (mkGrammar ♣ (- p 1))
+                            (lambda (x) (gen:bind (mkGrammar ♣ (- p 1))
+                                                  (lambda (y) (gen:const (mkAlt x y) )) ) ))
+                  (gen:bind (gen:filter (mkGrammar ♣ (- p 1)) (lambda (x) (not (cadr x)) ))
+                            (lambda (y) (gen:const (mkKle y) ) ))
+                  (gen:bind (mkGrammar ♣ (- p 1))
+                            (lambda (y) (gen:const (mkNot y) ) ))
+                  (mkGrammar ♣ (- p 1))
+                  )
+      )
+  )
+
+
+
+#|
+
+;gerar o par do parsing com o tipo:
 ;lista de pares (nt, (nullable, prefixo de variaveis))
 
 ;definir quantos nao terminais
@@ -150,7 +177,30 @@
          n)
       
     )
+|#
 
+;GERA PEG NO JEITO ANTIGO
+;nullable: anulavel ou nao (consome ou nao) proibe de gerar algo nulavel? 
+;L: lista de nao terminais
+(define (genPeg Σ p L nullable)
+  (if (equal? p 0)
+      (if nullable
+          (gen:choice (gen:one-of Σ) (gen:const 'ε))
+          (gen:one-of Σ))
+      (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) L nullable) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) );;colocar condiçao aqui?
+                  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable)
+                            (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) L nullable) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
+                  (gen:bind (genPeg Σ (- p 1) L nullable)
+                            (lambda (t) (gen:const `(! ,t)) ))
+                  (gen:bind (genPeg Σ (- p 1) L #f)
+                            (lambda (t) (gen:const `(* ,t)) ))
+                  (gen:one-of L)
+                  )
+      )  
+  )
+
+;GERA GRAMÁTICA (ERRADO)
 (define (genGrammar Σ p n L e rep grammar)
   (if (equal? (length n) 1)
       (list (car n) (car (sample (genPeg Σ p n L) 1)) '∅)
@@ -158,7 +208,7 @@
       
   )
 
-
+;GERA SÍMBOLOS (X0, X1, X2...)
 ;n -> numero de NT
 (define (genSymbols n)
   (define cont (build-list n values))
@@ -167,11 +217,7 @@
        cont)
   )
 
-(define (genEntrada)
-  (gen:choice (gen:one-of '(0 1 2 3 4 5 6 7 8 9)) (gen:const 'ε))
-  )
-
-
+;GERA O STATE COMPLETO (GRAMÁTICA PEG-ENTRADA ELEMENTO-CONSUMIDO...)
 (define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
   (define empty-grammar '(∅))
@@ -190,7 +236,7 @@
 ;Σ -> lista de elementos de um alfabeto
 ;cont -> deve ser 1
 
-;(sample (gen:one-of '(a b c)) 10)
+#|
 (display "\nGera Peg\n")
 (sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1)
 (cdr (sample (genPeg '(A B C) 1 (genSymbols 3) '()) 1))
@@ -206,4 +252,4 @@
 (genState '(0 1 2) 3 (genSymbols 3) '() 1)
 (genState '(0 1 2) 3 (genSymbols 3) '() 1)
 
-
+|#

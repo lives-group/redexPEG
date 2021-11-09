@@ -52,6 +52,34 @@
 (define (gen:non-ε g)
   (gen:filter g (lambda (t) (not (eq? (car t) 'ε) )) ) )
 
+(define (kruskal V return-list rest cont)
+  (define raiz (list-ref V (random (length V))))
+  (if (equal? cont 0)
+      (set! rest (remove raiz rest))
+      rest)
+  
+  (display "Raiz: ")
+  (display raiz)
+  (display " - ")
+  (define copy-rest rest)
+  (set! copy-rest (remove raiz copy-rest))
+  (display "Rest: ")
+  (display copy-rest)
+  (display "\n")
+  (define tam (length copy-rest))
+  (if (equal? (length copy-rest) 0)
+      return-list
+  
+      (kruskal V
+               (list return-list (list raiz (list-ref copy-rest (- tam 1))))
+               (remove (list-ref copy-rest (- tam 1)) rest)
+               (add1 cont)))
+  
+  
+  )
+
+;(kruskal '(A B C D) '() '(A B C D) 0)
+
 ;gera a peg total
 ;♣: E0 -> lista inicial gerada com a função E0
 (define (mkPegExpr ♣ p)
@@ -114,9 +142,9 @@
 (define (filterE0 ♣)
   (map (lambda (e)
          (when (not (cadr e))
-             e
-             ))
-         ♣)
+           e
+           ))
+       ♣)
   )
 
 (define (mkGrammar ♣ p)
