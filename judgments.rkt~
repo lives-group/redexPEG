@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./reduction.rkt")
 (provide (all-defined-out))
 
 
@@ -37,7 +38,7 @@
   )
 
                 
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg ;usar esse no is-WF
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
 
@@ -59,8 +60,8 @@
    (⇀ G x D)]
 
   #;[(lookup G x ⊥)
-   -------------------------------
-   (⇀ G x ⊥)]
+     -------------------------------
+     (⇀ G x ⊥)]
 
   ;Sequence
   [(⇀ G e_1 0)
@@ -120,7 +121,7 @@
   [(⇀ G e ⊥)
    -------------------------------
    (⇀ G (! e) 1)]
-)
+  )
 
 (define-judgment-form evalPeg
   #:mode (WF I I O)
@@ -168,13 +169,13 @@
 
   
   #;[(⇀ G e 1)
-   (WF G e #t)
-   -------------------------------
-   (WF G (* e) #t)]
+     (WF G e #t)
+     -------------------------------
+     (WF G (* e) #t)]
 
   #;[(⇀ G e 0)
-   -------------------------------
-   (WF G (* e) #f)]
+     -------------------------------
+     (WF G (* e) #f)]
 
   [(⇀ G e D)
    (↛ G D boolean)
@@ -182,20 +183,20 @@
    (WF G (* e) boolean)]
 
   #;[(⇀ G e D)
-   (↛ G D #f)
-   -------------------------------
-   (WF G (* e) #f)]
+     (↛ G D #f)
+     -------------------------------
+     (WF G (* e) #f)]
 
   #;[(⇀ G e ⊥)
-   (WF G e #t)
-   -------------------------------
-   (WF G (* e) #t)]
+     (WF G e #t)
+     -------------------------------
+     (WF G (* e) #t)]
 
   ;Not
   [(WF G e #t)
    -------------------------------
    (WF G (! e) #t)]
-)
+  )
 
   
 (define-judgment-form evalPeg
@@ -212,7 +213,7 @@
    (side-condition (diffs? x_1 x_2))
    --------------------------------
    (lookup (x_1 e_1 G) x_2 R)] 
-)
+  )
 
 (define-judgment-form evalPeg
   #:mode (eval I I O)
@@ -230,7 +231,8 @@
    (eval G (natural_1 ()) ⊥)]
 
   ;Empty
-  [--------------------------------
+  [
+   --------------------------------
    (eval G (ε s) s)]
 
   ;Choice
@@ -240,12 +242,12 @@
    (eval G ((/ e_1 e_2) s) s_1)]
 
   [(eval G (e_2 s) s_1)
-  (side-condition (botton? s_1))  
+   (eval G (e_1 s) ⊥)  
    -------------------------------
    (eval G ((/ e_1 e_2) s) s_1)]
 
-  [------------------------------
-   (eval G ((/ e_1 e_2) ()) ⊥)]
+  #;[------------------------------
+     (eval G ((/ e_1 e_2) ()) ⊥)]
 
   ;Sequence
   [(eval G (e_1 s) s_1)
@@ -287,7 +289,11 @@
   [(lookup G x ⊥)
    --------------------------------
    (eval G (x s) ⊥)]
-)
+  )
+
+#;(define-metafunction evalPeg
+    [(is-WF x) ])
+
 
 (define-metafunction evalPeg
   [(equal? x x) #t]
@@ -309,4 +315,7 @@
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
 
+(define-metafunction evalPeg
+  [(empty? ()) #f]
+  [(empty? s)  #t])
 

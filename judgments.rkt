@@ -1,6 +1,8 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./reduction.rkt")
+;(require "./WFverf.rkt")
 (provide (all-defined-out))
 
 
@@ -10,6 +12,7 @@
   [R e ⊥]
   [D S ⊥]
   [S 0 1])
+
 
 
 (define-judgment-form evalPeg
@@ -37,7 +40,7 @@
   )
 
                 
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg ;usar esse no is-WF
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
 
@@ -62,6 +65,7 @@
      -------------------------------
      (⇀ G x ⊥)]
 
+ 
   ;Sequence
   [(⇀ G e_1 0)
    (⇀ G e_2 0)
@@ -105,7 +109,7 @@
 
   [(⇀ G e 0)
    -------------------------------
-   (⇀ G (* e) ⊥)]
+   (⇀ G (* e) 0)]
 
   ;Not
   [(⇀ G e S)
@@ -122,7 +126,7 @@
    (⇀ G (! e) 1)]
   )
 
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg 
   #:mode (WF I I O)
   #:contract (WF G e boolean)
 
@@ -198,7 +202,7 @@
   )
 
   
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg ;usar no is-WF
   #:mode (lookup I I O)
   #:contract (lookup G x R)
   
@@ -230,7 +234,8 @@
    (eval G (natural_1 ()) ⊥)]
 
   ;Empty
-  [--------------------------------
+  [
+   --------------------------------
    (eval G (ε s) s)]
 
   ;Choice
@@ -240,12 +245,12 @@
    (eval G ((/ e_1 e_2) s) s_1)]
 
   [(eval G (e_2 s) s_1)
-   (side-condition (botton? s_1))  
+   (eval G (e_1 s) ⊥)  
    -------------------------------
    (eval G ((/ e_1 e_2) s) s_1)]
 
-  [------------------------------
-   (eval G ((/ e_1 e_2) ()) ⊥)]
+  #;[------------------------------
+     (eval G ((/ e_1 e_2) ()) ⊥)]
 
   ;Sequence
   [(eval G (e_1 s) s_1)
@@ -289,9 +294,13 @@
    (eval G (x s) ⊥)]
   )
 
+#;(define-metafunction evalPeg
+    [(is-WF x) ])
+
+
 (define-metafunction evalPeg
-  [(equal? x x) #t]
-  [(equal? x e) #f])
+  [(equals? x x) #t]
+  [(equals? x e) #f])
 
 (define-metafunction evalPeg
   [(diff? natural_1 natural_1) #f]
@@ -309,4 +318,6 @@
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
 
-
+(define-metafunction evalPeg
+  [(empty? ()) #f]
+  [(empty? s)  #t])
