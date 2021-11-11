@@ -57,6 +57,7 @@
                    ⊢ () S ↑ () (2 1 0) suc (3))))
   (test-results))
 
+
 ;(tests-reduction)
 
 
@@ -108,4 +109,5 @@
                #:satisfying (WF (input-grammar state) (input-peg state))
              
                #:attempts 10000)
+
 
