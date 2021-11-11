@@ -1,7 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-(require "./WFverf.rkt")
+;(require "./WFverf.rkt")
 (define +Gen (make-pseudo-random-generator))
 (require rackcheck)
 
@@ -172,7 +172,7 @@
   )
 
 
-(define (genState Σ p n L cont)
+#;(define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
   (define empty-grammar '(∅))
   (define grammar (genGrammar Σ p n L (car peg) '() '()))
@@ -191,19 +191,19 @@
 ;cont -> deve ser 1
 
 ;(sample (gen:one-of '(a b c)) 10)
-(display "\nGera Peg\n")
-(sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1)
-(cdr (sample (genPeg '(A B C) 1 (genSymbols 3) '()) 1))
+#;(display "\nGera Peg\n")
+#;(sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1)
+#;(cdr (sample (genPeg '(A B C) 1 (genSymbols 3) '()) 1))
 
-(display "\nGera Gramática\n")
-(genGrammar '(0 1 2) 1 (genSymbols 3) '() (sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1) '() '())
+#;(display "\nGera Gramática\n")
+#;(genGrammar '(0 1 2) 1 (genSymbols 3) '() (sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1) '() '())
 
-(display "\nGera Estado\n")
-(genState '(0 1 2) 1 (genSymbols 3) '() 1)
-(test-WF (genState '(0 1 2) 1 (genSymbols 3) '() 1))
-(genState '(0 1 2) 1 (genSymbols 3) '() 1)
-(genState '(0 1 2) 2 (genSymbols 3) '() 1)
-(genState '(0 1 2) 3 (genSymbols 3) '() 1)
-(genState '(0 1 2) 3 (genSymbols 3) '() 1)
+#;(display "\nGera Estado\n")
+#;(genState '(0 1 2) 1 (genSymbols 3) '() 1)
+#;(test-WF (genState '(0 1 2) 1 (genSymbols 3) '() 1))
+#;(genState '(0 1 2) 1 (genSymbols 3) '() 1)
+#;(genState '(0 1 2) 2 (genSymbols 3) '() 1)
+#;(genState '(0 1 2) 3 (genSymbols 3) '() 1)
+#;(genState '(0 1 2) 3 (genSymbols 3) '() 1)
 
 

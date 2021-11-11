@@ -2,6 +2,7 @@
 (require redex)
 (require "./peg.rkt")
 (require "./reduction.rkt")
+;(require "./WFverf.rkt")
 (provide (all-defined-out))
 
 
@@ -11,6 +12,7 @@
   [R e ⊥]
   [D S ⊥]
   [S 0 1])
+
 
 
 (define-judgment-form evalPeg
@@ -63,6 +65,7 @@
      -------------------------------
      (⇀ G x ⊥)]
 
+ 
   ;Sequence
   [(⇀ G e_1 0)
    (⇀ G e_2 0)
@@ -106,7 +109,7 @@
 
   [(⇀ G e 0)
    -------------------------------
-   (⇀ G (* e) ⊥)]
+   (⇀ G (* e) 0)]
 
   ;Not
   [(⇀ G e S)
@@ -123,7 +126,7 @@
    (⇀ G (! e) 1)]
   )
 
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg 
   #:mode (WF I I O)
   #:contract (WF G e boolean)
 
@@ -199,7 +202,7 @@
   )
 
   
-(define-judgment-form evalPeg
+(define-judgment-form evalPeg ;usar no is-WF
   #:mode (lookup I I O)
   #:contract (lookup G x R)
   
@@ -296,8 +299,8 @@
 
 
 (define-metafunction evalPeg
-  [(equal? x x) #t]
-  [(equal? x e) #f])
+  [(equals? x x) #t]
+  [(equals? x e) #f])
 
 (define-metafunction evalPeg
   [(diff? natural_1 natural_1) #f]
@@ -318,4 +321,3 @@
 (define-metafunction evalPeg
   [(empty? ()) #f]
   [(empty? s)  #t])
-

@@ -1,7 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-;(require "./judgments.rkt")
+(require "./judgments.rkt")
 (provide (all-defined-out))
 
 (define-extended-language Reduct Grammar 
