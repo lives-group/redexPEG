@@ -117,16 +117,93 @@
            )  
 )
 
-(define (bakePeg Σ V p n)
-        (define X0 (E0 Σ V))
-        (define V0 (filter (lambda (x) (member (car x) V)) X0))
-        (display V0)
-        (display "\n")
-        (define xs (sample (mkPegExpr X0 p) n))
-        ;(define xs (sample (genBodyFor X0 p (car V0)) 1))
-        (map (lambda (x) (display x) (display "\n"))  xs)
-        (satisfy (car (drop X0 (+ (length Σ) 1))) xs)
-  
+; Constrói uma expressão de altura zero
+(define (bakeZeroExpr Ce Σ nll)
+        (if nll
+               ('ε)
+               (gen:one-of Ce ) )
+)
+
+; Definir um gerador de PEG independetente de tipo 
+(define (bakeAnyTypePeg V Σ p)
+               (gen:one-of (append V (append Σ (list 'ε ))) )
+)
+
+(define (rpartList l)
+        (call-with-values (lambda () (partition (lambda (x) (car (sample gen:boolean 1)) ) l) )
+                          (lambda (z w) (list z w) ))
+  )
+
+(define (bakeSeqNull Γ Σ H p)
+        
+        (let ([H1H2  (rpartList H) ])
+             (gen:bind (bakePeg Γ Σ (first H1H2) #t (- p 1))
+                       (lambda (e1)  (gen:bind (bakePeg Γ Σ (second H1H2) #t (- p 1))
+                                               (lambda (e2) (gen:const `(• ,e1 ,e2)) ))))
+         )  
+  )
+
+(define (bakeSeqNulle1 Γ Σ H p)
+        
+        (let ([H1H2  (rpartList H) ])
+             (gen:bind (bakePeg Γ Σ (first H1H2) #t (- p 1))
+                       (lambda (e1)  (gen:bind (bakePeg Γ Σ (second H1H2) #f (- p 1))
+                                               (lambda (e2) (gen:const `(• ,e1 ,e2)) ))))
+         )  
+  )
+
+(define (bakeSeqNonNulle1 Γ Σ H p)
+        
+        (gen:bind (bakePeg Γ Σ H #f (- p 1))
+                  (lambda (e1)  (gen:bind (bakeAnyTypePeg (map first Γ) Σ 1)
+                                          (lambda (e2) (gen:const `(• ,e1 ,e2)) ))))
+           
+  )
+
+(define (bakeKle Γ Σ H p)
+        
+        (gen:bind (bakePeg Γ Σ H #f (- p 1))
+                  (lambda (e1) (gen:const `(* ,e1 )) ))        
+  )
+
+(define (bakeNot Γ Σ H p)
+
+        (gen:bind (bakePeg Γ Σ H #f (- p 1))
+                  (lambda (e1)  (gen:const `(! ,e1 )) ) )       
+  ) 
+
+
+(define (bakableVar Γ H nll)
+        (filter (lambda (x) (and (eq? (cadr x) nll) (equal? (caddr x) H)) ) Γ)
+)
+
+#;(define (bakeVar Γ H nll)
+        (if (= (len H) 1)
+            (car H)
+            ()
+         )
+  )
+
+; Γ = '( (Var,Bool, HeadSet) )
+(define (bakePeg Γ Σ H nll p)
+    (cond
+          [(= p 0)              (gen:one-of Σ)]
+          [(and (null? H) nll)  (gen:choice (bakeSeqNull Γ Σ H p)
+                                            (bakeKle Γ Σ H p)
+                                            (bakeNot Γ Σ H p)
+                                            (gen:const 'ε) )]
+          
+          [(and (null? H) (not nll))  (gen:choice (bakeSeqNulle1 Γ Σ H p)
+                                                  (bakeSeqNonNulle1 Γ Σ H p)
+                                                  (gen:one-of Σ) 
+                                      )]
+          [(and (not (null? H)) nll)  (gen:choice (bakeSeqNull Γ Σ H p)
+                                                  (bakeKle Γ Σ H p)
+                                                  (bakeNot Γ Σ H p) )]
+          [(and (not (null? H)) (not nll))  (gen:choice (bakeSeqNulle1 Γ Σ H p)
+                                                        (bakeSeqNonNulle1 Γ Σ H p)
+                                                         )]
+    )
   )
 
 (define (genBodyFor e0 p v)
@@ -134,7 +211,7 @@
   )
 
 (define (satisfy v xs)
-        (list (car v) (filter (lambda (z) (and (and (cadr z) (cadr v)) (not (memeber? (car v) (caddr z))) ) ) xs))
+        (list (car v) (filter (lambda (z) (and (and (cadr z) (cadr v)) (not (member (car v) (caddr z))) ) ) xs))
  )
 
 (define (E0 Σ V)
@@ -207,5 +284,5 @@
         (list `(! ,(car e1) ) #t ( caddr e1 ) )
 )
 
-(bakePeg '(0 1) '(A B C) 2 5)
+;(bakePeg '(0 1) '(A B C) 2 5)
 

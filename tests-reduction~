@@ -1,3 +1,0 @@
-#lang racket
-(require redex)
-(require "./reduction.rkt")

@@ -3,6 +3,7 @@
 (require "./peg.rkt")
 (require "./judgments.rkt")
 (require "./reduction.rkt")
+(require "./pegGenerator.rkt")
 
 
 (define (get-result l)
@@ -21,8 +22,8 @@
  )
 
 (test-equal
- (judgment-holds (eval ∅ (1 (1 1 1)) s) s)
- (get-result (apply-reduction-relation* red (genState '(0 1 2) 1 (genSymbols 3) '() 1)))
+ (judgment-holds (eval ∅ ((• 2 ε) (0)) s) s)
+ (get-result (apply-reduction-relation* red '((X0 (/ ε ε) (X1 X2 (X2 (! ε) ∅))) ⊢ () (• 2 ε) ↓ (0) () ⊥ (0))))
  )
 
 (test-equal

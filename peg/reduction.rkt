@@ -19,6 +19,7 @@
        (⊕ nat))
   (dir ↓
        ↑)
+  (s (natural ...))
   (state (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) 
   ;(state (G ⊢ (C ...) e dir s s D (nat ...)))  
   ;s1 lista de marcas, pontos da entrada que a gnt marcou
@@ -60,7 +61,6 @@
         (G ⊢ (C ...) natural_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) suc ((inc natural_4) natural_5 ...))
         "Terminal")
 
-<<<<<<< HEAD
    (--> (G ⊢ (C ...) natural_1 ↓ (natural_2 natural ...) s_1 D (natural_3 ...))
         (G ⊢ (C ...) natural_1 ↑ (natural_2 natural ...) s_1 ⊥ (natural_3 ...))
         (side-condition (term (diff-exp? natural_1 natural_2)))      ;o resultado é um boolean
@@ -68,15 +68,6 @@
 
    (--> (G ⊢ (C ...) natural_1 ↓ () s_1 D (natural_2 ...))
         (G ⊢ (C ...) natural_1 ↑ () s_1 ⊥ (natural_2 ...))
-=======
-   (--> (G ⊢ (C ...) natural_1 ↓ (natural_2 natural ...) s_1 D (nat ...))
-        (G ⊢ (C ...) natural_1 ↑ (natural_2 natural ...) s_1 ⊥ (nat ...))
-        (side-condition (term (diff? natural_1 natural_2)))      ;o resultado é um boolean
-        "Terminal ⊥")
-
-   (--> (G ⊢ (C ...) natural_1 ↓ () s_1 D (nat ...))
-        (G ⊢ (C ...) natural_1 ↑ () s_1 ⊥ (nat ...))
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902
         "Terminal () ⊥")
 
    ;Empty
@@ -159,20 +150,14 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    ;Repetition
 
-<<<<<<< HEAD
    (--> (G ⊢ (C ...) (* e_1) ↓ s_1 s_2 D (natural_4 ...))
         (G ⊢ ((* h) C ...) e_1 ↓ s_1 s_2 D (0 natural_4 ...))
-=======
-   (--> (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) D (nat ...))
-        (G ⊢ ((* h) C ...) e_1 ↓ (natural_1 natural_2 ...) (natural ...) D (0 nat ...))
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902
         "Repetition-Entra")
    
    (--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (natural_4 ...))
         (G ⊢ (C ...) (* e_1) ↑ () (natural ...) suc (natural_4 ...))
         "Repetition-SUC-Sai")
 
-<<<<<<< HEAD
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc (natural_3 natural_4 natural_5 ...))
         (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc ((⊕ natural_3 natural_4) natural_5 ...))
         (side-condition (term (not (diff-exp? e_1 natural_1))))
@@ -180,15 +165,6 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ s_1 s_2 ⊥ (0 natural_4 ...))
         (G ⊢ (C ...) (* e_1) ↑ s_1 s_2 suc (natural_4 ...))
-=======
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc (nat_1 nat_2 ...))
-        (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc (nat_2 ...))
-        (side-condition (term (not (diff? e_1 natural_1))))
-        "Repetition-SUC")
-
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) ⊥ (0 nat ...))
-        (G ⊢ (C ...) (* e_1) ↑ (natural_1 natural_2 ...) (natural ...) suc (nat ...))
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902
         "Repetition-BOT")
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_2 ...) (natural_1 natural_3 ...) ⊥ (natural_4 natural_5 ...))
@@ -198,7 +174,6 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
   
    ;Not
-<<<<<<< HEAD
 
    (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D   (natural_4 ... ))
         (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 natural_4 ...))
@@ -232,46 +207,12 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ ((NT x) C ...) e ↑ (natural_1 ...) (natural ...) D (natural_4 ...))  
         (G ⊢ (C ...) x ↑ (natural_1 ...) (natural ...) D (natural_4 ...))
-=======
-   (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D   (nat ... ))
-        (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 nat ...))
-        "Not-Entra")
- 
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (0 nat ...))
-        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ (nat ...))
-        "Not-BOT")
-
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) suc ((⊕ nat_1) nat_2 ...)) 
-        (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) suc (nat_1 nat_2 ...)) 
-        "Not-BOT-restore")
-  
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (0 nat ...))
-        (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (nat ...))
-        "Not-SUC")
-
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ ((⊕ nat_1) nat_2 ...)) 
-        (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ (nat_1 nat_2 ...)) 
-        "Not-SUC-restore")
-
-   ;;corrigir o not quando dar suc e bot para voltar a entrada
-   
-
-   ;Non-terminals
-   ;acho que ta tudo errado
-   (--> (G ⊢ (C ...) x ↓ (natural_1 ...) (natural ...) D (nat ...))  
-        (G ⊢ ((NT x) C ...) (lookup G x) ↓ (natural_1 ...) (natural ...) D (nat ...))
-        "Non-terminals-entra")
-
-   (--> (G ⊢ ((NT x) C ...) e ↑ (natural_1 ...) (natural ...) D (nat ...))  
-        (G ⊢ (C ...) x ↑ (natural_1 ...) (natural ...) D (nat ...))
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902
         "Non-terminals-sai")
 
 
    )
   )
 
-<<<<<<< HEAD
 (define-metafunction Reduct
   [(diff-exp? e_1 e_1)     #f]
   [(diff-exp? e_1 e_2)     #t]
@@ -296,21 +237,6 @@ ai muda a setinha pra cima e ver se da certo ou errado
 (define-metafunction Reduct
   [(⊕ natural_1 natural_2)   ,(+ (term natural_1) (term natural_2))]
   )
-=======
-(define-metafunction Reduct
-  [(diff? e_1 e_1)     #f]
-  [(diff? e_1 e_2)     #t]
-
-  )
-
-(define-metafunction Reduct
-  
-  [(lookup (x e G) x) e]
-  [(lookup (x_1 e G) x_2) (lookup G x_2)]
-  [(lookup ∅ x) ,(error 'lookup "not found: ~e" (term x))]
-  )
-
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902
 
 ;Terminal
 ;(stepper red (term (∅ ⊢ () 1 ↓ (1 2 3) () ⊥ (0))))
@@ -339,11 +265,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term (∅ ⊢ () (• 1 (• 2 (/ (• 3 4) (• 3 5)))) ↓ (1 2 3 5) () ⊥ (0))))
 
 ;ALTERNANCIA COM SEQUENCIA
-<<<<<<< HEAD
 ;(stepper red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
-=======
-;(traces red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902
 
 ;NON-TERMINAL
 ;(traces red (term ((A 2 ∅) ⊢ () A ↓ (2 3 4 5 6 7) () ⊥ (0))))
@@ -352,12 +274,11 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term ((A 2 ∅) ⊢ () (/ A 1) ↓ (1 1 2 3) () ⊥ (0))))
 
 ;(stepper red (term (∅ ⊢ () (• (! 0) (• 1 2)) ↓ (1 2 3) () ⊥ (0)))) ;esse da certo
-;(traces red (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))) ;esse no meio da umas bifurcações mas no final da certo
+;(traces red (term (∅ ⊢ () (• (• 1 2) (! 0)) ↓ (1 2 3) () ⊥ (0)))) 
 ;(stepper red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
 ;(traces red (term (∅ ⊢ () (/ (! (• 1 2)) (• 1 0)) ↓ (1 2 3) () ⊥ (0)))); esse da certo tb
 
 ;(traces red (term (∅ ⊢ () (! 1) ↓ (1 2 3) () ⊥ (0))))
-<<<<<<< HEAD
 ;(stepper red (term (∅ ⊢ () (! (• 1 3)) ↓ (1 2 3) () ⊥ (0))))
 ;(traces red (term (∅ ⊢ () (* (! (• 1 2))) ↓ (1 3) () ⊥ (0))))
 
@@ -367,19 +288,9 @@ ai muda a setinha pra cima e ver se da certo ou errado
                     (C (/ 0 (/ 1 2))
                     (S (• (! (! A)) (• (* 0) (• B (! C)))) ∅))))
                     ⊢ () S ↓ (0 1 2) () ⊥ (0))))
-
 #;(stepper red (term ((A (/ (• 0 A) ε) ∅)
                     ⊢ () (! (/ (• 0 0) ε)) ↓ (0 0 0 1 2) () ⊥ (0))))
-
-
 ;(stepper red (term (∅ ⊢ () (/ (• (/ (• 0 0) (/ (• 0 1) (• 0 2))) (• 1 3)) (• 0 1)) ↓ (0 1 1 4) () ⊥ (0))))
+;(apply-reduction-relation* red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
 
 
-
-
-                    
-=======
-;(traces red (term (∅ ⊢ () (! (• 1 3)) ↓ (1 2 3) () ⊥ (0))))
-
-
->>>>>>> 4e77ca32b9e49efae98bb94f52da3d2b638e5902

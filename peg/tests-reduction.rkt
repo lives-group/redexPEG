@@ -57,6 +57,7 @@
                    ⊢ () S ↑ () (2 1 0) suc (3))))
   (test-results))
 
+
 ;(tests-reduction)
 
 
@@ -87,15 +88,8 @@
              (G ⊢ (C ...) e ↓ (natural ...) () D (0))
              ;#:satisfying (WF? (G e ))             
              (equal? (term (input-result ,(car (apply-reduction-relation* red (term (G ⊢ (C ...) e ↓ (natural ...) () D (0)))))))
-<<<<<<< HEAD
                   (car (judgment-holds (eval G (e (natural ...)) s) s)))
              #:attempts 10000)
-=======
-                     (car (judgment-holds (eval G (e (natural ...)) s) s)))
-             #:attempts 10000)
-
-
->>>>>>> 63be858c3e53b12dc6d18e8ec9b4fa8b83667da1
 
 #;(redex-check Reduct
              
@@ -115,4 +109,5 @@
                #:satisfying (WF (input-grammar state) (input-peg state))
              
                #:attempts 10000)
+
 

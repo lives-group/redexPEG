@@ -1,7 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-(require "./WFverf.rkt")
+;(require "./WFverf.rkt")
 (define +Gen (make-pseudo-random-generator))
 (require rackcheck)
 
@@ -9,7 +9,7 @@
     [(Gpeg natural) peg]
   
     )
-;trocar o nome desse arq aqui que testee ta mt feio
+
 
 ;n -> lista de nomes de nao terminais
 ;L -> lista
@@ -52,16 +52,40 @@
 (define (gen:non-ε g)
   (gen:filter g (lambda (t) (not (eq? (car t) 'ε) )) ) )
 
-(define (kruskal V nullable)
+(define (kruskal V return-list rest cont)
+  (define raiz (list-ref V (random (length V))))
+  (if (equal? cont 0)
+      (set! rest (remove raiz rest))
+      rest)
+  
+  (display "Raiz: ")
+  (display raiz)
+  (display " - ")
+  (define copy-rest rest)
+  (set! copy-rest (remove raiz copy-rest))
+  (display "Rest: ")
+  (display copy-rest)
+  (display "\n")
+  (define tam (length copy-rest))
+  (if (equal? (length copy-rest) 0)
+      return-list
+  
+      (kruskal V
+               (list return-list (list raiz (list-ref copy-rest (- tam 1))))
+               (remove (list-ref copy-rest (- tam 1)) rest)
+               (add1 cont)))
+  
   
   )
+
+;(kruskal '(A B C D) '() '(A B C D) 0)
 
 ;gera a peg total
 ;♣: E0 -> lista inicial gerada com a função E0
 (define (mkPegExpr ♣ p)
   (if (= p 0)
       (gen:one-of ♣)
-      (gen:choice (gen:bind ( mkPegExpr ♣ (- p 1))
+      (gen:choice (gen:bind (mkPegExpr ♣ (- p 1))
                             (lambda (x) (gen:bind ( mkPegExpr ♣ (- p 1) )
                                                   (lambda (y) (gen:const (mkSeq x y) )) ) ))
                   (gen:bind (mkPegExpr ♣ (- p 1))
@@ -116,12 +140,30 @@
   (gen:filter g (lambda (t) (equal? #f (cadr t)))))
 
 (define (filterE0 ♣)
-  (map (lambda (e)
-         (when (not (cadr e))
-             e
-             ))
-         ♣)
+  (filter (lambda (e)
+            (not (cadr e))
+            
+            )
+          ♣
+          )
   )
+
+(define (En e0 n)
+  (if (= n 0)
+      e0
+      ( append (En e0 (- n 1))
+               (for/list [(ee  (En e0 (- n 1)) )]
+                 (append (for/list [(ed  (En e0 (- n 1)) )]
+                           (list (mkAlt ee ed) (mkSeq ee ed)) 
+                           )
+                         (list (mkNot ee) (mkKle ee))
+                         )
+                 )
+               )
+      )
+  )
+(display "funçao do elton\n")
+ ;(En (E0 '(0 1) '(A B)) 1)
 
 (define (mkGrammar ♣ p)
   (if (= p 0)
@@ -217,6 +259,7 @@
        cont)
   )
 
+
 ;GERA O STATE COMPLETO (GRAMÁTICA PEG-ENTRADA ELEMENTO-CONSUMIDO...)
 (define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
@@ -236,20 +279,20 @@
 ;Σ -> lista de elementos de um alfabeto
 ;cont -> deve ser 1
 
-#|
-(display "\nGera Peg\n")
-(sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1)
-(cdr (sample (genPeg '(A B C) 1 (genSymbols 3) '()) 1))
+;(sample (gen:one-of '(a b c)) 10)
+#;(display "\nGera Peg\n")
+#;(sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1)
+#;(cdr (sample (genPeg '(A B C) 1 (genSymbols 3) '()) 1))
 
-(display "\nGera Gramática\n")
-(genGrammar '(0 1 2) 1 (genSymbols 3) '() (sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1) '() '())
+#;(display "\nGera Gramática\n")
+#;(genGrammar '(0 1 2) 1 (genSymbols 3) '() (sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1) '() '())
 
-(display "\nGera Estado\n")
-(genState '(0 1 2) 1 (genSymbols 3) '() 1)
-(test-WF (genState '(0 1 2) 1 (genSymbols 3) '() 1))
-(genState '(0 1 2) 1 (genSymbols 3) '() 1)
-(genState '(0 1 2) 2 (genSymbols 3) '() 1)
-(genState '(0 1 2) 3 (genSymbols 3) '() 1)
-(genState '(0 1 2) 3 (genSymbols 3) '() 1)
+#;(display "\nGera Estado\n")
+#;(genState '(0 1 2) 1 (genSymbols 3) '() 1)
+#;(test-WF (genState '(0 1 2) 1 (genSymbols 3) '() 1))
+#;(genState '(0 1 2) 1 (genSymbols 3) '() 1)
+#;(genState '(0 1 2) 2 (genSymbols 3) '() 1)
+#;(genState '(0 1 2) 3 (genSymbols 3) '() 1)
+#;(genState '(0 1 2) 3 (genSymbols 3) '() 1)
 
 |#

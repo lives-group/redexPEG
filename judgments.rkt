@@ -1,7 +1,8 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-(require "./reduction.rkt")
+;(require "./reduction.rkt")
+;(require "./evalgrammar.rkt")
 ;(require "./WFverf.rkt")
 (provide (all-defined-out))
 
