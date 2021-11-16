@@ -1,6 +1,9 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
+(require "./reduction.rkt")
+(require "./judgments.rkt")
+;(require "./tests-reduction-judgments")
 (require "./WFverf.rkt")
 (define +Gen (make-pseudo-random-generator))
 (require rackcheck)
@@ -163,7 +166,7 @@
       )
   )
 (display "funçao do elton\n")
- ;(En (E0 '(0 1) '(A B)) 1)
+;(En (E0 '(0 1) '(A B)) 1)
 
 (define (mkGrammar ♣ p)
   (if (= p 0)
@@ -296,14 +299,43 @@
 
 |#
 
+(define (get-result l)
+
+  (if (eq? (list-ref (car l) 7) 'suc)
+      (list (list-ref (car l) 5))
+      (list '⊥))
+
+  )
+
 (display "\nFunçao setar Peg \n")
 (define (setPeg L) ;fica na forma de (grammar exp input)
-  (define redct-expr (list (list-ref L 0) '⊢ '() (list-ref L 1) '↓ (list-ref L 2) '() '⊥ '(0)))
+  
+  (define grammar (list-ref L 0))
+  (define peg (list-ref L 1))
+  (define entry (list-ref L 2))
+  
+  (define redct-expr (list grammar '⊢ '() peg '↓ entry '() '⊥ '(0)))
   (display redct-expr)
   (display "\n")
-  (define judg-expr (list 'eval (list-ref L 0) (list (list-ref L 1) (list-ref L 2)) 's))
+  (define judg-expr (list 'eval grammar (list peg entry) 's))
   (display judg-expr)
   (display "\n")
-)
+
+  (test-equal 
+   (judgment-holds (eval ,grammar (,peg ,entry) s) s)
+   (get-result (apply-reduction-relation* red redct-expr)))
+
+  (test-results)
+  ;
+  
+  )
+
 (display "\n \n")
 (setPeg '((A (/ 1 2) ∅) (/ A 2) (1 2 3)))
+
+
+
+
+
+
+
