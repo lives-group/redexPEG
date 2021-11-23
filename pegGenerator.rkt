@@ -334,6 +334,12 @@
 (setPeg '((A (/ 1 2) ∅) (/ A 2) (1 2 3)))
 
 
+;testar mais a implementação do elton
+;verificar o resultado, o tipo
+;refazer os testes pra ver se ta tudo certo
+;randPeg
+;funcao pra verificar se oq saiu do a #f () condiz com a gramatica
+
 
 
 
