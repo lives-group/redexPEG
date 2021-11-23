@@ -18,7 +18,7 @@
   [Γ (τ ...)]
   [τ (b H)]
   [b #t #f]
-  [H x]
+  [H ∅ (x ...)]
   )
 
 
@@ -54,29 +54,41 @@
 ;b -> T or F
 ;H -> var
 
-(define-judgment-form evalPeg
-  #:mode(⊢ I I O)  
-  #:contract(⊢ Γ e τ)
+(define-judgment-form TypedPeg
+  #:mode (⊢ I I O)  
+  #:contract (⊢ Γ e τ)
 
   [----------------------------"empty"
    (⊢ Γ ε (#t ∅))]
 
-  [(⊢ Γ (* e) τ)
+  [----------------------------"terminal"
+   (⊢ Γ e (#f ∅))]
+
+  [(⊢ Γ e (b H))
    ----------------------------"rep"
-   (⊢ Γ e (#f H))]
+   (⊢ Γ (* e) (#f H))]
 
-  [(⊢ Γ (! e) τ)
+  [(⊢ Γ e (b H))
    ----------------------------"not"
-   (⊢ Γ e (#f H))]
+   (⊢ Γ (! e) (#f H))]
 
-  #;[(⊢ Γ (• e_1 e_2) (b H))
-   ----------------------------"seq_1" ;;por algum motivo ta dando problema no e_2
-   (⊢ Γ e_1 (#t H_1))]
+  [(⊢ Γ  e_1 (#t H_1))
+   (⊢ Γ  e_2 (b H_2))
+   ----------------------------"seq_1"
+   (⊢ Γ (• e_1 e_2) (b (H_1 H_2)))]
 
 
-  #;[(⊢ Γ (• e_1 e_2) (b H))
-     ----------------------------"seq_2"
-     (⊢ Γ e_2 (b H_2))]
+  [(⊢ Γ  e_1 (#f H_1))
+   (⊢ Γ e_2 (b H_2))
+   ----------------------------"seq_2"
+   (⊢ Γ (• e_1 e_2) (b H_1))]
+
+  
+  [(⊢ Γ  e_1 (b_1 H_1))
+   (⊢ Γ e_2 (b_2 H_2))
+   ----------------------------"alt"
+   (⊢ Γ (/ e_1 e_2) ((or b_1 b_2) (H_1 H_2)))]
+  
   )
                 
 (define-judgment-form evalPeg 
@@ -360,3 +372,12 @@
 (define-metafunction evalPeg
   [(empty? ()) #f]
   [(empty? s)  #t])
+
+
+(define-metafunction TypedPeg
+  [(or #t #f) #t]
+  [(or #f #t) #t]
+  [(or #t #t) #t]
+  [(or #f #f) #f]
+
+  )
