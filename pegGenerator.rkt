@@ -275,6 +275,12 @@
   )
 
 
+
+
+
+
+
+
 ;n -> numero de nao terminal
 ;L -> lista
 ;p -> profundidade lista
@@ -326,8 +332,7 @@
    (get-result (apply-reduction-relation* red redct-expr)))
 
   (test-results)
-  ;
-  
+
   )
 
 (display "\n \n")
