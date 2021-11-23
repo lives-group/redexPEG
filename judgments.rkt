@@ -1,5 +1,6 @@
 #lang racket
 (require redex)
+(require redex-etc)
 (require "./peg.rkt")
 (require "./reduction.rkt")
 ;(require "./WFverf.rkt")
@@ -15,12 +16,64 @@
 
 ; Syntax for TypedPeg
 (define-extended-language TypedPeg Peg 
-  [Γ (τ ...)]
+  [Γ ((x τ ) ...)]
   [τ (b H)]
   [b #t #f]
-  [H ∅ (x ...)]
+  [H (x ...)]
   )
 
+;TypedPeg
+;Γ -> lista de variaveis e tipo τ
+;G -> Gramatica peg
+;τ -> (b, H)
+;b -> T or F
+;H -> var
+
+(define-judgment-form TypedPeg
+  #:mode (⊢ I I O)  
+  #:contract (⊢ Γ e τ)
+
+  [----------------------------"empty"
+   (⊢ Γ ε (#t ()))]
+
+  [----------------------------"terminal"
+   (⊢ Γ number (#f ()))]
+
+  [
+   ----------------------------"var"
+   (⊢ Γ x (ins (ΓLook Γ x) x))]
+
+  [(⊢ Γ e (b H))
+   ----------------------------"rep"
+   (⊢ Γ (* e) (#t H))]
+
+  [(⊢ Γ e (b H))
+   ----------------------------"not"
+   (⊢ Γ (! e) (#t H))]
+
+  [(⊢ Γ  e_1 (#t H_1))
+   (⊢ Γ  e_2 (b H_2))
+   ----------------------------"seq_1"
+   (⊢ Γ (• e_1 e_2) (b (∪ H_1 H_2)))]
+
+
+  [(⊢ Γ  e_1 (#f H_1))
+   (⊢ Γ e_2 (b H_2))
+   ----------------------------"seq_2"
+   (⊢ Γ (• e_1 e_2) (#f H_1))]
+
+  
+  [(⊢ Γ  e_1 (b_1 H_1))
+   (⊢ Γ e_2 (b_2 H_2))
+   ----------------------------"alt"
+   (⊢ Γ (/ e_1 e_2) ((or b_1 b_2) (∪ H_1 H_2)))]
+  
+  )
+
+;(judgment-holds (⊢ () ε τ) τ)
+;(judgment-holds (⊢ () (! (/ 1 2)) τ) τ)
+;(judgment-holds (⊢ ((A (#f ()))) A τ) τ)
+;(judgment-holds (⊢ ((A (#f ())) (B (#t (A)))) B τ) τ)
 
 
 (define-judgment-form evalPeg
@@ -47,49 +100,6 @@
    (↛ G (D_1 D_2) #f)]
   )
 
-;TypedPeg
-;Γ -> lista de variaveis e tipo τ
-;G -> Gramatica peg
-;τ -> (b, H)
-;b -> T or F
-;H -> var
-
-(define-judgment-form TypedPeg
-  #:mode (⊢ I I O)  
-  #:contract (⊢ Γ e τ)
-
-  [----------------------------"empty"
-   (⊢ Γ ε (#t ∅))]
-
-  [----------------------------"terminal"
-   (⊢ Γ e (#f ∅))]
-
-  [(⊢ Γ e (b H))
-   ----------------------------"rep"
-   (⊢ Γ (* e) (#f H))]
-
-  [(⊢ Γ e (b H))
-   ----------------------------"not"
-   (⊢ Γ (! e) (#f H))]
-
-  [(⊢ Γ  e_1 (#t H_1))
-   (⊢ Γ  e_2 (b H_2))
-   ----------------------------"seq_1"
-   (⊢ Γ (• e_1 e_2) (b (H_1 H_2)))]
-
-
-  [(⊢ Γ  e_1 (#f H_1))
-   (⊢ Γ e_2 (b H_2))
-   ----------------------------"seq_2"
-   (⊢ Γ (• e_1 e_2) (b H_1))]
-
-  
-  [(⊢ Γ  e_1 (b_1 H_1))
-   (⊢ Γ e_2 (b_2 H_2))
-   ----------------------------"alt"
-   (⊢ Γ (/ e_1 e_2) ((or b_1 b_2) (H_1 H_2)))]
-  
-  )
                 
 (define-judgment-form evalPeg 
   #:mode (⇀ I I O)
@@ -380,4 +390,17 @@
   [(or #t #t) #t]
   [(or #f #f) #f]
 
+  )
+
+(define-metafunction TypedPeg
+  [(∪ H_1 H_2 ) ,(set-union (term H_1) (term H_2))]
+  )
+
+(define-metafunction TypedPeg
+  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_1) τ_1]
+  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_3) (ΓLook ((x_2 τ_2) ...) x_3)] ;ser a variavel nao esta no contexto tem algo errado
+)
+
+(define-metafunction TypedPeg
+  [(ins (b H) x) (b ,(cons (term x) (term H)))]
   )
