@@ -13,6 +13,14 @@
   [D S ⊥]
   [S 0 1])
 
+; Syntax for TypedPeg
+(define-extended-language TypedPeg Peg 
+  [Γ (τ ...)]
+  [τ (b H)]
+  [b #t #f]
+  [H x]
+  )
+
 
 
 (define-judgment-form evalPeg
@@ -39,8 +47,39 @@
    (↛ G (D_1 D_2) #f)]
   )
 
+;TypedPeg
+;Γ -> lista de variaveis e tipo τ
+;G -> Gramatica peg
+;τ -> (b, H)
+;b -> T or F
+;H -> var
+
+(define-judgment-form evalPeg
+  #:mode(⊢ I I O)  
+  #:contract(⊢ Γ e τ)
+
+  [----------------------------"empty"
+   (⊢ Γ ε (#t ∅))]
+
+  [(⊢ Γ (* e) τ)
+   ----------------------------"rep"
+   (⊢ Γ e (#f H))]
+
+  [(⊢ Γ (! e) τ)
+   ----------------------------"not"
+   (⊢ Γ e (#f H))]
+
+  #;[(⊢ Γ (• e_1 e_2) (b H))
+   ----------------------------"seq_1" ;;por algum motivo ta dando problema no e_2
+   (⊢ Γ e_1 (#t H_1))]
+
+
+  #;[(⊢ Γ (• e_1 e_2) (b H))
+     ----------------------------"seq_2"
+     (⊢ Γ e_2 (b H_2))]
+  )
                 
-(define-judgment-form evalPeg ;usar esse no is-WF
+(define-judgment-form evalPeg 
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
 
