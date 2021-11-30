@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-("8.3" ta6le ("11d7148f5d5d5606d7ddf70141757523a55fcefc" . "420f78cbbe72e9765c50ab02a3b7aabb47244eff") (collects #"errortrace" #"errortrace-key.rkt") (collects #"rackcheck" #"main.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))
-=======
-("8.2" ta6le ("624c989f641b47335974a55302363bc453c4deda" . "69815a48bdf944cf05d34affa6bf2e07478f3fdc") (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))
->>>>>>> main
+("8.1" ta6nt ("b779382e9b398118be13c3fbe34fe209f41fb6a0" . "7906ca0b52a04e90cfcdc57249ee0b1d5788e391") (collects #"errortrace" #"errortrace-key.rkt") (collects #"rackcheck" #"main.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))
