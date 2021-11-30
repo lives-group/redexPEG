@@ -261,7 +261,7 @@
 
 
 ;GERA O STATE COMPLETO (GRAMÁTICA PEG-ENTRADA ELEMENTO-CONSUMIDO...)
-(define (genState Σ p n L cont)
+#;(define (genState Σ p n L cont)
   (define peg (sample (genPeg Σ p n L) cont))
   (define empty-grammar '(∅))
   (define grammar (genGrammar Σ p n L (car peg) '() '()))

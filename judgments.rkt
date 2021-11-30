@@ -14,7 +14,7 @@
   [R e ⊥]
   [D S ⊥]
   [S 0 1])
-
+#|
 ; Syntax for TypedPeg
 (define-extended-language TypedPeg Peg 
   [Γ ((x τ ) ...)]
@@ -96,7 +96,7 @@
 ;(judgment-holds (⊢ ((A (#f ()))) A τ) τ)
 ;(judgment-holds (⊢ ((A (#f ())) (B (#t (A)))) B τ) τ)
 
-
+|#
 (define-judgment-form WFevalPeg
   #:mode (↛ I I O)
   #:contract (↛ G D boolean)
