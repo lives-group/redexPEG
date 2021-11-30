@@ -15,20 +15,23 @@
     (x variable-not-otherwise-mentioned))
 
 ; Syntax for a PEG grammar
-(define-extended-language Grammar Peg
+#;(define-extended-language Grammar Peg
   [G ((x e) ...)] ; A grammar is a set of nonterminal definition
 )
 
-
+; Syntax for a PEG grammar
+(define-extended-language Grammar Peg
+  [G (x e G) ∅] ; A grammar is a set of nonterminal definition
+)
 ; Syntax for parsing expression evaluation
-(define-extended-language evalPeg Grammar
-  [E (e s)]
-  [s (natural ...)
-     ⊥
-     ε])
+(define-extended-language simpleEvalPeg Grammar
+  [E (e s)]         ;An evaluation is comprised of a PEG and a input 
+  [s (natural ...)  ; An input can be: * A squence of terminal symbols
+     ⊥              ;                  * Booton, meaning an parser error 
+     ε])            ;                  * Empty string (there is nothing to be consumed !)
 
 
-(define-judgment-form evalPeg
+(define-judgment-form simpleEvalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
   
@@ -79,53 +82,10 @@
   
 )
 
-(define-metafunction evalPeg
+(define-metafunction simpleEvalPeg
   [(diff? natural_1 natural_1) #f]
   [(diff? natural_1 natural_2) #t]) 
 
-(define-metafunction evalPeg
+(define-metafunction simpleEvalPeg
   [(botton? ⊥)        #f]
   [(botton? s_1)      #t])
-
-(define myGen (make-pseudo-random-generator))
-
-(define (genPeg Σ p n L)
-       (if (equal? p 0) 
-            (gen:choice (gen:one-of Σ) (gen:const 'ε))
-            (gen:choice (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) n L)
-                                  (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1) ) n L) (lambda (s) (gen:const  `(• ,t ,s)) ) ) ) )
-                        (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) n L)
-                                  (lambda (t)  (gen:bind (genPeg Σ (- p (+ (random p myGen) 1)) n L) (lambda (s) (gen:const  `(/ ,t ,s))) ) ) )
-                        (gen:bind (genPeg Σ (- p 1) n L)
-                                  (lambda (t) (gen:const `(! ,t)) ))
-                        (gen:bind (genPeg Σ (- p 1) n L)
-                                  (lambda (t) (gen:const `(* ,t)) ))
-                        )
-           )  
-)
-
-(define E0 '(\epsilon))
-
-(define (E1 Σ V)
-        (append (map (lambda (e) (list e #f empty)) Σ)
-                (map (lambda (e) (list e (sample (gen:one-of (list #t #f)) 1) (list e) )) V)
-        )
-)
-
-#;[define (mkPegExpr ♣ p)
-        (if (= p 0)
-            (gen:one-of ♣)
-            (gen:choice (gen:bind (mkPegExpr ♣ (l-1))
-                                  (lambda (x) (gen:bind (mkPegExpr ♣ (l-1)) (lambda (y) (gen:const (mkSeq x y) )) ) ))
-                        ()
-                        ())
-        )
-]
-
-
-(define (mkSeq e1 e2)
-        (  `(• ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) (append (caddr e1) (caddr e2)) )
-)
-  
-
-

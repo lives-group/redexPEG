@@ -1,8 +1,7 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-(require "./judgments.rkt")
-;(require "./evalgrammar.rkt")
+;(require "./judgments.rkt")
 (provide (all-defined-out))
 
 (define-extended-language Reduct Grammar 
@@ -20,6 +19,7 @@
        (⊕ nat))
   (dir ↓
        ↑)
+  (s (natural ...))
   (state (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) 
   ;(state (G ⊢ (C ...) e dir s s D (nat ...)))  
   ;s1 lista de marcas, pontos da entrada que a gnt marcou

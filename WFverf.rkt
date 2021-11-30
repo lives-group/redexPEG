@@ -37,7 +37,7 @@
 
 (define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
-  ;(print (judgment-holds (⇀ ∅ ,exp D) D))
+  (print (judgment-holds (⇀ ∅ ,exp D) D))
   
   (if (member 0 (judgment-holds (⇀ ,grammar ,exp D) D))
       #f
@@ -128,40 +128,40 @@
 ;testar mais
 ;concertar o tchutchu tilt
 
-(display "\nAlternancia\n")
-(is-WF '∅ '(/ 1 2) '())
-(is-WF '∅ '(/ (/ (/ 1 2) 1) 2) '())
-(is-WF '∅ '(/ (/ (/ 1 2) 1) (/ 1 2)) '())
+;(display "\nAlternancia\n")
+;(is-WF '∅ '(/ 1 2) '())
+;(is-WF '∅ '(/ (/ (/ 1 2) 1) 2) '())
+;(is-WF '∅ '(/ (/ (/ 1 2) 1) (/ 1 2)) '())
 
-(display "\nSequência\n")
-(is-WF '∅ '(• 1 2) '())
+;(display "\nSequência\n")
+;(is-WF '∅ '(• 1 2) '())
 
-(display "\nNot\n")
-(is-WF '∅ '(! (• 1 2)) '())
+;(display "\nNot\n")
+;(is-WF '∅ '(! (• 1 2)) '())
 
-(display "\nRepetição\n")
-(is-WF '∅ '(* (• 1 2)) '())
-(is-WF '∅ '(* ε) '())
+;(display "\nRepetição\n")
+;(is-WF '∅ '(* (• 1 2)) '())
+;(is-WF '∅ '(* ε) '())
 
-(display "\nNão Terminal\n")
+;(display "\nNão Terminal\n")
 
-(is-WF '(B ε ∅) 'B '()) 
+;(is-WF '(B ε ∅) 'B '()) 
 
-(is-WF '(B 1 ∅) 'B '())
+;(is-WF '(B 1 ∅) 'B '())
 
-(is-WF '(B ε (A B ∅)) '(* B) '())
+;(is-WF '(B ε (A B ∅)) '(* B) '())
 
-(is-WF '(B 1 (A B ∅)) '(/ B A) '())
+;(is-WF '(B 1 (A B ∅)) '(/ B A) '())
 
-(is-WF '(B 1 (A B ∅)) '(/ A B) '())
+;(is-WF '(B 1 (A B ∅)) '(/ A B) '())
 
-(is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
+;(is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
 
-(is-WF '(A (• A 1) ∅) 'A '()) 
-(is-WF '(A B (B C (C A ∅))) 'A '())
+;(is-WF '(A (• A 1) ∅) 'A '()) 
+;(is-WF '(A B (B C (C A ∅))) 'A '())
 
-(display "\n Testes \n")
-(is-WF '∅ '(• 0 (* (/ (! 1) 2))) '())
+;(display "\n Testes \n")
+;(is-WF '∅ '(• 0 (* (/ (! 1) 2))) '())
 #|
 (display "\nTerminal\n")
 (inicio (list '(∅ (1))))
