@@ -31,9 +31,9 @@
 
 #;(define-metafunction evalPeg
    
-  [(WF? grammar e non-terminal) (is-WF grammar e non-terminal)]
+    [(WF? grammar e non-terminal) (is-WF grammar e non-terminal)]
   
-  )
+    )
 
 (define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
@@ -117,13 +117,13 @@
 (define (getGrammar expL)
   (car expL)
   (display (car expL))
-)
+  )
 
 (define (getExp expL) 
   (list-ref (cdr expL) 2)
   (display "\n")
-(display (list-ref (cdr expL) 2))
-)
+  (display (list-ref (cdr expL) 2))
+  )
 
 ;testar mais
 ;concertar o tchutchu tilt
