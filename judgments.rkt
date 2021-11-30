@@ -14,7 +14,7 @@
   [R e ⊥]
   [D S ⊥]
   [S 0 1])
-#|
+
 ; Syntax for TypedPeg
 (define-extended-language TypedPeg Peg 
   [Γ ((x τ ) ...)]
@@ -24,10 +24,10 @@
   )
 
 (define-metafunction TypedPeg
-  [(or #t #f) #t]
-  [(or #f #t) #t]
-  [(or #t #t) #t]
-  [(or #f #f) #f]
+  [(∨ #t #f) #t]
+  [(∨ #f #t) #t]
+  [(∨ #t #t) #t]
+  [(∨ #f #f) #f]
 
   )
 
@@ -87,7 +87,7 @@
   [(⊢ Γ  e_1 (b_1 H_1))
    (⊢ Γ e_2 (b_2 H_2))
    ----------------------------"alt"
-   (⊢ Γ (/ e_1 e_2) ((or b_1 b_2) (∪ H_1 H_2)))]
+   (⊢ Γ (/ e_1 e_2) ((∨ b_1 b_2) (∪ H_1 H_2)))]
   
   )
 
@@ -96,7 +96,7 @@
 ;(judgment-holds (⊢ ((A (#f ()))) A τ) τ)
 ;(judgment-holds (⊢ ((A (#f ())) (B (#t (A)))) B τ) τ)
 
-|#
+
 (define-judgment-form WFevalPeg
   #:mode (↛ I I O)
   #:contract (↛ G D boolean)
@@ -123,7 +123,7 @@
 
                 
 
-(define-judgment-form simpleEvalPeg 
+(define-judgment-form WFevalPeg 
 
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
