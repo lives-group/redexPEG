@@ -163,7 +163,7 @@
       )
   )
 (display "funçao do elton\n")
- ;(En (E0 '(0 1) '(A B)) 1)
+;(En (E0 '(0 1) '(A B)) 1)
 
 (define (mkGrammar ♣ p)
   (if (= p 0)
@@ -273,6 +273,12 @@
   )
 
 
+
+
+
+
+
+
 ;n -> numero de nao terminal
 ;L -> lista
 ;p -> profundidade lista
@@ -295,4 +301,50 @@
 #;(genState '(0 1 2) 3 (genSymbols 3) '() 1)
 #;(genState '(0 1 2) 3 (genSymbols 3) '() 1)
 
+#|
+
+(define (get-result l)
+
+  (if (eq? (list-ref (car l) 7) 'suc)
+      (list (list-ref (car l) 5))
+      (list '⊥))
+
+  )
+
+(display "\nFunçao setar Peg \n")
+(define (setPeg L) ;fica na forma de (grammar exp input)
+  
+  (define grammar (list-ref L 0))
+  (define peg (list-ref L 1))
+  (define entry (list-ref L 2))
+  
+  (define redct-expr (list grammar '⊢ '() peg '↓ entry '() '⊥ '(0)))
+  (display redct-expr)
+  (display "\n")
+  (define judg-expr (list 'eval grammar (list peg entry) 's))
+  (display judg-expr)
+  (display "\n")
+
+  (test-equal 
+   (judgment-holds (eval ,grammar (,peg ,entry) s) s)
+   (get-result (apply-reduction-relation* red redct-expr)))
+
+  (test-results)
+
+  )
+
+(display "\n \n")
+(setPeg '((A (/ 1 2) ∅) (/ A 2) (1 2 3)))
+
+
+;testar mais a implementação do elton
+;verificar o resultado, o tipo
+;refazer os testes pra ver se ta tudo certo
+;randPeg
+;funcao pra verificar se oq saiu do a #f () condiz com a gramatica
+
 |#
+
+
+
+

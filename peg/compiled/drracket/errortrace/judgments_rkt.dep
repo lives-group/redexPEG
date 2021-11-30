@@ -1,1 +1,0 @@
-("8.2" ta6le ("c92f1d6678e645eba0468981a361311d5306f193" . "c2dbef346cc49ce4d9d9f8923751c4d0495a3c20") #"/home/elton/Dropbox/Devel/Leo-APEG/PEGRacket/peg/./peg.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))

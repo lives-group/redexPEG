@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 ("8.3" ta6le ("c92f1d6678e645eba0468981a361311d5306f193" . "e4a5dbad0f118c65257ff8730f9d134793f03fab") #"/home/danielf/Desktop/ou/redexAPEG/./peg.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))
+=======
+("8.2" ta6le ("1beee6f6c399258ebd22b785daff96eb8cdd04d5" . "790283544d2de124232579ba4b2206a233d340b7") #"/home/danielf/Desktop/ou/redexAPEG/./peg.rkt" #"/home/danielf/Desktop/ou/redexAPEG/./reduction.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))
+>>>>>>> main
