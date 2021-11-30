@@ -7,13 +7,14 @@
 (provide (all-defined-out))
 
 
+
 ; Syntax for parsing expression evaluation
 (define-extended-language WFevalPeg Grammar
   [E (e s)]
   [R e ⊥]
   [D S ⊥]
   [S 0 1])
-
+#|
 ; Syntax for TypedPeg
 (define-extended-language TypedPeg Peg 
   [Γ ((x τ ) ...)]
@@ -22,6 +23,26 @@
   [H (x ...)]
   )
 
+(define-metafunction TypedPeg
+  [(or #t #f) #t]
+  [(or #f #t) #t]
+  [(or #t #t) #t]
+  [(or #f #f) #f]
+
+  )
+
+(define-metafunction TypedPeg
+  [(∪ H_1 H_2 ) ,(set-union (term H_1) (term H_2))]
+  )
+
+(define-metafunction TypedPeg
+  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_1) τ_1]
+  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_3) (ΓLook ((x_2 τ_2) ...) x_3)] ;ser a variavel nao esta no contexto tem algo errado
+)
+
+(define-metafunction TypedPeg
+  [(ins (b H) x) (b ,(cons (term x) (term H)))]
+  )
 ;TypedPeg
 ;Γ -> lista de variaveis e tipo τ
 ;G -> Gramatica peg
@@ -75,7 +96,7 @@
 ;(judgment-holds (⊢ ((A (#f ()))) A τ) τ)
 ;(judgment-holds (⊢ ((A (#f ())) (B (#t (A)))) B τ) τ)
 
-
+|#
 (define-judgment-form WFevalPeg
   #:mode (↛ I I O)
   #:contract (↛ G D boolean)
@@ -102,7 +123,7 @@
 
                 
 
-(define-judgment-form evalPeg 
+(define-judgment-form simpleEvalPeg 
 
   #:mode (⇀ I I O)
   #:contract (⇀ G e D)
@@ -385,24 +406,3 @@
   [(empty? ()) #f]
   [(empty? s)  #t])
 
-
-(define-metafunction TypedPeg
-  [(or #t #f) #t]
-  [(or #f #t) #t]
-  [(or #t #t) #t]
-  [(or #f #f) #f]
-
-  )
-
-(define-metafunction TypedPeg
-  [(∪ H_1 H_2 ) ,(set-union (term H_1) (term H_2))]
-  )
-
-(define-metafunction TypedPeg
-  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_1) τ_1]
-  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_3) (ΓLook ((x_2 τ_2) ...) x_3)] ;ser a variavel nao esta no contexto tem algo errado
-)
-
-(define-metafunction TypedPeg
-  [(ins (b H) x) (b ,(cons (term x) (term H)))]
-  )
