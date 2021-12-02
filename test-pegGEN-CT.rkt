@@ -214,6 +214,11 @@
         '()
         (cons (car lst) (remove-last (cdr lst)))))
 
+;TESTEEEEE
+(define peg (randPEG '(B A) '(0 1) 2))
+(verfHeadSet peg)
+
+
 ; Loopinf is-WF.
 ;
 ; '((B (• (* 0) (/ A ε)) (A (• (• ε 1) (• B ε)) ∅)) (• (/ 1 A) (! 1)) ((A #f ()) (B #t (A))))
