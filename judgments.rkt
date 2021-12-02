@@ -1,6 +1,6 @@
 #lang racket
 (require redex)
-(require redex-etc)
+;(require redex-etc)
 (require "./peg.rkt")
 ;(require "./reduction.rkt")
 ;(require "./WFverf.rkt")
