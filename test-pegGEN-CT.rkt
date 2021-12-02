@@ -193,9 +193,13 @@
   
   (println list-grammar)
   (map (lambda (peg grammar)
-         
-         (list (car peg) (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ))
-          
+         (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
+           (println judg)
+           (println peg)
+           (if (equal? (cdr peg) judg)
+               peg
+               (list* (car peg) judg)
+               ))
          )
        list-hs
        list-grammar
@@ -210,12 +214,13 @@
       
 
 (define (remove-last lst)
-    (if (null? (cdr lst))
-        '()
-        (cons (car lst) (remove-last (cdr lst)))))
+  (if (null? (cdr lst))
+      '()
+      (cons (car lst) (remove-last (cdr lst)))))
 
 ;TESTEEEEE
 (define peg (randPEG '(B A) '(0 1) 2))
+peg
 (verfHeadSet peg)
 
 
