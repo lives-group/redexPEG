@@ -41,7 +41,7 @@
 )
 
 (define-metafunction TypedPeg
-  [(ins (b H) x) (b ,(cons (term x) (term H)))]
+  [(ins (b H) x) (b ,(set-union (list (term x)) (term H)))]
   )
 ;TypedPeg
 ;Γ -> lista de variaveis e tipo τ

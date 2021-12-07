@@ -179,6 +179,8 @@
     )
   )
 
+;pegar um elemento do headset gerado e procura no outroo
+;ou ordenar os dois
 
 (define (getHeadSet randPeg)
   (map (lambda (e)
@@ -194,11 +196,11 @@
   (println list-grammar)
   (map (lambda (peg grammar)
          (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
-           (println judg)
-           (println peg)
+           (print "Judgm: ") (println judg)
+           (print "Elton: ") (println peg)
            (if (equal? (cdr peg) judg)
                peg
-               (list* (car peg) judg)
+               (begin (display "Deu ruim\n\n") (list* (car peg) judg))
                ))
          )
        list-hs
@@ -218,11 +220,39 @@
       '()
       (cons (car lst) (remove-last (cdr lst)))))
 
-;TESTEEEEE
-(define peg (randPEG '(B A) '(0 1) 2))
-peg
-(verfHeadSet peg)
 
+
+;GERA A GRAMMAR
+(define (genSymbols n)
+  (define cont (build-list n values))
+  (map (lambda (i)
+         (string->symbol (format "X~a" i)))
+       cont)
+  )
+
+;TESTEEEEE
+
+(define (mkList n)
+  (if (<= n 0)
+      null
+      (cons (- n 1) (mkList (- n 1)) )))
+
+
+(define (geraTestes)
+             
+  (let* ([nV (sample (gen:integer-in 0 10) 1)]
+         [vars (genSymbols (car nV)) ]
+         [nT (sample (gen:integer-in 0 26) 1)]
+         [Σ (mkList (car nT)) ]
+         [p (sample (gen:integer-in 0 2) 1)])
+    (for ([x 10])
+      (verfHeadSet (randPEG vars Σ (car p)))))
+  )
+;(define peg (randPEG (genSymbols 3) (sample (gen:one-of '(0 1 2 3))) 2))
+;peg
+;(verfHeadSet peg)
+;usar o redex-check
+;gerador de dados aleatórios que gere o alfabeto e a gramática
 
 ; Loopinf is-WF.
 ;
