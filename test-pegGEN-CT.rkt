@@ -193,7 +193,7 @@
          (if (member e (car hs-off))
              #t
              #f))
-         (car hs-judg))
+          (car hs-judg))
   )
 
 (define (verfHeadSet randPeg)
@@ -203,9 +203,9 @@
   (println list-grammar)
   (map (lambda (peg grammar)
          (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
-           (print "Judgm: ") (println (cdr judg))
-           (print "Elton: ") (println (cdr (cdr peg)))
-           (if (not (member #f (auxHeadSet (cdr judg) (cdr (cdr peg)))))
+           (print "Judgm: ") (println (cdr (car judg)))
+           (print "Elton: ") (println (cdr (car (cdr peg))))
+           (if (not (member #f (auxHeadSet (cdr (car judg)) (cdr (car (cdr peg))))))
                peg
                (begin (display "Deu ruim\n\n") (list* (car peg) judg))
                ))
