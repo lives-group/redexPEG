@@ -116,7 +116,7 @@
 
 (define (getGrammar expL)
   (car expL)
-  (display (car expL))
+  ;(display (car expL))
   )
 
 (define (getExp expL) 

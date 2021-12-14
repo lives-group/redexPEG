@@ -128,8 +128,8 @@
   )
 
 (define (randPEG vars Σi p)
-  (let* [(ts  (sample gen:boolean (length vars) myGen))
-         (bol  (car (sample gen:boolean (length vars) myGen)))
+  (let* [(ts  (if (> (length vars) 0) (sample gen:boolean (length vars) myGen) ('()) ) )
+         (bol  (car (sample gen:boolean 1 myGen)))
          (Γi (zipWith (lambda (v b) (list v b null)  ) vars ts))
          (Δi (initΔ Γi))
          (GΓ (genGrammar '∅ Γi Δi Σi 0 p) )
@@ -200,11 +200,11 @@
   (define list-hs (getHeadSet (reverse (list-ref randPeg 2))))
   (define list-grammar (remove-last (separateGrammar (list-ref randPeg 0))))
   
-  (println list-grammar)
+  ;(println list-grammar)
   (map (lambda (peg grammar)
          (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
-           (print "Judgm: ") (println (cdr (car judg)))
-           (print "Elton: ") (println (cdr (car (cdr peg))))
+           ;(print "Judgm: ") (println (cdr (car judg)))
+           ;(print "Elton: ") (println (cdr (car (cdr peg))))
            (if (not (member #f (auxHeadSet (cdr (car judg)) (cdr (car (cdr peg))))))
                peg
                (begin (display "Deu ruim\n\n") (list* (car peg) judg))
@@ -246,13 +246,12 @@
 
 
 (define (geraTestes)
-             
   (let* ([nV (sample (gen:integer-in 0 10) 1)]
          [vars (genSymbols (car nV)) ]
          [nT (sample (gen:integer-in 0 26) 1)]
          [Σ (mkList (car nT)) ]
-         [p (sample (gen:integer-in 0 2) 1)])
-    (for ([x 10])
+         [p (sample (gen:integer-in 0 7) 1)])
+    (for ([x 100])
       (verfHeadSet (randPEG vars Σ (car p)))))
   )
 ;(define peg (randPEG (genSymbols 3) (sample (gen:one-of '(0 1 2 3))) 2))
