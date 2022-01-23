@@ -76,7 +76,7 @@
   [(eval G (e s) s_1)
    (side-condition (botton? s_1))
    -------------------------------
-   (eval G ((! e) s) s)] ;; coloquei para na expressao 
+   (eval G ((! e) s) s)]  
 
   [(eval G (e s) ⊥)
    -------------------------------
@@ -93,6 +93,10 @@
    (eval G ((* e) s_1) s_2)
    -------------------------------
    (eval G ((* e) s) s_2)]
+
+  ;Empty
+  [-------------------------------
+   (eval G (ε s) s)]
 
   ;Non-Terminal
   #;[(lookup G x e)     
