@@ -84,19 +84,6 @@
              [t (car (sample (genPegExpr Γ Δ_x Σ (cadr x) pmax) 1) ) ]
              [Δ1 (foldr (lambda (z Δ2) (hash-update Δ2 z (lambda (l) (set-union l (list (car x)) )  ) ) ) Δ (caddr t) )]
              [Γ1  (Γ-up Γ (car x) (cadr t) (caddr t)) ])
-
-        ;(display "Body ")
-        ;(display t)
-        ;(display " Generated for " )
-        ;(display x)
-        ;(display " With Γ = ")
-        ;(display Γ)
-        ;(display " and Δ = ")
-        ;(display Δ)
-        ;(display " and Δ_x = ")
-        ;(display Δ_x)
-        ;(display "\n")
-                  
         (genGrammar (list (car x) (car t) G) Γ1 Δ1 Σ (+ n 1) pmax)
         )
       )
@@ -193,7 +180,7 @@
          (if (member e (car hs-off))
              #t
              #f))
-          (car hs-judg))
+       (car hs-judg))
   )
 
 (define (verfHeadSet randPeg)

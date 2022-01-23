@@ -31,6 +31,8 @@
      ε])            ;                  * Empty string (there is nothing to be consumed !)
 
 
+
+; Judgment for a simple peg evaluation 
 (define-judgment-form simpleEvalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
@@ -74,11 +76,33 @@
   [(eval G (e s) s_1)
    (side-condition (botton? s_1))
    -------------------------------
-   (eval G ((! e) s) ⊥)]
+   (eval G ((! e) s) s)] ;; coloquei para na expressao 
 
   [(eval G (e s) ⊥)
    -------------------------------
-   (eval G ((! e) s) ε)]  
+   (eval G ((! e) s) ε)]
+
+
+  ;Repetition
+  [(eval G (e s) ⊥)
+   -------------------------------
+   (eval G ((* e) s) s)]
+
+  [(eval G (e s) s_1)
+   (side-condition (botton? s_1))
+   (eval G ((* e) s_1) s_2)
+   -------------------------------
+   (eval G ((* e) s) s_2)]
+
+  ;Non-Terminal
+  #;[(lookup G x e)     
+   (eval G (e s) s_1)
+   --------------------------------
+   (eval G (x s) s_1)]
+  
+  #;[(lookup G x ⊥)
+   --------------------------------
+   (eval G (x s) ⊥)]  
   
 )
 
