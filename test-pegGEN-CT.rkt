@@ -61,7 +61,8 @@
   (list `(• ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) ( if (cadr e1)
                                                                 (set-union (caddr e1) (caddr e2))
                                                                 (caddr e1)
-                                                                ) )
+                                                                )
+        )
   )
 
 (define (mkAlt e1 e2)
@@ -91,7 +92,6 @@
 
 (define (Γ-item-up x y)
   (list (car x) (cadr x) (set-union (caddr x) y ))
-
   )
 
 (define (Γ-up xs y b ty)
@@ -121,7 +121,8 @@
          (Δi (initΔ Γi))
          (GΓ (genGrammar '∅ Γi Δi Σi 0 p) )
          (e0  (car (sample (genPegExpr (cadr GΓ) null Σi bol p) 1)) )]
-    (list (car GΓ) (car e0) (cadr GΓ) ))
+    (list (car GΓ) (car e0) (cadr GΓ) )
+    )
   )
 
 (define (zip xs ys)
@@ -152,7 +153,6 @@
 
 (define (runTest v Σ p n)
   (for ([x n])
-             
     (let ([pg (randPEG v Σ p) ])
       (println pg)
       (print "Grammar: ")
@@ -165,9 +165,6 @@
       )
     )
   )
-
-;pegar um elemento do headset gerado e procura no outroo
-;ou ordenar os dois
 
 (define (getHeadSet randPeg)
   (map (lambda (e)
@@ -187,16 +184,8 @@
   (define list-hs (getHeadSet (reverse (list-ref randPeg 2))))
   (define list-grammar (remove-last (separateGrammar (list-ref randPeg 0))))
   
-  
   (map (lambda (peg grammar)
          (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
-<<<<<<< HEAD
-           (print "Judgm: ") (println judg)
-           (print "Elton: ") (println peg)
-=======
-           ;(print "Judgm: ") (println (cdr (car judg)))
-           ;(print "Elton: ") (println (cdr (car (cdr peg))))
->>>>>>> 99b274cceb8df92d925b3c497c44fc73bbff2bf7
            (if (not (member #f (auxHeadSet (cdr (car judg)) (cdr (car (cdr peg))))))
                peg
                (begin (display "Deu ruim\n\n") (list* (car peg) judg))
@@ -205,21 +194,22 @@
        list-hs
        list-grammar
        )
-  
   )
 
 (define (separateGrammar grammar)
   (if (equal? grammar '∅)
       (list '∅)
-      (cons (list (list-ref grammar 0) (list-ref grammar 1)) (separateGrammar (list-ref grammar 2))))) 
+      (cons (list (list-ref grammar 0) (list-ref grammar 1)) (separateGrammar (list-ref grammar 2)))
+      )
+  ) 
       
 
 (define (remove-last lst)
   (if (null? (cdr lst))
       '()
-      (cons (car lst) (remove-last (cdr lst)))))
-
-
+      (cons (car lst) (remove-last (cdr lst)))
+      )
+  )
 
 ;GERA A GRAMMAR
 (define (genSymbols n)
@@ -229,12 +219,13 @@
        cont)
   )
 
-;TESTEEEEE
-
+;TESTE
 (define (mkList n)
   (if (<= n 0)
       null
-      (cons (- n 1) (mkList (- n 1)) )))
+      (cons (- n 1) (mkList (- n 1)))
+      )
+  )
 
 
 (define (geraTestes)
@@ -244,8 +235,12 @@
          [Σ (mkList (car nT)) ]
          [p (sample (gen:integer-in 0 7) 1)])
     (for ([x 100])
-      (verfHeadSet (randPEG vars Σ (car p)))))
+      (verfHeadSet (randPEG vars Σ (car p)))
+      )
+    )
   )
+
+
 ;(define peg (randPEG (genSymbols 3) (sample (gen:one-of '(0 1 2 3))) 2))
 ;peg
 ;(verfHeadSet peg)
