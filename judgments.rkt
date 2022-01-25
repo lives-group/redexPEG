@@ -2,7 +2,7 @@
 (require redex)
 (require "./peg.rkt")
 (provide (all-defined-out))
-
+;; BIG STEP TROCAR NOME 
 ; Syntax for parsing expression evaluation
 (define-extended-language WFevalPeg Grammar
   [E (e s)]
@@ -40,7 +40,7 @@
 (define-metafunction TypedPeg
   [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_1) τ_1]
   [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_3) (ΓLook ((x_2 τ_2) ...) x_3)] 
-)
+  )
 
 (define-metafunction TypedPeg
   [(ins (b H) x) (b ,(set-union (list (term x)) (term H)))]
@@ -382,8 +382,8 @@
   [(equals? x e) #f])
 
 #;(define-metafunction WFevalPeg
-  [(diff? natural_1 natural_1) #f]
-  [(diff? natural_1 natural_2) #t]) 
+    [(diff? natural_1 natural_1) #f]
+    [(diff? natural_1 natural_2) #t]) 
 
 (define-metafunction WFevalPeg
   [(diffs? x_1 x_1) #f]
@@ -395,13 +395,12 @@
 
 ;Helper function of the grammar simpleEvalPeg
 #;(define-metafunction simpleEvalPeg
-  [(botton? ⊥)        #f]
-  [(botton? s_1)      #t])
+    [(botton? ⊥)        #f]
+    [(botton? s_1)      #t])
 
 (define-metafunction simpleEvalPeg
   [(not-botton? ⊥)        #t]
   [(not-botton? s_1)      #f])
-
 
 
 
@@ -411,3 +410,95 @@
 ;(judgment-holds (⊢ () (! (/ 1 2)) τ) τ)
 ;(judgment-holds (⊢ ((A (#f ()))) A τ) τ)
 ;(judgment-holds (⊢ ((A (#f ())) (B (#t (A)))) B τ) τ)
+
+
+; Judgment for a simple peg evaluation 
+(define-judgment-form simpleEvalPeg
+  #:mode (eval I I O)
+  #:contract (eval G E s)
+  
+  ;Terminal
+  [-------------------------------- 
+   (eval G (natural_1 (natural_1 natural ...)) (natural ...))]
+  
+  [(side-condition (diff? natural_1 natural_2))
+   --------------------------------
+   (eval G (natural_1 (natural_2 natural ...)) ⊥)]
+  
+  [--------------------------------
+   (eval G (natural_1 ()) ⊥)]
+
+  ;Choice
+  [(eval G (e_1 s) s_1)
+   (side-condition (botton? s_1))
+   --------------------------------
+   (eval G ((/ e_1 e_2) s) s_1)]
+
+  [(eval G (e_2 s) s_1)
+   (side-condition (botton? s_1))  
+   -------------------------------
+   (eval G ((/ e_1 e_2) s) s_1)]
+
+  [------------------------------
+   (eval G ((/ e_1 e_2) ()) ⊥)]
+
+  ;Sequence
+  [(eval G (e_1 s) s_1)
+   (eval G (e_2 s_1) s_2)
+   -------------------------------
+   (eval G ((• e_1 e_2) s) s_2)]
+
+  [(eval G (e_1 s) ⊥)
+   ------------------------------
+   (eval G ((• e_1 e_2) s) ⊥)]
+
+  ;Not
+  [(eval G (e s) s_1)
+   (side-condition (botton? s_1))
+   -------------------------------
+   (eval G ((! e) s) ⊥)]  
+
+  [(eval G (e s) ⊥)
+   -------------------------------
+   (eval G ((! e) s) s)]
+
+  ;Repetition
+  [(eval G (e s) ⊥)
+   -------------------------------
+   (eval G ((* e) s) s)]
+
+  [(eval G (e s) s_1)
+   (side-condition (botton? s_1))
+   (eval G ((* e) s_1) s_2)
+   -------------------------------
+   (eval G ((* e) s) s_2)]
+
+  ;Empty
+  [-------------------------------
+   (eval G (ε s) s)]
+
+  ;Non-Terminal
+  [(lookup G x e)     
+   (eval G (e s) s_1)
+   --------------------------------
+   (eval G (x s) s_1)]
+  
+  [(lookup G x ⊥)
+   --------------------------------
+   (eval G (x s) ⊥)]  
+  
+  )
+
+
+; Checks if natural_1 and natural_2 are different
+(define-metafunction simpleEvalPeg
+  [(diff? natural_1 natural_1) #f]
+  [(diff? natural_1 natural_2) #t]) 
+
+; Checks if is botton
+(define-metafunction simpleEvalPeg
+  [(botton? ⊥)        #f]
+  [(botton? s_1)      #t])
+
+
+
