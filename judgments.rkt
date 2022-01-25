@@ -1,12 +1,9 @@
 #lang racket
 (require redex)
-;(require redex-etc)
 (require "./peg.rkt")
-;(require "./reduction.rkt")
-;(require "./WFverf.rkt")
 (provide (all-defined-out))
 
-
+; 
 
 ; Syntax for parsing expression evaluation
 (define-extended-language WFevalPeg Grammar
@@ -16,12 +13,19 @@
   [S 0 1])
 
 ; Syntax for TypedPeg
+;; Γ -> list of variables of type τ
+;; G -> Peg Grammar 
+;; τ -> (b, H)
+;; b -> T or F
+;; H -> var
 (define-extended-language TypedPeg Peg 
   [Γ ((x τ ) ...)]
   [τ (b H)]
   [b #t #f]
   [H (x ...)]
   )
+
+; Helpers for TypedPeg
 
 (define-metafunction TypedPeg
   [(∨ #t #f) #t]
@@ -37,19 +41,14 @@
 
 (define-metafunction TypedPeg
   [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_1) τ_1]
-  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_3) (ΓLook ((x_2 τ_2) ...) x_3)] ;ser a variavel nao esta no contexto tem algo errado
+  [(ΓLook ((x_1 τ_1) (x_2 τ_2) ...) x_3) (ΓLook ((x_2 τ_2) ...) x_3)] 
 )
 
 (define-metafunction TypedPeg
   [(ins (b H) x) (b ,(set-union (list (term x)) (term H)))]
   )
-;TypedPeg
-;Γ -> lista de variaveis e tipo τ
-;G -> Gramatica peg
-;τ -> (b, H)
-;b -> T or F
-;H -> var
 
+; 
 (define-judgment-form TypedPeg
   #:mode (⊢ I I O)  
   #:contract (⊢ Γ e τ)
@@ -96,7 +95,7 @@
 ;(judgment-holds (⊢ ((A (#f ()))) A τ) τ)
 ;(judgment-holds (⊢ ((A (#f ())) (B (#t (A)))) B τ) τ)
 
-
+; Judgment for 
 (define-judgment-form WFevalPeg
   #:mode (↛ I I O)
   #:contract (↛ G D boolean)
@@ -148,7 +147,6 @@
   #;[(lookup G x ⊥)
      -------------------------------
      (⇀ G x ⊥)]
-
  
   ;Sequence
   [(⇀ G e_1 0)
@@ -285,8 +283,9 @@
    (WF G (! e) #t)]
   )
 
-  
-(define-judgment-form WFevalPeg ;usar no is-WF
+; Judgment for 
+
+(define-judgment-form WFevalPeg 
   #:mode (lookup I I O)
   #:contract (lookup G x R)
   
@@ -301,6 +300,7 @@
    --------------------------------
    (lookup (x_1 e_1 G) x_2 R)] 
   )
+
 
 (define-judgment-form simpleEvalPeg
   #:mode (evalWF I I O)

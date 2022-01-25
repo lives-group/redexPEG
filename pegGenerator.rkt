@@ -1,7 +1,6 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-;(require "./WFverf.rkt")
 (define +Gen (make-pseudo-random-generator))
 (require rackcheck)
 
@@ -29,10 +28,10 @@
 
 
 ;assando a peg pra ficar prontinha!
-;Σ -> alfabeto de terminais (ex: 0 1 2)
-;V -> lista de não terminais (ex: A B)
-;p -> profundidade da peg
-;n -> número de pegs que queremos que gere com o SAMPLE
+;Σ -> Terminal alphabet (ex: 0 1 2)
+;V -> Non-Terminals list (ex: A B)
+;p -> Peg depth
+;n -> Number of pegs we want it to generate with SAMPLE 
 (define (bakePeg Σ V p n)
   (define X0 (E0 Σ V))
   (display X0)
@@ -40,7 +39,7 @@
   (sample (mkPegExpr X0 p) n)
   )
 
-;E0: lista de termos: (expressão, nullable, headset)
+;E0: list of terms: (expression, nullable, headset)
 ;ex:((ε #t ()) (0 #f ()) (1 #f ()) (2 #f ()) (A #t (A)) (B #t (B)))
 (define (E0 Σ V)
   (append (list (list 'ε #t empty) )
@@ -80,8 +79,8 @@
 
 ;(kruskal '(A B C D) '() '(A B C D) 0)
 
-;gera a peg total
-;♣: E0 -> lista inicial gerada com a função E0
+;Generates Peg
+;♣: E0 -> Initial list generated with the function E0
 (define (mkPegExpr ♣ p)
   (if (= p 0)
       (gen:one-of ♣)
@@ -102,7 +101,7 @@
 
 
 
-;gera peg com •
+;Generates peg with •
 (define (mkSeq e1 e2)
   (if(eq? (car e1) 'ε)
      e2
@@ -116,17 +115,17 @@
      )
   )
 
-;gera peg com /
+;Generates peg with /
 (define (mkAlt e1 e2)
   (list `(/ ,(car e1) ,(car e2)) (and (cadr e1) (cadr e2)) (set-union (caddr e1) (caddr e2) ) )
   )
 
-;gera peg com *
+;Generates peg with *
 (define (mkKle e1)
   (list `(* ,(car e1) ) #t (caddr e1) )
   )
 
-;gera peg com !
+;Generates peg with !
 (define (mkNot e1 )
   (list `(! ,(car e1) ) #t ( caddr e1 ) )
   )

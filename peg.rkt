@@ -31,6 +31,8 @@
      ε])            ;                  * Empty string (there is nothing to be consumed !)
 
 
+
+; Judgment for a simple peg evaluation 
 (define-judgment-form simpleEvalPeg
   #:mode (eval I I O)
   #:contract (eval G E s)
@@ -74,18 +76,47 @@
   [(eval G (e s) s_1)
    (side-condition (botton? s_1))
    -------------------------------
-   (eval G ((! e) s) ⊥)]
+   (eval G ((! e) s) s)]  
 
   [(eval G (e s) ⊥)
    -------------------------------
-   (eval G ((! e) s) ε)]  
+   (eval G ((! e) s) ε)]
+
+
+  ;Repetition
+  [(eval G (e s) ⊥)
+   -------------------------------
+   (eval G ((* e) s) s)]
+
+  [(eval G (e s) s_1)
+   (side-condition (botton? s_1))
+   (eval G ((* e) s_1) s_2)
+   -------------------------------
+   (eval G ((* e) s) s_2)]
+
+  ;Empty
+  [-------------------------------
+   (eval G (ε s) s)]
+
+  ;Non-Terminal
+  #;[(lookup G x e)     
+   (eval G (e s) s_1)
+   --------------------------------
+   (eval G (x s) s_1)]
+  
+  #;[(lookup G x ⊥)
+   --------------------------------
+   (eval G (x s) ⊥)]  
   
 )
 
+
+; Checks if natural_1 and natural_2 are different
 (define-metafunction simpleEvalPeg
   [(diff? natural_1 natural_1) #f]
   [(diff? natural_1 natural_2) #t]) 
 
+; Checks if is botton
 (define-metafunction simpleEvalPeg
   [(botton? ⊥)        #f]
   [(botton? s_1)      #t])

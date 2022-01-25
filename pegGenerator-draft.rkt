@@ -2,20 +2,13 @@
 (require redex)
 (require  racket/set)
 (require "./peg.rkt")
-;(require "./WFverf.rkt")
 (define +Gen (make-pseudo-random-generator))
 (require rackcheck)
 
-#;(define-metafunction Peg
-    [(Gpeg natural) peg]
-  
-    )
-;trocar o nome desse arq aqui que testee ta mt feio
-
-;n -> lista de nomes de nao terminais
-;L -> lista
-;P -> profundidade lista
-;Σ -> lista de elementos de um alfabeto
+;n -> List of non-terminal names
+;L -> List
+;P -> List depth
+;Σ -> List of elements of an alphabet
 (define (Gpeg n L P Σ)
   
   (if (equal? P 0) 
@@ -29,7 +22,7 @@
 
 
 ;nullable: anulavel ou nao (consome ou nao) proibe de gerar algo nulavel? 
-;L: lista de nao terminais
+
 (define (genPeg Σ p L nullable)
   (if (equal? p 0)
       (if nullable
