@@ -203,8 +203,8 @@
   (println list-grammar)
   (map (lambda (peg grammar)
          (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
-           (print "Judgm: ") (println (cdr (car judg)))
-           (print "Elton: ") (println (cdr (car (cdr peg))))
+           (print "Judgm: ") (println judg)
+           (print "Elton: ") (println peg)
            (if (not (member #f (auxHeadSet (cdr (car judg)) (cdr (car (cdr peg))))))
                peg
                (begin (display "Deu ruim\n\n") (list* (car peg) judg))
