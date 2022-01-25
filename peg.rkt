@@ -110,10 +110,13 @@
   
 )
 
+
+; Checks if natural_1 and natural_2 are different
 (define-metafunction simpleEvalPeg
   [(diff? natural_1 natural_1) #f]
   [(diff? natural_1 natural_2) #t]) 
 
+; Checks if is botton
 (define-metafunction simpleEvalPeg
   [(botton? ⊥)        #f]
   [(botton? s_1)      #t])

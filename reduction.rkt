@@ -1,7 +1,6 @@
 #lang racket
 (require redex)
 (require "./peg.rkt")
-;(require "./judgments.rkt")
 (provide (all-defined-out))
 
 (define-extended-language Reduct Grammar 
@@ -21,12 +20,9 @@
        ↑)
   (s (natural ...))
   (state (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) 
-  ;(state (G ⊢ (C ...) e dir s s D (nat ...)))  
-  ;s1 lista de marcas, pontos da entrada que a gnt marcou
-  ;s2 oq a gnt viu da entrada (consumiu)
   )
-;seta pra cima - saindo da expressão - finalizou a analise
-;seta pra baixo: entrando
+;up-arrow - coming out of the expression - finished the analysis
+;down-arrow: entering
 
 ;dir -> setinha
 ;state é o input e o output da red
@@ -34,8 +30,9 @@
 ;nat ser transformado em uma lista de numeros
 ;quando aparecer um choice, colocar um 0 na frente
 ;quando sair do choice com sucesso, tira o topo da lista
+
 (define-metafunction Reduct
-  input-grammar : state -> G ;tipo
+  input-grammar : state -> G ;type
   [(input-grammar (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) G])
 
 (define-metafunction Reduct
@@ -51,6 +48,7 @@
   input-term : state -> s
   [(input-term (G ⊢ (C ...) e dir s_1 s_2 D (natural ...))) s_1])
 
+; 
 (define red
   (reduction-relation 
    Reduct
@@ -63,7 +61,7 @@
 
    (--> (G ⊢ (C ...) natural_1 ↓ (natural_2 natural ...) s_1 D (natural_3 ...))
         (G ⊢ (C ...) natural_1 ↑ (natural_2 natural ...) s_1 ⊥ (natural_3 ...))
-        (side-condition (term (diff-exp? natural_1 natural_2)))      ;o resultado é um boolean
+        (side-condition (term (diff-exp? natural_1 natural_2)))     
         "Terminal ⊥")
 
    (--> (G ⊢ (C ...) natural_1 ↓ () s_1 D (natural_2 ...))
@@ -112,9 +110,6 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
         (side-condition (term (diff-exp? natural_3 0)))
         "Alternancia-BOT-second-restore")
-
-   ; quando ele sair dando suc, é pra guardar o quanto ele consumiu
-
 
    ;Sequence
 

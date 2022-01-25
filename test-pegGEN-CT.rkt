@@ -187,7 +187,7 @@
   (define list-hs (getHeadSet (reverse (list-ref randPeg 2))))
   (define list-grammar (remove-last (separateGrammar (list-ref randPeg 0))))
   
-  ;(println list-grammar)
+  
   (map (lambda (peg grammar)
          (let ([judg (judgment-holds (⊢ ,list-hs ,(car (cdr grammar)) τ) τ)])
            ;(print "Judgm: ") (println (cdr (car judg)))
