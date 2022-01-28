@@ -2,7 +2,6 @@
 (require redex)
 (require "./peg.rkt")
 (require "./judgments.rkt")
-;(require "./reduction.rkt")
 
 ;Tests
 
@@ -36,7 +35,7 @@
 
 (test-equal (judgment-holds (eval ∅ ((! 1) (1 2 3)) s) s) (list (term ⊥)))
 (test-equal (judgment-holds (eval ∅ ((! 1) (2 2 3)) s) s) (list (term (2 2 3))))
-(test-equal (judgment-holds (eval ∅ ((! 1) ()) s) s)  (list (term ())))
+(test-equal (judgment-holds (eval ∅ ((! 1) ()) s) s)  (list empty))
 (test-results)
 
 ;Tests for Empty
@@ -70,9 +69,9 @@
 (test-equal (judgment-holds (⇀ ∅ ε D) D) (list (term 0)))
 (test-equal (judgment-holds (⇀ ∅ 1 D) D) (term (1 ⊥)))
 (test-equal (judgment-holds (⇀ ∅ (! ε) D) D) (list (term ⊥)))
-(test-equal (judgment-holds (⇀ ∅ (* ε) D) D) (list (term ⊥)))
+(test-equal (judgment-holds (⇀ ∅ (* ε) D) D) (list (term 0)))
 (test-equal (judgment-holds (⇀ ∅ (/ 1 ε) D) D) (term (0 1)))
-(test-equal (judgment-holds (⇀ ∅ (• 1 (* ε)) D) D) (list (term ⊥)))
+(test-equal (judgment-holds (⇀ ∅ (• 1 (* ε)) D) D) (term (1 ⊥)))
 (test-results)
 
 ;Tests for Well-Formed
