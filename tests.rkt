@@ -2,7 +2,6 @@
 (require redex)
 (require "./peg.rkt")
 (require "./judgments.rkt")
-;(require "./reduction.rkt")
 
 ;Tests
 
@@ -36,7 +35,7 @@
 
 (test-equal (judgment-holds (eval ∅ ((! 1) (1 2 3)) s) s) (list (term ⊥)))
 (test-equal (judgment-holds (eval ∅ ((! 1) (2 2 3)) s) s) (list (term (2 2 3))))
-(test-equal (judgment-holds (eval ∅ ((! 1) ()) s) s)  (list (term ())))
+(test-equal (judgment-holds (eval ∅ ((! 1) ()) s) s)  (list empty))
 (test-results)
 
 ;Tests for Empty
