@@ -1,4 +1,7 @@
 #lang racket
+
+; This module contains the base Parsing Expression Grammar definitions.
+
 (require redex)
 (require rackcheck)
 (provide (all-defined-out))
@@ -14,9 +17,9 @@
      x)          ; Non-Temrinal 
     (x variable-not-otherwise-mentioned))
 
-; Syntax for a PEG grammar
+; Syntax for a Parsing Expression Grammar
 (define-extended-language Grammar Peg
-  [G (x e G) ∅] ; A grammar is a set of nonterminal definition
+  [G (x e G) ∅] ; A grammar is a set of nonterminal definitions
   )
 
 
