@@ -17,13 +17,16 @@
 ; Syntax for a PEG grammar
 (define-extended-language Grammar Peg
   [G (x e G) ∅] ; A grammar is a set of nonterminal definition
-)
-; Syntax for parsing expression evaluation
-(define-extended-language simpleEvalPeg Grammar
-  [E (e s)]         ;  An evaluation is comprised of a PEG and a input 
-  [s (natural ...)  ;  An input can be: * A squence of terminal symbols
-     ⊥              ;                   * Booton, meaning an parser error 
-     ε])            ;                   * Empty string (there is nothing to be consumed !)
+  )
 
+
+
+; Look-up for a nontermila on a grammar
+  
+(define-metafunction Grammar
+  [(lookupG (x e G) x) e]
+  [(lookupG (x_1 e G) x_2) (lookupG G x_2)]
+  [(lookupG ∅ x) ,(error 'lookupG "not found: ~e" (term x))]
+  )
 
 
