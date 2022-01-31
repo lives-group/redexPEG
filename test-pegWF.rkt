@@ -1,7 +1,6 @@
 #lang racket
 (require redex)
 (require rackcheck)
-(require "judgments.rkt")
 (require "WFverf.rkt")
 (require "test-pegGEN-CT.rkt")
 
@@ -26,7 +25,7 @@
   )
 
 
-;; Test generaton 
+;; Test generation 
 
 (define (testLoop n)
   (if (> n 0) 
