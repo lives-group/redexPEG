@@ -6,6 +6,8 @@
 (require rackcheck)
 (require "judgments.rkt")
 
+(provide (all-defined-out))
+
 (define myGen (make-pseudo-random-generator))
 
 (define (h n)

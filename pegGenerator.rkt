@@ -161,9 +161,9 @@
                )
       )
   )
-(display "funçao do elton\n")
+;(display "funçao do elton\n")
 ;(En (E0 '(0 1) '(A B)) 1)
-
+;(retorna)
 (define (mkGrammar ♣ p)
   (if (= p 0)
       (gen:one-of (filterE0 ♣))
@@ -285,8 +285,8 @@
 ;cont -> deve ser 1
 
 ;(sample (gen:one-of '(a b c)) 10)
-#;(display "\nGera Peg\n")
-#;(sample (genPeg '(0 1 2) 1 (genSymbols 3) '()) 1)
+(display "\nGera Peg\n")
+(sample (genPeg '(0 1 2) 3 (genSymbols 3) '()) 1)
 #;(cdr (sample (genPeg '(A B C) 1 (genSymbols 3) '()) 1))
 
 #;(display "\nGera Gramática\n")

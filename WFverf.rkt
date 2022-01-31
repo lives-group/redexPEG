@@ -37,7 +37,7 @@
 
 (define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
   
-  (print (judgment-holds (⇀ ∅ ,exp D) D))
+ ; (print (judgment-holds (⇀ ∅ ,exp D) D))
   
   (if (member 0 (judgment-holds (⇀ ,grammar ,exp D) D))
       #f
@@ -79,7 +79,7 @@
       #t)
   )
 
-(define (is-WF grammar e non-terminal) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
+(define (is-WF grammar e non-terminal) ; grammar expression non-terminal
 
   ;(print e)
   ;(display " - ")
@@ -124,9 +124,6 @@
   (display "\n")
   (display (list-ref (cdr expL) 2))
   )
-
-;testar mais
-;concertar o tchutchu tilt
 
 ;(display "\nAlternancia\n")
 ;(is-WF '∅ '(/ 1 2) '())
