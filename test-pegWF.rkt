@@ -38,4 +38,4 @@
   )
 
 ;(testLoop 10)
-;(testLoop 100) -> da erro de memoria
+;(testLoop 100)
