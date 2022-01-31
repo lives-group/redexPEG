@@ -8,7 +8,9 @@
 ;; Testing if the generated PEG is Well-Formed
 
 (define (testPEG e)
-  (is-WF (getGrammar e) (getExpression e) '())
+  (if (is-WF (getGrammar e) (getExpression e) '())
+      (println #t)
+      (println e)) ;; If isn't Well-Formed then we print the expression
   )
 
 ;; Helper function to get Grammar and the Expression from randPEG
@@ -26,7 +28,7 @@
 
 (define (testLoop n)
   (if (> n 0) 
-      ( (println (testPEG (randPEG (genSymbols 3) (sample (gen:one-of '(0 1 2 3))) 2)))
+      ((testPEG (randPEG (genSymbols 3) (sample (gen:one-of '(0 1 2 3))) 2))
         (testLoop (- n 1)))
       (display "Fim")
       )
