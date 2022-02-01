@@ -230,19 +230,6 @@
   )
 
 
-(define (geraTestes)
-  (let* ([nV (sample (gen:integer-in 0 10) 1)]
-         [vars (genSymbols (car nV)) ]
-         [nT (sample (gen:integer-in 0 26) 1)]
-         [Σ (mkList (car nT)) ]
-         [p (sample (gen:integer-in 0 7) 1)])
-    (for ([x 100])
-      (verfHeadSet (randPEG vars Σ (car p)))
-      )
-    )
-  )
-
-
 ;(define peg (randPEG (genSymbols 3) (sample (gen:one-of '(0 1 2 3))) 2))
 ;peg
 ;(verfHeadSet peg)
