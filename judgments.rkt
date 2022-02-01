@@ -2,7 +2,7 @@
 (require redex)
 (require "./peg.rkt")
 (provide (all-defined-out))
-;; BIG STEP TROCAR NOME 
+;; BIG STEP 
 ; Syntax for parsing expression evaluation
 (define-extended-language WFevalPeg Grammar
   [E (e s)]
@@ -31,7 +31,7 @@
   [(∨ #f #f) #f]
   )
 
-;Helpers functions for TypedPeg
+; Helpers functions for TypedPeg
 
 (define-metafunction TypedPeg
   [(∪ H_1 H_2 ) ,(set-union (term H_1) (term H_2))]

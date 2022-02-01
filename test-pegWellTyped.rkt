@@ -1,5 +1,6 @@
 #lang racket
 (require redex)
+(require rackcheck)
 (require "judgments.rkt")
 (require "test-pegGEN-CT.rkt")
 
@@ -7,6 +8,9 @@
 
 
 
+
+
+;; 
 (define (getLastTerm e)
   (cddr e)
   )
