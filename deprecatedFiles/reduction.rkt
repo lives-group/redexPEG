@@ -260,7 +260,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term (∅ ⊢ () (• 1 (• 2 (/ (• 3 4) (• 3 5)))) ↓ (1 2 3 5) () ⊥ (0))))
 
 ;ALTERNANCIA COM SEQUENCIA
-;(stepper red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
+(stepper red (term (∅ ⊢ () (/ (• 1 2) (• 1 3)) ↓ (1 3 3) () ⊥ (0))))
 
 ;NON-TERMINAL
 ;(traces red (term ((A 2 ∅) ⊢ () A ↓ (2 3 4 5 6 7) () ⊥ (0))))

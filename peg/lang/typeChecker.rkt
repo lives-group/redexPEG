@@ -12,7 +12,7 @@
 ;; G -> Peg Grammar 
 ;; τ -> (b, H)
 ;; b -> T or F
-;; H -> var
+;; H -> set of vars (called Headset)
 (define-extended-language TypedPeg Peg 
   [Γ ((x τ ) ...)]
   [τ (b H)]
