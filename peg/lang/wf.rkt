@@ -1,220 +1,194 @@
 #lang racket
-
 (require redex)
-(require "../lang/peg.rkt")
+(require "./peg.rkt")
+(require "./judgments.rkt")
+;(require "./reduction.rkt")
+(provide (all-defined-out))
 
-(define-extended-language WFevalPeg Grammar
-  [E (e s)]
-  [R e ⊥]
-  [D S ⊥]
-  [S 0 1])
+;implementar o algoritmo do artigo do ford?
+;usar o judgment wf para obter resultados imediatos
+;receber uma gramatica e expressão para verificar se tá WF.
+;função auxiliar - vamos precisar? 
+;colocar numa lista qualquer as exp que a gnt acha que é bem formada
+;final a lista é igual a 1 -> testar
+;fazer uma meta funçao para verificar se uma gramatica é WF 
+;(get-result (apply-reduction-relation* red (term (∅ ⊢ () (• 1 2) ↓ (1 3 3) () ⊥ (0)))
 
-; Judgment to help verify the evaluation of a grammar
-; Return true or false
-(define-judgment-form WFevalPeg
-  #:mode (↛ I I O)
-  #:contract (↛ G D boolean)
+;fazer um extend-language e criar uma funçao que verifica as coisas?
+;como colocar a gramatica
+;lembrar dos testes que deram errado
 
-  [-------------------------------
-   (↛ G 0 #f)]
+
+(define-judgment-form Peg
+  #:mode (WF? I O)
+  #:contract (WF? state boolean)
+
+  [(side-condition (is-WF (input-grammar state) (input-peg state) '()))
+   -------------------------------
+   (WF? state #t)]
   
-  [-------------------------------
-   (↛ G 1 #t)]
-
-  [-------------------------------
-   (↛ G ⊥ #t)]
-
-  [(↛ G D_1 #f)
-   (↛ G D_2 #t)
-   -------------------------------
-   (↛ G (D_1 D_2) #f)]
-
-  [(↛ G D_1 #t)
-   (↛ G D_2 #f)
-   -------------------------------
-   (↛ G (D_1 D_2) #f)]
   )
 
-                
-; Judgment to verify if the grammar consumes a entry
-; Return:
-; 0: succed while consuming no input
-; 1: succed while consuming at least one terminal
-; ⊥: fail on some input
-(define-judgment-form WFevalPeg 
+#;(define-metafunction evalPeg
+   
+    [(WF? grammar e non-terminal) (is-WF grammar e non-terminal)]
+  
+    )
 
-  #:mode (⇀ I I O)
-  #:contract (⇀ G e D)
+(define (zero⇀? grammar exp) ;VERIFICAR OQ CONSOME NA SEQUENCIA PASSAR A GRAMATICA 
+  
+  (print (judgment-holds (⇀ ∅ ,exp D) D))
+  
+  (if (member 0 (judgment-holds (⇀ ,grammar ,exp D) D))
+      #f
+      #t
+      )
+  )
 
-  ;Empty
-  [-------------------------------
-   (⇀ G ε 0)]
+(define nt '())
+(define (verf-judg-nt grammar exp non-terminal) ;VERIFICAR OQ CONSOME NO NAO TERMINAL
 
-  ;Terminal
-  [-------------------------------
-   (⇀ G natural 1)]
-
-  [-------------------------------
-   (⇀ G natural ⊥)]
-
-  ;Non-Terminal
-  [(lookup G x e)
-   (⇀ G e D)
-   -------------------------------
-   (⇀ G x D)]
-
-  #;[(lookup G x ⊥)
-     -------------------------------
-     (⇀ G x ⊥)]
+  (define result (judgment-holds (lookup ,grammar ,exp R) R))
+  
  
-  ;Sequence
-  [(⇀ G e_1 0)
-   (⇀ G e_2 0)
-   -------------------------------
-   (⇀ G (• e_1 e_2) 0)]
-
-  [(⇀ G e_1 1)
-   (⇀ G e_2 S)
-   -------------------------------
-   (⇀ G (• e_1 e_2) 1)]
-
-  [(⇀ G e_1 0)
-   (⇀ G e_2 1)
-   -------------------------------
-   (⇀ G (• e_1 e_2) 1)]
-
-  [(⇀ G e_1 ⊥)
-   -------------------------------
-   (⇀ G (• e_1 e_2) ⊥)]
+  (if (member (term ⊥) (judgment-holds (lookup ,grammar ,exp R) R));;
+      #f
+      (car result) ;ele sai do lookup como uma lista, ex.: '(ε), precisamos do termo puro, então fazemos o car
+      ))
   
-  [(⇀ G e_1 S)
-   (⇀ G e_2 ⊥)
-   -------------------------------
-   (⇀ G (• e_1 e_2) ⊥)]
 
-  ;Choice
-  [(⇀ G e_1 S)
-   -------------------------------
-   (⇀ G (/ e_1 e_2) S)]
-  
-  [(⇀ G e_1 ⊥)
-   (⇀ G e_2 D)
-   -------------------------------
-   (⇀ G (/ e_1 e_2) D)]
+#;(define (get-exp e)
 
-  ;Repetition
-  [(⇀ G e 1)
-   -------------------------------
-   (⇀ G (* e) 1)]
+    (if (eq? (list-ref (car e) 0) (term ∅))
+        (list-ref (car e) 1)
+        (car e))
+      
+    )
 
-  [(⇀ G e 0)
-   -------------------------------
-   (⇀ G (* e) 0)]
+(define (verifica-list-nonterminal grammar exp non-terminal)
+  (define result (judgment-holds (lookup ,grammar ,exp R) R))
+  #;(if (or (number? result) (eq? 'ε result) (member '⊥ result))
+        non-terminal
+        (set! non-terminal (append non-terminal (list exp))))
+  ;(display " - ")
+  ;(display non-terminal)
+  (if (not (null? (list non-terminal)))
+      (if (check-duplicates non-terminal)
+          #f
+          #t)
+      #t)
+  )
 
-  ;Not
-  [(⇀ G e S)
-   -------------------------------
-   (⇀ G (! e) ⊥)]
+(define (is-WF grammar e non-terminal) ;vai vir a expressao por exemplo (G (/ (/ 1 2) 2))
 
-  [(⇀ G e ⊥)
-   ;(side-condition (not-zero? e))
-   -------------------------------
-   (⇀ G (! e) 0)]
+  ;(print e)
+  ;(display " - ")
+  (if (list? e)
+      (let ((id (car e)))
+        (cond [(eq? id '/)  (and (is-WF grammar (cadr e) non-terminal) (is-WF grammar (caddr e) non-terminal))]
+              [(eq? id '•)  (and (is-WF grammar (cadr e) non-terminal)
+                                 (or (zero⇀? grammar (cadr e))
+                                     (is-WF grammar (caddr e) non-terminal)))] ;usar o judgment ⇀ pra testar se consome algo (judgment-hold ⇀ ∅ (• e_1 e_2)) ]
+              [(eq? id '!)  (is-WF grammar (cadr e) non-terminal)]
+              [(eq? id '*)  (and (is-WF grammar (cadr e) non-terminal)
+                                 ;verifica se a grammar é ∅, se n for, usa o resultado do verf-judg-nt pra verificar o judgment do *
+                                 ;pra ele n usar o não terminal puro.
+                                 (zero⇀? grammar (cadr e)))]; passar a grammar no verf-judg para nao precisar de verf a gramatica
+              [else  #f] 
+              )
+
+        )
+      (cond [(number? e) #t]
+            [(eq? e 'ε)  #t]
+            [(not (eq? grammar '∅)) (if (verifica-list-nonterminal grammar e non-terminal)
+                                        (is-WF grammar (verf-judg-nt grammar e non-terminal) (cons e non-terminal)) 
+                                        #f)] 
+            [else  #f]
+            )
+      )
  
-  [(⇀ G e ⊥)
-   -------------------------------
-   (⇀ G (! e) 1)]
+  )
+;FUNÇÃO QUE INICIA TUDO
+(define (test-WF e)
+  (is-WF (car e) (list-ref (cdr e) 2) '())
+
   )
 
-; Judgment to verify if a peg and a grammar are well-formed
-; Return true or false
-(define-judgment-form WFevalPeg 
-  #:mode (WF I I O)
-  #:contract (WF G e boolean)
-
-  ;Empty
-  [-------------------------
-   (WF G ε #t)]
-
-  ;Natural
-  [-------------------------
-   (WF G natural #t)]
-
-  ;Non terminal
-  [(lookup G x e)
-   (WF G e #t)
-   -------------------------
-   (WF G x #t)]
-
-  ;Sequence
-  [(WF G e_1 #t)
-   (⇀ G e_1 0)
-   (WF G e_2 #t)
-   -------------------------------
-   (WF G (• e_1 e_2) #t)]
-
-  [(WF G e_1 #t)
-   (⇀ G e_1 ⊥) 
-   ;(WF G e_2 #f)
-   -------------------------------
-   (WF G (• e_1 e_2) #t)]
-
-  [(WF G e_1 #t)
-   (⇀ G e_1 1)
-   -------------------------------
-   (WF G (• e_1 e_2) #t)]
-
-  ;Choice
-  [(WF G e_1 #t)
-   (WF G e_2 #t)
-   -------------------------------
-   (WF G (/ e_1 e_2) #t)]
-
-  ;Repetition
-  #;[(⇀ G e 1)
-     (WF G e #t)
-     -------------------------------
-     (WF G (* e) #t)]
-
-  #;[(⇀ G e 0)
-     -------------------------------
-     (WF G (* e) #f)]
-
-  [(⇀ G e D)
-   (↛ G D boolean)
-   -------------------------------
-   (WF G (* e) boolean)]
-
-  #;[(⇀ G e D)
-     (↛ G D #f)
-     -------------------------------
-     (WF G (* e) #f)]
-
-  #;[(⇀ G e ⊥)
-     (WF G e #t)
-     -------------------------------
-     (WF G (* e) #t)]
-
-  ;Not
-  [(WF G e #t)
-   -------------------------------
-   (WF G (! e) #t)]
+(define (getGrammar expL)
+  (car expL)
+  ;(display (car expL))
   )
 
-; Judgment to look up for the value of some grammar
-; Return the value (peg or fail)
-(define-judgment-form WFevalPeg 
-  #:mode (lookup I I O)
-  #:contract (lookup G x R)
-  
-  [--------------------------------
-   (lookup (x_1 e G) x_1 e)]
-
-  [--------------------------------
-   (lookup ∅ x ⊥)]
-
-  [(lookup G x_2 R)
-   (side-condition (diffs? x_1 x_2))
-   --------------------------------
-   (lookup (x_1 e_1 G) x_2 R)] 
+(define (getExp expL) 
+  (list-ref (cdr expL) 2)
+  (display "\n")
+  (display (list-ref (cdr expL) 2))
   )
+
+;testar mais
+;concertar o tchutchu tilt
+
+;(display "\nAlternancia\n")
+;(is-WF '∅ '(/ 1 2) '())
+;(is-WF '∅ '(/ (/ (/ 1 2) 1) 2) '())
+;(is-WF '∅ '(/ (/ (/ 1 2) 1) (/ 1 2)) '())
+
+;(display "\nSequência\n")
+;(is-WF '∅ '(• 1 2) '())
+
+;(display "\nNot\n")
+;(is-WF '∅ '(! (• 1 2)) '())
+
+;(display "\nRepetição\n")
+;(is-WF '∅ '(* (• 1 2)) '())
+;(is-WF '∅ '(* ε) '())
+
+;(display "\nNão Terminal\n")
+
+;(is-WF '(B ε ∅) 'B '()) 
+
+;(is-WF '(B 1 ∅) 'B '())
+
+;(is-WF '(B ε (A B ∅)) '(* B) '())
+
+;(is-WF '(B 1 (A B ∅)) '(/ B A) '())
+
+;(is-WF '(B 1 (A B ∅)) '(/ A B) '())
+
+;(is-WF '(B 1 (A ε ∅)) '(/ (* A) B) '())
+
+;(is-WF '(A (• A 1) ∅) 'A '()) 
+;(is-WF '(A B (B C (C A ∅))) 'A '())
+
+;(display "\n Testes \n")
+;(is-WF '∅ '(• 0 (* (/ (! 1) 2))) '())
+#|
+(display "\nTerminal\n")
+(inicio (list '(∅ (1))))
+
+(display "\nEmpty\n")
+(inicio (list '(∅ (ε))))
+
+(display "\nNot\n")
+(inicio (list '(∅ (! (1)))))
+(inicio (list '(∅ (! (/ 1 2)))))
+
+(display "\nAlternancia\n")
+(inicio (list '(∅ (/ 1 2))))
+(inicio (list '(∅ (/ (/ 1 2) 2))))
+
+(display "\nSequência\n")
+(inicio (list '(∅ (• 1 2))))
+
+(display "\nRepetição\n")
+(inicio (list '(∅ (* ε))))    
+(inicio (list '(∅ (* (! 0)))))
+
+(display "\nNão Terminal\n")
+(inicio (list '((A 2 ∅) (A))))
+(inicio (list '((A 2 ∅) (C))))
+(inicio (list '((B 1 (A B ∅)) (B))))
+(inicio (list '((B 1 (A B ∅)) (C))))
+(inicio (list '((A (• 1 A) ∅) (A))))
+(inicio (list '((A (• A 1) ∅) (A))))
+|#
