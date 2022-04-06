@@ -9,17 +9,42 @@
       x
       string
       ϵ]
-   [x variable-not-otherwise-mentioned]
-   [G ((x E) ... )]
-   [P (G E)]
+  [x variable-not-otherwise-mentioned]
+  [G ((x E) G)
+     ∅]
+  [P (G E)]
    )
 
 (define-extended-language  TypedPegExp Peg
-  [hs (x ...)
+  [hs (x hs)
       ∅]
   [τ  (boolean hs)]
   [Γ ∅ (x : τ Γ)]
- )
+  )
+
+
+(define-judgment-form
+  TypedPegExp
+  #:mode (element I I O)
+  #:contract (element hs x boolean)
+
+  [ ---------------------------
+    (element ∅ _ #f) ]
+  
+  [ (element hs     x_1 boolean)
+    -------------------------------
+    (element (x hs) x_1 (same x x_1 #t boolean)) ]
+  )
+
+(define-judgment-form
+  TypedPegExp
+  #:mode (cheat I I O)
+  #:contract (cheat x x boolean)
+
+  [ ---------------------------
+    (cheat x_1 x_2 (samevar x_1 x_2)) ]
+  
+  )
 
 (define-judgment-form
   TypedPegExp
@@ -51,13 +76,12 @@
     (types Γ (★ E) (#t  hs) ) ]
   
   [
-   (side-condition (∉ x hs))
+   (element hs x #f)
     ---------------------------
     (types (x : (boolean hs) Γ) x (boolean hs)  ) ]
 
    [(types Γ x (boolean hs))
-     (side-condition (∉ x hs))
-     (side-condition (≠ x_1 x))
+     (cheat x_1 x #f)
     ---------------------------
     (types (x_1 : _ Γ) x (boolean hs)  ) ]
   
@@ -105,27 +129,45 @@
   )
 
 (define-metafunction TypedPegExp
+  samevar : x x -> boolean
+  [(samevar x x) #t]
+  [(samevar x _) #f]
+ )
+
+(define-metafunction TypedPegExp
+  same : x x boolean boolean -> boolean 
+  [(same x   x boolean boolean_1) boolean]
+  [(same x_1 x boolean boolean_1) boolean_1]
+  )
+
+(define-metafunction TypedPegExp
+  ccons : boolean x hs -> hs
+  [(ccons #t x hs) hs]
+  [(ccons #f x hs) (x hs)]
+  )
+
+(define-metafunction TypedPegExp
   ∪ : hs hs -> hs
-  [(∪ ∅ ∅ ) ∅]
-  [(∪ () () ) ∅]
-  [(∪ ∅ (x_2 ...) ) (x_2 ...)]
-  [(∪ () (x_2 ...) ) (x_2 ...)]
-  [(∪ (x_1 ...) ∅)  (x_1 ...)]
-  [(∪ (x_1 ...) ())  (x_1 ...)]
-  [(∪ (x_1 ...) (x_2 ...)) ,(set-union (term (x_1 ...)) (term (x_2 ...)) ) ]
+  [(∪ ∅ hs)   hs]
+  [(∪ (x hs)  hs_1) (ccons (∈ x hs_1) x (∪ hs hs_1))]
   )
 
 (define-metafunction TypedPegExp
   ∈ : x hs -> boolean
   [(∈ _ ∅) #f]
-  [(∈ _ ()) #f]
-  [(∈ x x) #t]
-  [(∈ x x_1) #f]
-  [(∈ x (x x_2 ...)) #t]
-  [(∈ x (x_1 x_2 ...)) (∈ x (x_2 ...))]
+  [(∈ x (x _)) #t]
+  [(∈ x (x_1 hs)) (∈ x hs)]
   )
 
 (define-metafunction TypedPegExp
   ∉ : x hs -> boolean
   [(∉ x hs) (¬ (∈ x hs))]
   )
+
+
+; A collection of very weird examples !
+;
+; > (generate-term TypedPegExp #:satisfying (types Γ x τ) 1)
+; '(types (U : (#f (W ∅)) (d : (#t ∅) (E : (#t ∅) ∅))) U (#f (U (W ∅))))
+; > (generate-term TypedPegExp #:satisfying (types Γ x τ) 1)
+; '(types (U : (#t (E ∅)) ∅) U (#t (U (E ∅))))
