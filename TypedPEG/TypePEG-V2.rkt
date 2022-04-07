@@ -87,10 +87,15 @@
   
   )
 
+#;(define-metafunction TypedPegExp
+  ⊗ : τ τ -> τ
+  [(⊗ ( boolean hs) ( boolean_1 hs_1)) ( (∧ boolean  boolean_1) (∪ hs (⇒ boolean hs_1))) ]
+  )
 
 (define-metafunction TypedPegExp
   ⊗ : τ τ -> τ
-  [(⊗ ( boolean hs) ( boolean_1 hs_1)) ( (∧ boolean  boolean_1) (∪ hs (⇒ boolean hs_1))) ]
+  [(⊗ ( #f hs) ( boolean_1 hs_1)) ( (∧ #t  boolean_1) hs ) ]
+  [(⊗ ( #t hs) ( boolean_1 hs_1)) ( (∧ #f  boolean_1) (∪ hs  hs_1)) ]
   )
 
 (define-metafunction TypedPegExp
