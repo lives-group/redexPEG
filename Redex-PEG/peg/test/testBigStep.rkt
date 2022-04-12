@@ -8,14 +8,11 @@
 (require "../lang/bigStepSemantics.rkt")
 (require "../lang/smallStepSemantics.rkt")
 
-(test-equal (judgment-holds (eval (B 1 (A B ∅)) (A (1 2 3 4 5 6 7)) s) s) (list (term (2 3 4 5 6 7))))
-(test-results)
-
 
 ;; Testing with redex-check
 
-#;(redex-check Peg ;; Name of a language 
-               ;(G ⊢ (C ...) e ↓ (natural ...) () D (0)) ;; Pattern
+#;(redex-check Peg                                         ;; Name of a language 
+               ;(G ⊢ (C ...) e ↓ (natural ...) () D (0))   ;; Pattern
                ;; Racket expression that returns a boolean 
                )
 
@@ -36,12 +33,23 @@
   (car (cdr e))
   )
 
-(define-property test-judgm-reduct ([peg  (gen:peg 3 5 2)])
-  ;(display (get-result (apply-reduction-relation* red (term (,(getGrammar peg) ⊢ () ,(getExpression peg) ↓ (1 2 3) () ⊥ (0))))))
-  (check-equal?  (judgment-holds (eval ,(getGrammar peg) ,((getExpression peg) (1 2 3)) s) s)  
-                 (get-result (apply-reduction-relation* red (term (,(getGrammar peg) ⊢ () ,(getExpression peg) ↓ (1 2 3) () ⊥ (0))))))
+(define (gen:listNat n k)
+  (if (eq? n 0) (gen:bind (gen:integer-in 0 k) (lambda (e) (gen:const (list e))) )
+      (gen:bind (gen:listNat (- n 1) k)
+                (lambda (xs) (gen:bind ( gen:integer-in 0 k)
+                                       (lambda (x) (gen:const (list* x xs)) ) ))))
   )
-(check-property (make-config #:tests 20) test-judgm-reduct)
 
 
-   
+;3 - numero de variaveis
+;5 - numero de terminais
+;2 - profundidade
+(define-property test-judgm-reduct ([peg (gen:peg 3 5 2)]
+                                    [n (gen:integer-in 0 10)]
+                                    [input (gen:listNat n 5)])
+  (check-equal?  (judgment-holds (eval ,(getGrammar peg) (,(getExpression peg) ,input) s) s)  
+                 (get-result (apply-reduction-relation* red (term (,(getGrammar peg) ⊢ () ,(getExpression peg) ↓ ,input () ⊥ (0))))))
+  )
+(check-property (make-config #:tests 1000) test-judgm-reduct)
+
+
