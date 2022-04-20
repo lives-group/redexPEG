@@ -151,14 +151,14 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ ((* h) C ...) e_1 ↓ s_1 s_2 D (0 natural_4 ...))
         "Repetition-Entra")
    
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (natural_4 ...))
-        (G ⊢ (C ...) (* e_1) ↑ () (natural ...) suc (natural_4 ...))
+   #;(--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (natural_4 ...))
+        (G ⊢ (C ...) (* e_1)   ↑ () (natural ...) suc (natural_4 ...))
         "Repetition-SUC-Sai")
 
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 natural_2 ...) (natural ...) suc (natural_3 natural_4 natural_5 ...))
-        (G ⊢ (C ...) (* e_1) ↓ (natural_1 natural_2 ...) (natural ...) suc ((⊕ natural_3 natural_4) natural_5 ...))
-        (side-condition (term (not (diff-exp? e_1 natural_1))))
-        "Repetition-SUC")
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (natural_3 natural_4 natural_5 ...))
+        (G ⊢ ((* h) C ...) e_1 ↓ (natural_1 ...) (natural ...) suc (0 (⊕ natural_3 natural_4) natural_5 ...))
+        ;#(side-condition (term (not (diff-exp? e_1 natural_1))))
+        "Rmepetition-SUC")
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ s_1 s_2 ⊥ (0 natural_4 ...))
         (G ⊢ (C ...) (* e_1) ↑ s_1 s_2 suc (natural_4 ...))
@@ -227,6 +227,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
   [(inc natural)   ,(add1 (term natural))]
   )
 
+
 (define-metafunction Reduct
   [(dec natural)   ,(sub1 (term natural))]
   )
@@ -280,11 +281,13 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term (∅ ⊢ () (* (! (• 1 2))) ↓ (1 3) () ⊥ (0))))
 
 
-#;(stepper red (term ((A (/ (• 0 (• A 1)) ε)
-                    (B (/ (• 1 (• B 2)) ε)
-                    (C (/ 0 (/ 1 2))
-                    (S (• (! (! A)) (• (* 0) (• B (! C)))) ∅))))
-                    ⊢ () S ↓ (0 1 2) () ⊥ (0))))
+(stepper red (term ((C (• (* B) (/ B A))
+                    (B (• (/ 2 ε) (• A 2))
+                    (A (* (• 1 ε))
+                    ∅) ) ) 
+                    ⊢ () (/ B 2)
+                    ↓ (2 1) () ⊥ (0))))
+
 #;(stepper red (term ((A (/ (• 0 A) ε) ∅)
                     ⊢ () (! (/ (• 0 0) ε)) ↓ (0 0 0 1 2) () ⊥ (0))))
 ;(stepper red (term (∅ ⊢ () (/ (• (/ (• 0 0) (/ (• 0 1) (• 0 2))) (• 1 3)) (• 0 1)) ↓ (0 1 1 4) () ⊥ (0))))
