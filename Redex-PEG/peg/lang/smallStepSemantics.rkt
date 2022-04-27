@@ -85,60 +85,60 @@ ai muda a setinha pra cima e ver se da certo ou errado
    ;esquerdo deu certo: 
    (--> (G ⊢ (C ...) (/ e_1 e_2) ↓ (natural_1 ...) (natural ...) D (natural_2 ...))
         (G ⊢ ((/ h e_2) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 natural_2 ...)) ;h serve tentar e e_2 para memorizar
-        "Alternancia-Entra")
+        "Choice-In")
 
    (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural_1 ...) (natural_2 ...) suc (natural_3 natural_4 natural_5 ...))
         (G ⊢ (C ...) (/ e_1 e_2) ↑ (natural_1 ...) (natural_2 ...) suc ((⊕ natural_3 natural_4) natural_5 ...))
-        "Alternancia-SUC-first")
+        "Choice-SUC-first")
    
    (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural ...) s_1 ⊥ (0 natural_2 ...)) 
         (G ⊢ ((/ e_1 h) C ...) e_2 ↓ (natural ...) s_1 ⊥ (0 natural_2 ...))
-        "Alternancia-BOT-first")
+        "Choice-BOT-first")
 
    (--> (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
         (G ⊢ ((/ h e_2) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
         (side-condition (term (diff-exp? natural_3 0)))
-        "Alternancia-BOT-first-restore")
+        "Choice-BOT-first-restore")
    
    (--> (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural_1 ...) (natural_2 ...) suc (natural_3 natural_4 natural_5 ...)) 
         (G ⊢ (C ...) (/ e_1 e_2) ↑ (natural_1 ...) (natural_2 ...) suc ((⊕ natural_3 natural_4) natural_5 ...))
-        "Alternancia-SUC-second")
+        "Choice-SUC-second")
 
    (--> (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural ...) s_1 ⊥ (0 natural_1 ...)) 
         (G ⊢ (C ...) (/ e_1 e_2) ↑ (natural ...) s_1 ⊥ (natural_1 ...))
-        "Alternancia-BOT-second")
+        "Choice-BOT-second")
 
    (--> (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
         (G ⊢ ((/ e_1 h) C ...) e_2 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
         (side-condition (term (diff-exp? natural_3 0)))
-        "Alternancia-BOT-second-restore")
+        "Choice-BOT-second-restore")
 
    ;Sequence
 
    (--> (G ⊢ (C ...) (• e_1 e_2) ↓ (natural_1 ...) (natural ...) D (natural_2 ...))
         (G ⊢ ((• h e_2) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (natural_2 ...))
-        "Sequencia-Entra")
+        "Sequence-In")
    
    ;saindo do e_1 deu bom
    (--> (G ⊢ ((• h e_2) C ...) e_1 ↑ (natural_1 ...) (natural_3 ...) suc (natural_4 ...))
-        (G ⊢ ((• e_1 h) C ...) e_2 ↓ (natural_1 ...) (natural_3 ...) suc (natural_4 ...)) ;soma 1, pq ele consome 1
-        "Sequencia-SUC-first")
+        (G ⊢ ((• e_1 h) C ...) e_2 ↓ (natural_1 ...) (natural_3 ...) suc (natural_4 ...)) 
+        "Sequence-SUC-first")
    
    ;saindo do e_1 deu ruim
    (--> (G ⊢ ((• h e_2) C ...) e_1 ↑ (natural_1 ...) (natural_3 ...) ⊥ (natural_4 ...))
         (G ⊢ (C ...) (• e_1 e_2) ↑ (natural_1 ...) (natural_3 ...) ⊥ (natural_4 ...))
-        "Sequencia-BOT-first")
+        "Sequence-BOT-first")
    
    ;saindo do e_2 deu bom
    (--> (G ⊢ ((• e_1 h) C ...) e_2 ↑ (natural_1 ...) (natural_3 ...) suc (natural_4 ...))
         (G ⊢ (C ...) (• e_1 e_2) ↑ (natural_1 ...) (natural_3 ...) suc (natural_4 ...))
-        "Sequencia-SUC-second")
+        "Sequence-SUC-second")
    
    ;saindo do e_2 deu ruim
    
    (--> (G ⊢ ((• e_1 h) C ...) e_2 ↑ (natural_1 ...) (natural_3 ...) ⊥ (natural_5 ...))
         (G ⊢ (C ...) (• e_1 e_2) ↑ (natural_1 ...) (natural_3 ...) ⊥ (natural_5 ...))
-        "Sequencia-BOT-second")
+        "Sequence-BOT-second")
 
 
    ;volta na repetição quando dá falha
@@ -149,16 +149,15 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ (C ...) (* e_1) ↓ s_1 s_2 D (natural_4 ...))
         (G ⊢ ((* h) C ...) e_1 ↓ s_1 s_2 D (0 natural_4 ...))
-        "Repetition-Entra")
+        "Repetition-In")
    
    #;(--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (natural_4 ...))
         (G ⊢ (C ...) (* e_1)   ↑ () (natural ...) suc (natural_4 ...))
-        "Repetition-SUC-Sai")
+        "Repetition-SUC-Out")
 
-   (--> (G ⊢ ((* h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (natural_3 natural_4 natural_5 ...))
-        (G ⊢ ((* h) C ...) e_1 ↓ (natural_1 ...) (natural ...) suc (0 (⊕ natural_3 natural_4) natural_5 ...))
-        ;#(side-condition (term (not (diff-exp? e_1 natural_1))))
-        "Rmepetition-SUC")
+   (--> (G ⊢ ((* h) C ...) e_1 ↑ s_1 (natural ...) suc (natural_3 natural_4 natural_5 ...))
+        (G ⊢ ((* h) C ...) e_1 ↓ s_1 (natural ...) suc (0 (⊕ natural_3 natural_4) natural_5 ...))
+        "Repetition-SUC")
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ s_1 s_2 ⊥ (0 natural_4 ...))
         (G ⊢ (C ...) (* e_1) ↑ s_1 s_2 suc (natural_4 ...))
@@ -174,13 +173,13 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ (C ...) (! e_1) ↓ (natural_1 ...) (natural ...) D   (natural_4 ... ))
         (G ⊢ ((! h) C ...) e_1 ↓ (natural_1 ...) (natural ...) D (0 natural_4 ...))
-        "Not-Entra")
+        "Not-In")
  
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) suc (0 natural_4 ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) ⊥ (natural_4 ...))
         "Not-BOT")
 
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) suc (natural_3 natural_4 ...)) 
+   #;(--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) suc (natural_3 natural_4 ...)) 
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) suc ((dec natural_3) natural_4 ...))
         (side-condition (term (diff-exp? natural_3 0)))
         "Not-BOT-restore")
@@ -189,10 +188,15 @@ ai muda a setinha pra cima e ver se da certo ou errado
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (natural_4 ...))
         "Not-SUC")
 
-   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
+   #;(--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
         (side-condition (term (diff-exp? natural_3 0)))
         "Not-SUC-restore")
+
+    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) D (natural_3 natural_4 ...)) 
+        (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) D ((dec natural_3) natural_4 ...))
+        (side-condition (term (diff-exp? natural_3 0)))
+        "Not-restore")
 
    
 
@@ -200,11 +204,11 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
    (--> (G ⊢ (C ...) x ↓ (natural_1 ...) (natural ...) D (natural_4 ...))  
         (G ⊢ ((NT x) C ...) (lookup-red G x) ↓ (natural_1 ...) (natural ...) D (natural_4 ...))
-        "Non-terminals-entra")
+        "NonTerminals-In")
 
    (--> (G ⊢ ((NT x) C ...) e ↑ (natural_1 ...) (natural ...) D (natural_4 ...))  
         (G ⊢ (C ...) x ↑ (natural_1 ...) (natural ...) D (natural_4 ...))
-        "Non-terminals-sai")
+        "NonTerminals-Out")
 
 
    )
@@ -281,7 +285,7 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(traces red (term (∅ ⊢ () (* (! (• 1 2))) ↓ (1 3) () ⊥ (0))))
 
 
-(stepper red (term ((C (• (* B) (/ B A))
+#;(stepper red (term ((C (• (* B) (/ B A))
                     (B (• (/ 2 ε) (• A 2))
                     (A (* (• 1 ε))
                     ∅) ) ) 

@@ -50,6 +50,7 @@
   (check-equal?  (judgment-holds (eval ,(getGrammar peg) (,(getExpression peg) ,input) s) s)  
                  (get-result (apply-reduction-relation* red (term (,(getGrammar peg) ⊢ () ,(getExpression peg) ↓ ,input () ⊥ (0))))))
   )
-(check-property (make-config #:tests 1000) test-judgm-reduct)
+(check-property (make-config #:tests 10000) test-judgm-reduct)
 
 
+;(check-property (make-config #:tests 100000 #:deadline (+ (current-inexact-milliseconds) 3600000)) test-judgm-reduct)
