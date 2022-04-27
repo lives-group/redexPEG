@@ -86,3 +86,7 @@
 (define-metafunction BigStep
   [(dismatch? natural_1 natural_1) #f]
   [(dismatch? natural_1 natural_2) #t]) 
+
+
+;; Render a pdf of a formalization
+; (render-judgment-form eval "../judgment-latex/judgment-form-eval.pdf")
