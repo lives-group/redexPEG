@@ -297,13 +297,20 @@ ai muda a setinha pra cima e ver se da certo ou errado
 ;(stepper red (term (∅ ⊢ () (/ (• (/ (• 0 0) (/ (• 0 1) (• 0 2))) (• 1 3)) (• 0 1)) ↓ (0 1 1 4) () ⊥ (0))))
 ;(apply-reduction-relation* red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
 
-(with-atomic-rewriters
+#;(with-atomic-rewriters
    (['natural "N"]
     ['h "_"])
     (render-reduction-relation red))
 
-(with-atomic-rewriters
+#;(with-atomic-rewriters
    (['natural "N"]
     [(string->symbol "...") ""])
     (render-reduction-relation red))
+
+#;(with-compound-rewriter
+   'G
+   (λ (lws)
+     (define a (list-ref lws 3))
+     (list (list-ref lws 1) (list-ref lws 2) a "L"))
+   (render-reduction-relation red))
 
