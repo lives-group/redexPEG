@@ -314,3 +314,19 @@ ai muda a setinha pra cima e ver se da certo ou errado
      (list (list-ref lws 1) (list-ref lws 2) a "L"))
    (render-reduction-relation red))
 
+
+(with-compound-rewriter
+   'G
+   (λ (lws)
+     (define G (list-ref lws 1))
+     (define ⊢ (list-ref lws 2))
+     (define C (list-ref lws 3))
+     (define e (list-ref lws 4))
+     (define dir (list-ref lws 5))
+     (define s1 (list-ref lws 6))
+     (define s2 (list-ref lws 7))
+     (define D (list-ref lws 8))
+     (define nat (list-ref lws 9))
+     (list G ⊢ C e dir s1 s2 D nat))
+   (render-reduction-relation red))
+
