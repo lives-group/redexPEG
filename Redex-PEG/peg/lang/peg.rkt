@@ -9,8 +9,8 @@
 ; Syntax of parsing expressions
 (define-language Peg
    (e natural    ; Terminal
-     (/ e e)     ; Choice
-     (• e e)     ; Sequence
+     (/ e_1 e_2)     ; Choice
+     (• e_1 e_2)     ; Sequence
      (* e)       ; Repetition
      (! e)       ; Not complement
      ε           ; Empty
