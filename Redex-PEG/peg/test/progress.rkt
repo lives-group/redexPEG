@@ -41,7 +41,7 @@
      (equal? (list-ref (car result) 3)
           (getExpression peg))))
 
-(check-property (make-config #:tests 100) progress)
+(check-property (make-config #:tests 500) progress)
 
 
   

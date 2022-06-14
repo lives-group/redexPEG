@@ -37,8 +37,7 @@
   (if (eq? n 0) (gen:bind (gen:integer-in 0 k) (lambda (e) (gen:const (list e))) )
       (gen:bind (gen:listNat (- n 1) k)
                 (lambda (xs) (gen:bind ( gen:integer-in 0 k)
-                                       (lambda (x) (gen:const (list* x xs)) ) ))))
-  )
+                                       (lambda (x) (gen:const (list* x xs))))))))
 
 
 ;3 - numero de variaveis
