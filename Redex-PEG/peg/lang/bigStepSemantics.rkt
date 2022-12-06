@@ -121,7 +121,7 @@
   [r (x e)]     ;
   [GR (r ...)
       ∅]        ;
-  [re rsuc F]    ;
+  [re Z O F]    ;
   [rsuc Z O])
 
 (define-relation PegRelation
@@ -131,15 +131,20 @@
   [(→ (_ natural) F)]
   [(→ ((r... (x e) r...) x) re) (→ (( r... (x e) r...) e) re) ]
   [(→ (GR (• e_1 e_2)) Z) (→ (GR e_1) Z) (→ (GR e_2) Z)]
-  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) rsuc)]
-  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) rsuc) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) Z)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) Z) (→ (GR e_2) O)]
   [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) F)]
-  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) rsuc) (→ (GR e_2) F)]
-  [(→ (GR (/ e_1 e_2)) rsuc) (→ (GR e_1) rsuc)]
+  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) O) (→ (GR e_2) F)]
+  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) Z) (→ (GR e_2) F)]
+  [(→ (GR (/ e_1 e_2)) O) (→ (GR e_1) O)]
+  [(→ (GR (/ e_1 e_2)) Z) (→ (GR e_1) Z)]
   [(→ (GR (/ e_1 e_2)) re) (→ (GR e_1) F) (→ (GR e_2) re)]
   [(→ (GR (* e)) Z) (→ (GR e) Z)]
   [(→ (GR (* e)) F) (→ (GR e) O)]
-  [(→ (GR (! e)) F) (→ (GR e) rsuc)]
+  [(→ (GR (! e)) F) (→ (GR e) Z)]
+  [(→ (GR (! e)) F) (→ (GR e) O)]
   [(→ (GR (! e)) O) (→ (GR e) F)]
   )
 
@@ -147,7 +152,10 @@
 (judgment-holds (→ (∅ 1) O))
 (judgment-holds (→ (∅ (• 1 3)) Z))
 (judgment-holds (→ (∅ (/ 1 3)) Z))
+(judgment-holds (→ (∅ (• 1 ε)) Z))
 (judgment-holds (→ (∅ (* 1)) Z))
 (judgment-holds (→ (∅ (! 1)) F))
 
-;(judgment-holds (WF (• 1 ε)))
+; headset -> metafunction (retorna um conjunto de variáveis)
+; headset associado a um tipo: conjunto de variáveis que está imetediatamente a esquerda)
+; judgment do sistema de tipos (3: https://dl.acm.org/doi/pdf/10.1145/3355378.3355388)
