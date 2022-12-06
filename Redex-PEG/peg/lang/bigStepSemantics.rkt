@@ -14,10 +14,11 @@
   [s (natural ...)  ;  An input can be: * A squence of terminal symbols
      ⊥              ;                   * Bottom, meaning an parser error 
      ε]             ;                   * Empty string (there is nothing to be consumed !)
-  (r ::= (x p))     ;
-  (GR ::= (r ...))  ;
-  (re ::= Z O F)    ;
-  (rsuc ::= Z O)    ;  
+  [r (x e)]     ;
+  [GR (r ...)
+      ∅]        ;
+  [re Z O F]    ;
+  [rsuc Z O]    ;  
   )
 
 ; Judgment for a big-step  peg evaluation 
@@ -108,19 +109,38 @@
     ;nao terminal
     )
 
-(define-relation Peg
-  → ⊆ (GR e)  × re
+(define-language PegRelation
+  (e natural    ; Terminal
+     (/ e e)     ; Choice
+     (• e e)     ; Sequence
+     (* e)       ; Repetition
+     (! e)       ; Not complement
+     ε           ; Empty
+     x)          ; Non-Temrinal 
+  (x variable-not-otherwise-mentioned)
+  [r (x e)]     ;
+  [GR (r ...)
+      ∅]        ;
+  [re rsuc F]    ;
+  [rsuc Z O])
+
+(define-relation PegRelation
+  → ⊆ (GR e) × re
   [(→ (_ ε) Z)]
   [(→ (_ natural) O)]
   [(→ (_ natural) F)]
-  [(→ ((r ... (x e) r ...) x) re) (→ ((r ... (x e) r ...) e) re) ]
-  [(→ (GR (seq e_1 e_2)) Z) (→ (GR e_1) Z) (→ (GR e_2) Z)]
-  [(→ (GR (seq e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) rsuc)]
-  [(→ (GR (seq e_1 e_2)) O) (→ (GR e_1) rsuc) (→ (GR e_2) O)]
-  [(→ (GR (seq e_1 e_2)) F) (→ (GR e_1) F)]
-  [(→ (GR (seq e_1 e_2)) F) (→ (GR e_1) rsuc) (→ (GR e_2) F)]
+  [(→ ((r... (x e) r...) x) re) (→ (( r... (x e) r...) e) re) ]
+  [(→ (GR (• e_1 e_2)) Z) (→ (GR e_1) Z) (→ (GR e_2) Z)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) rsuc)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) rsuc) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) F)]
+  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) rsuc) (→ (GR e_2) F)]
   [(→ (GR (/ e_1 e_2)) rsuc) (→ (GR e_1) rsuc)]
   [(→ (GR (/ e_1 e_2)) re) (→ (GR e_1) F) (→ (GR e_2) re)]
   )
+
+(judgment-holds (→ (∅ ε) O))
+(judgment-holds (→ (∅ 1) O))
+(judgment-holds (→ (∅ (• 1 3)) O))
 
 ;(judgment-holds (WF (• 1 ε)))
