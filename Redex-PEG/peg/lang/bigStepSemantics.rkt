@@ -12,9 +12,13 @@
 (define-extended-language BigStep Grammar
   [E (e s)]         ;  An evaluation is comprised of a PEG and a input 
   [s (natural ...)  ;  An input can be: * A squence of terminal symbols
-     ⊥             ;                   * Bottom, meaning an parser error 
-     ε])            ;                   * Empty string (there is nothing to be consumed !)
-
+     ⊥              ;                   * Bottom, meaning an parser error 
+     ε]             ;                   * Empty string (there is nothing to be consumed !)
+  (r ::= (x p))     ;
+  (GR ::= (r ...))  ;
+  (re ::= Z O F)    ;
+  (rsuc ::= Z O)    ;  
+  )
 
 ; Judgment for a big-step  peg evaluation 
 (define-judgment-form BigStep
@@ -32,7 +36,7 @@
   [--------------------------------
    (eval G (natural_1 ()) ⊥)]
   
- ; choice 
+  ; choice 
   [(eval G (e_1 s) (natural ...))
    --------------------------------
    (eval G ((/ e_1 e_2) s) (natural ...))]
@@ -90,3 +94,33 @@
 
 ;; Render a pdf of a formalization
 ; (render-judgment-form eval "../judgment-latex/judgment-form-eval.pdf")
+
+#;(define-relation BigStep
+    ; Relation-contract
+    WF ⊆ e
+  
+    [(WF ε)] 
+    [(WF number)]
+    [(WF (/ e_1 e_2)) (WF e_1) (WF e_2)]
+    [(WF (! e)) (WF e)]
+    [(WF (* e)) (WF e)] ; pensar nessa aqui
+    [(WF (• e_1 e)) (WF e_1)]
+    ;nao terminal
+    )
+
+(define-relation Peg
+  → ⊆ (GR e)  × re
+  [(→ (_ ε) Z)]
+  [(→ (_ natural) O)]
+  [(→ (_ natural) F)]
+  [(→ ((r ... (x e) r ...) x) re) (→ ((r ... (x e) r ...) e) re) ]
+  [(→ (GR (seq e_1 e_2)) Z) (→ (GR e_1) Z) (→ (GR e_2) Z)]
+  [(→ (GR (seq e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) rsuc)]
+  [(→ (GR (seq e_1 e_2)) O) (→ (GR e_1) rsuc) (→ (GR e_2) O)]
+  [(→ (GR (seq e_1 e_2)) F) (→ (GR e_1) F)]
+  [(→ (GR (seq e_1 e_2)) F) (→ (GR e_1) rsuc) (→ (GR e_2) F)]
+  [(→ (GR (/ e_1 e_2)) rsuc) (→ (GR e_1) rsuc)]
+  [(→ (GR (/ e_1 e_2)) re) (→ (GR e_1) F) (→ (GR e_2) re)]
+  )
+
+;(judgment-holds (WF (• 1 ε)))
