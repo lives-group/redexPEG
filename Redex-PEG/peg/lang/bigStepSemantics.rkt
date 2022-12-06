@@ -137,10 +137,17 @@
   [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) rsuc) (→ (GR e_2) F)]
   [(→ (GR (/ e_1 e_2)) rsuc) (→ (GR e_1) rsuc)]
   [(→ (GR (/ e_1 e_2)) re) (→ (GR e_1) F) (→ (GR e_2) re)]
+  [(→ (GR (* e)) Z) (→ (GR e) Z)]
+  [(→ (GR (* e)) F) (→ (GR e) O)]
+  [(→ (GR (! e)) F) (→ (GR e) rsuc)]
+  [(→ (GR (! e)) O) (→ (GR e) F)]
   )
 
 (judgment-holds (→ (∅ ε) O))
 (judgment-holds (→ (∅ 1) O))
-(judgment-holds (→ (∅ (• 1 3)) O))
+(judgment-holds (→ (∅ (• 1 3)) Z))
+(judgment-holds (→ (∅ (/ 1 3)) Z))
+(judgment-holds (→ (∅ (* 1)) Z))
+(judgment-holds (→ (∅ (! 1)) F))
 
 ;(judgment-holds (WF (• 1 ε)))
