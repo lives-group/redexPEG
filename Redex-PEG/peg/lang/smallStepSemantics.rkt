@@ -152,8 +152,8 @@ ai muda a setinha pra cima e ver se da certo ou errado
         "Repetition-In")
    
    #;(--> (G ⊢ ((* h) C ...) e_1 ↑ () (natural ...) suc (natural_4 ...))
-        (G ⊢ (C ...) (* e_1)   ↑ () (natural ...) suc (natural_4 ...))
-        "Repetition-SUC-Out")
+          (G ⊢ (C ...) (* e_1)   ↑ () (natural ...) suc (natural_4 ...))
+          "Repetition-SUC-Out")
 
    (--> (G ⊢ ((* h) C ...) e_1 ↑ s_1 (natural ...) suc (natural_3 natural_4 natural_5 ...))
         (G ⊢ ((* h) C ...) e_1 ↓ s_1 (natural ...) suc (0 (⊕ natural_3 natural_4) natural_5 ...))
@@ -180,20 +180,20 @@ ai muda a setinha pra cima e ver se da certo ou errado
         "Not-BOT")
 
    #;(--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) suc (natural_3 natural_4 ...)) 
-        (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) suc ((dec natural_3) natural_4 ...))
-        (side-condition (term (diff-exp? natural_3 0)))
-        "Not-BOT-restore")
+          (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) suc ((dec natural_3) natural_4 ...))
+          (side-condition (term (diff-exp? natural_3 0)))
+          "Not-BOT-restore")
   
    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 ...) (natural ...) ⊥ (0 natural_4 ...))
         (G ⊢ (C ...) (! e_1) ↑ (natural_1 ...) (natural ...) suc (natural_4 ...))
         "Not-SUC")
 
    #;(--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) ⊥ (natural_3 natural_4 ...)) 
-        (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
-        (side-condition (term (diff-exp? natural_3 0)))
-        "Not-SUC-restore")
+          (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) ⊥ ((dec natural_3) natural_4 ...))
+          (side-condition (term (diff-exp? natural_3 0)))
+          "Not-SUC-restore")
 
-    (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) D (natural_3 natural_4 ...)) 
+   (--> (G ⊢ ((! h) C ...) e_1 ↑ (natural ...) (natural_1 natural_2 ...) D (natural_3 natural_4 ...)) 
         (G ⊢ ((! h) C ...) e_1 ↑ (natural_1 natural ...) (natural_2 ...) D ((dec natural_3) natural_4 ...))
         (side-condition (term (diff-exp? natural_3 0)))
         "Not-restore")
@@ -286,47 +286,67 @@ ai muda a setinha pra cima e ver se da certo ou errado
 
 
 #;(stepper red (term ((C (• (* B) (/ B A))
-                    (B (• (/ 2 ε) (• A 2))
-                    (A (* (• 1 ε))
-                    ∅) ) ) 
-                    ⊢ () (/ B 2)
-                    ↓ (2 1) () ⊥ (0))))
+                         (B (• (/ 2 ε) (• A 2))
+                            (A (* (• 1 ε))
+                               ∅) ) ) 
+                      ⊢ () (/ B 2)
+                      ↓ (2 1) () ⊥ (0))))
 
 #;(stepper red (term ((A (/ (• 0 A) ε) ∅)
-                    ⊢ () (! (/ (• 0 0) ε)) ↓ (0 0 0 1 2) () ⊥ (0))))
+                      ⊢ () (! (/ (• 0 0) ε)) ↓ (0 0 0 1 2) () ⊥ (0))))
 ;(stepper red (term (∅ ⊢ () (/ (• (/ (• 0 0) (/ (• 0 1) (• 0 2))) (• 1 3)) (• 0 1)) ↓ (0 1 1 4) () ⊥ (0))))
 ;(apply-reduction-relation* red (term (∅ ⊢ () (* (• 1 2)) ↓ (1 2 1 2 1 2 1 3) () ⊥ (0))))
 
 #;(with-atomic-rewriters
-   (['natural "N"]
-    ['h "_"])
+      (['natural "N"]
+       ['h "_"])
     (render-reduction-relation red))
 
-#;(with-atomic-rewriters
-   (['natural "N"]
-    [(string->symbol "...") ""])
-    (render-reduction-relation red))
+(define natRW (with-atomic-rewriters
+      (['natural "N"]
+       ['C ""]
+       [(string->symbol "...") ""])
+    (render-reduction-relation red)))
 
 #;(with-compound-rewriter
-   'G
-   (λ (lws)
-     (define a (list-ref lws 3))
-     (list (list-ref lws 1) (list-ref lws 2) a "L"))
-   (render-reduction-relation red))
+      'G
+    (λ (lws)
+      (define a (list-ref lws 3))
+      (list (list-ref lws 1) (list-ref lws 2) a "L"))
+    (render-reduction-relation red))
 
 
-(with-compound-rewriter
-   'G
-   (λ (lws)
-     (define G (list-ref lws 1))
-     (define ⊢ (list-ref lws 2))
-     (define C (list-ref lws 3))
-     (define e (list-ref lws 4))
-     (define dir (list-ref lws 5))
-     (define s1 (list-ref lws 6))
-     (define s2 (list-ref lws 7))
-     (define D (list-ref lws 8))
-     (define nat (list-ref lws 9))
-     (list G ⊢ C e dir s1 s2 D nat))
-   (render-reduction-relation red))
+(define cpRW (with-compound-rewriter
+      'G
+    (λ (lws)
+      (define G (list-ref lws 1))
+      (define ⊢ (list-ref lws 2))
+      (define C (list-ref lws 3))
+      (define e (list-ref lws 4))
+      (define dir (list-ref lws 5))
+      (define s1 (list-ref lws 6))
+      (define s2 (list-ref lws 7))
+      (define D (list-ref lws 8))
+      (define nat (list-ref lws 9))
+      (list G ⊢ C e dir s1 s2 D nat))
+    (render-reduction-relation red)))
+
+
+#;(with-compound-rewriter
+    'G
+  (λ (lws)
+    (define G (list-ref lws 1))
+    (define ⊢ (list-ref lws 2))
+    (define C (with-atomic-rewriters
+                  (['C ""])
+                (render-reduction-relation red)))
+    (define e (list-ref lws 4))
+    (define dir (list-ref lws 5))
+    (define s1 "N ")
+    (define s2 "N ")
+    (define D (list-ref lws 8))
+    (define nat " N ")
+    ['natural "N"]
+    (list G ⊢ C e dir s1 s2 D nat))
+  (render-reduction-relation red))
 
