@@ -155,22 +155,23 @@
 
 
 (define-metafunction PegRelation
-  ; head-set : e -> '(x... x_1 x...) ; nao sei definir o contrato 
-  [(head-set (_ ε)) ()]
-  [(head-set (_ natural)) ()]
-  [(head-set (((x_1 e_1) ...) e_2)) ,(append (term x_1) 
-                                             (term (head-set GR (lookupG (x_1 e_1 ∅) e_2))))]
+  head-set : GR e -> (x ...)
+  [(head-set _ ε) ()]
+  [(head-set _ natural) ()]
+  [(head-set ((x e)... (x_1 e_1) (x_2 e_2)...) x_1)  ,(cons (term x_1)
+                                                            (term (head-set ((x e)... (x_1 e_1) (x_2 e_2)...)
+                                                                            e_1)))]
 
-  [(head-set (GR (• e_1 e_2))) ,(append (term (head-set (GR e_1)))
-                                        (term (head-set (GR e_2))))
-                               ; if :
-                               (side-condition (term (→ (GR e_1) Z)))]
+  [(head-set GR (• e_1 e_2)) ,(append (term (head-set GR e_1))
+                                      (term (head-set GR e_2)))
+                             ; if :
+                             (side-condition (term (→ (GR e_1) Z)))]
   
-  [(head-set (GR (• e_1 e_2))) (head-set (GR e_1))]
-  [(head-set (GR (/ e_1 e_2))) ,(append (term (head-set (GR e_1))) 
-                                        (term (head-set (GR e_2))))]
-  [(head-set (GR (* e))) (head-set (GR e))]
-  [(head-set (GR (! e))) (head-set (GR e))])
+  [(head-set GR (• e_1 e_2)) (head-set GR e_1)]
+  [(head-set GR (/ e_1 e_2)) ,(append (term (head-set GR e_1)) 
+                                      (term (head-set GR e_2)))]
+  [(head-set GR (* e)) (head-set GR e)]
+  [(head-set GR (! e)) (head-set GR e)])
 
 
 
@@ -178,6 +179,8 @@
     #:mode ()
     #:contract ()
     )
+
+; Fazer o type system figura 3  
 
 
 #| ; Tests
