@@ -121,9 +121,11 @@
   (x variable-not-otherwise-mentioned)
   [r (x e)]     ;
   [GR (r ...)
-      ∅]        ;
+      ∅]
+  [Γ ((x t) ...)];
   [re Z O F]    ;
   [rsuc Z O]
+  [hs (x ...)]
   [t (boolean (x ...))])
 
 (define-relation PegRelation
@@ -157,17 +159,23 @@
 
 ;DISJUNÇÃO
 (define-metafunction PegRelation
-  [(⊕ #t #t) #t]
-  [(⊕ #t #f) #t]
-  [(⊕ #f #t) #t]
-  [(⊕ #f #f) #f])
+  ⊕ : t t -> t
+  [(⊕ (boolean_1 hs_1) (boolean_2 hs_2))
+   (,(or (term boolean_1) (term boolean_2))
+    (∪ hs_1 hs_2))])
 
 ;CONJUNÇÃO
 (define-metafunction PegRelation
-  [(⊗ #t #t) #t]
-  [(⊗ #t #f) #f]
-  [(⊗ #f #t) #f]
-  [(⊗ #f #f) #f])
+  ⊗ : t t -> t
+  [(⊗ (boolean_1 hs_1) (boolean_2 hs_2))
+   (,(and (term boolean_1) (term boolean_2))
+    (∪ hs_1 (⇒ boolean_1 hs_2)))]
+  )
+
+(define-metafunction PegRelation
+  ⇒ : boolean hs -> hs
+  [(⇒ #t hs) hs]
+  [(⇒ #f hs) ()])
 
 (define-metafunction PegRelation
   head-set : GR e -> (x ...)
@@ -191,58 +199,59 @@
 
 
 (define-judgment-form PegRelation
-  #:mode (type I I O)
-  #:contract (type GR e t)
+  #:mode (type I I I O)
+  #:contract (type Γ GR e t)
   
   [-------------------------------- 
-   (type GR ε (#t (head-set GR ε)))]
+   (type Γ GR ε (#t (head-set GR ε)))]
 
   [-------------------------------- 
-   (type GR natural (#f (head-set GR natural)))]
+   (type Γ GR natural (#f (head-set GR natural)))]
 
   [(→ (GR e_1) O)
-   (type GR e_1 (boolean_1 _))
-   (type GR e_2 (boolean_2 _))
+   (type Γ GR e_1 (boolean_1 _))
+   (type Γ GR e_2 (boolean_2 _))
    -------------------------------- 
-   (type GR (• e_1 e_2) ((⊗ boolean_1 boolean_2) (∪ (head-set GR e_1) (head-set GR e_2))))]
+   (type Γ GR (• e_1 e_2) (⊗ (boolean_1 (head-set GR e_1)) (boolean_2 (head-set GR e_2))))]
 
-  #;[(→ (GR e_1) F)
-     -------------------------------- 
-     (type GR (• e_1 e_2) (#t (head-set GR e_1)))]
+  [(→ (GR e_1) F)
+   -------------------------------- 
+   (type Γ GR (• e_1 e_2) (#f (head-set GR e_1)))]
 
   [(→ (GR e_1) Z)
-   (type GR e_1 (boolean_1 _))
+   (type Γ GR e_1 (boolean_1 _))
    -------------------------------- 
-   (type GR (• e_1 e_2) (boolean_1 (head-set GR e_1)))]
+   (type Γ GR (• e_1 e_2) (#f (head-set GR e_1)))]
 
-  [(type GR e_1 (boolean_1 _))
-   (type GR e_2 (boolean_2 _))
+  [(type Γ GR e_1 (boolean_1 _))
+   (type Γ GR e_2 (boolean_2 _))
    -------------------------------- 
-   (type GR (/ e_1 e_2) ((⊕ boolean_1 boolean_2) (∪ (head-set GR e_1) (head-set GR e_2))))]
-
-  [
-   -------------------------------- 
-   (type GR (! e) (#t (head-set GR e)))]
-
-  [(type GR e (#f _))
-   -------------------------------- 
-   (type GR (* e) (#t (head-set GR e)))]
+   (type Γ GR (/ e_1 e_2) (⊕ (boolean_1 (head-set GR e_1)) (boolean_2 (head-set GR e_2))))]
 
   [
    -------------------------------- 
-   (type GR x (#t (head-set GR x)))]
+   (type Γ GR (! e) (#t (head-set GR e)))]
+
+  [(type Γ GR e (#f _))
+   -------------------------------- 
+   (type Γ GR (* e) (#t (head-set GR e)))]
+
+  [;fazer o lookup
+   ;verificar se o x ta no hs (n pode t'a)
+   -------------------------------- 
+   (type Γ GR x (#t (head-set GR x)))]
   
   )
 
-(judgment-holds (type () 1 t) t) 
-(judgment-holds (type () ε t) t)
-(judgment-holds (type () (• 1 3) t) t)
-(judgment-holds (type () (• ε 3) t) t)
-(judgment-holds (type () (! 1) t) t)
-(judgment-holds (type () (* 1) t) t)
-(judgment-holds (type () (/ ε 3) t) t)
-(judgment-holds (type ((A 2)) (/ A 3) t) t)
-(judgment-holds (type ((A 2)) A t) t)
+(judgment-holds (type () () 1 t) t) 
+(judgment-holds (type () () ε t) t)
+(judgment-holds (type () () (• 1 3) t) t)
+(judgment-holds (type () () (• ε 3) t) t)
+(judgment-holds (type () () (! 1) t) t)
+(judgment-holds (type () () (* 1) t) t)
+(judgment-holds (type () () (/ ε 3) t) t)
+(judgment-holds (type () ((A 2)) (/ A 3) t) t)
+(judgment-holds (type () ((A 2)) A t) t)
 ;(judgment-holds (type ((B 2)) A t) t)
 
 ; Fazer o type system figura 3  
