@@ -24,7 +24,7 @@
 
 
 
-; Look-up for a nontermila on a grammar
+; Look-up for a nonterminal on a grammar
   
 (define-metafunction Grammar
   [(lookupG (x e G) x) e]

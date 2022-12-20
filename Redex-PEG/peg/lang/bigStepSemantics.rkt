@@ -19,7 +19,7 @@
       ∅]        ;
   [re Z O F]    ;
   [rsuc Z O]    ;  
-  )
+  [h (x ...)])
 
 ; Judgment for a big-step  peg evaluation 
 (define-judgment-form BigStep
@@ -55,7 +55,7 @@
    (eval G ((• e_1 e_2) s) s_2)]
 
   [(eval G (e_1 s) ⊥)
-   ------------------------------
+   -------------------------------
    (eval G ((• e_1 e_2) s) ⊥)]
 
   ;Not
@@ -145,8 +145,45 @@
   [(→ (GR (* e)) F) (→ (GR e) O)]
   [(→ (GR (! e)) F) (→ (GR e) Z)]
   [(→ (GR (! e)) F) (→ (GR e) O)]
-  [(→ (GR (! e)) O) (→ (GR e) F)]
-  )
+  [(→ (GR (! e)) O) (→ (GR e) F)])
+
+#;(define-metafunction PegRelation
+    [(∪ x_1 x_2) ,(append (term x_1) (term x_2))])
+
+#;(define-metafunction PegRelation
+    [(R )])
+
+
+(define-metafunction PegRelation
+  head-set : GR e -> (x ...)
+  [(head-set _ ε) ()]
+  [(head-set _ natural) ()]
+  [(head-set ((x e)... (x_1 e_1) (x_2 e_2)...) x_1)  ,(cons (term x_1)
+                                                            (term (head-set ((x e)... (x_1 e_1) (x_2 e_2)...)
+                                                                            e_1)))]
+
+  [(head-set GR (• e_1 e_2)) ,(append (term (head-set GR e_1))
+                                      (term (head-set GR e_2)))
+                             ; if :
+                             (side-condition (term (→ (GR e_1) Z)))]
+  
+  [(head-set GR (• e_1 e_2)) (head-set GR e_1)]
+  [(head-set GR (/ e_1 e_2)) ,(append (term (head-set GR e_1)) 
+                                      (term (head-set GR e_2)))]
+  [(head-set GR (* e)) (head-set GR e)]
+  [(head-set GR (! e)) (head-set GR e)])
+
+
+
+#;(define-judgment-form PegRealtion
+    #:mode ()
+    #:contract ()
+    )
+
+; Fazer o type system figura 3  
+
+
+#| ; Tests
 
 (judgment-holds (→ (∅ ε) O))
 (judgment-holds (→ (∅ 1) O))
@@ -155,6 +192,8 @@
 (judgment-holds (→ (∅ (• 1 ε)) Z))
 (judgment-holds (→ (∅ (* 1)) Z))
 (judgment-holds (→ (∅ (! 1)) F))
+
+|#
 
 ; headset -> metafunction (retorna um conjunto de variáveis)
 ; headset associado a um tipo: conjunto de variáveis que está imetediatamente a esquerda)
