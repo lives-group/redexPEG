@@ -166,8 +166,7 @@
   [(null (GR (/ e_1 e_2))) (null (GR e_2))]
   [(null (GR (* e)))]
   [(null ((r_1... (x e) r_2...) x)) (null (( r_1... (x e) r_2...) e))]
-  [(null (GR (• e_1 e_2))) (null (GR e_1)) (null (GR e_2))]
-  )
+  [(null (GR (• e_1 e_2))) (null (GR e_1)) (null (GR e_2))])
 
 (define-metafunction PegRelation
   [(∪ () ()) ()]
@@ -285,12 +284,32 @@
 #;(term (→ (((S (• A (• B 2)))
              (A (/ (• 0 A) ε)) 
              (B (/ (• 1 B) ε))) A) Z))
+(display "Testes nullable\n")
+
 (term (null (((S (• A (• B 2)))
              (A (/ (• 0 A) ε)) 
              (B (/ (• 1 B) ε))) (• 0 A))))
+
 (term (null (((S (• A (• B 2)))
              (A (/ (• 0 A) ε)) 
              (B (/ (• 1 B) ε))) (/ (• 0 A) ε))))
+
+(term (null (((S (• A (• B 2)))
+             (A (/ (• 0 A) ε)) 
+             (B (/ (• 1 B) ε))) (/ (• 0 A) 0))))
+
+(term (null (((S (• A (• B 2)))
+             (A (/ (• 0 A) ε)) 
+             (B (/ (• 1 B) ε))) (/ (* ε) 1))))
+
+(term (null (((B B)) B)))
+
+(term (null (() (* (/ ε 0)))))
+
+;(term (null ((B 1) A)))
+
+
+
 
 ;(judgment-holds (type () ((B 2)) A t) t)
 
