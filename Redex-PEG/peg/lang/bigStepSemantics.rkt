@@ -177,7 +177,7 @@
 (define-metafunction PegRelation
   lookUp : x hs -> boolean 
   [(lookUp x_1 (x... x_1 x_2...)) #f]
-  [(lookUp x hs) (member x hs)])
+  [(lookUp x hs) #t])
 
 ;DISJUNÇÃO
 (define-metafunction PegRelation
@@ -209,7 +209,7 @@
   [(head-set GR (• e_1 e_2)) ,(append (term (head-set GR e_1))
                                       (term (head-set GR e_2)))
                              ; if :
-                             (side-condition (term (→ (GR e_1) Z)))]
+                             (side-condition (term (null (GR e_1))))]
   
   [(head-set GR (• e_1 e_2)) (head-set GR e_1)]
   [(head-set GR (/ e_1 e_2)) ,(append (term (head-set GR e_1)) 
@@ -229,50 +229,38 @@
   [-------------------------------- 
    (type Γ GR natural (#f (head-set GR natural)))]
 
-  [(→ (GR e_1) O)
-   (type Γ GR e_1 (boolean_1 _))
+  [(type Γ GR e_1 (boolean_1 _))
    (type Γ GR e_2 (boolean_2 _))
    -------------------------------- 
    (type Γ GR (• e_1 e_2) (⊗ (boolean_1 (head-set GR e_1)) (boolean_2 (head-set GR e_2))))]
-
-  [(→ (GR e_1) F)
-   -------------------------------- 
-   (type Γ GR (• e_1 e_2) (#f (head-set GR e_1)))]
-
-  [(→ (GR e_1) Z)
-   (type Γ GR e_1 (boolean_1 _))
-   -------------------------------- 
-   (type Γ GR (• e_1 e_2) (#f (head-set GR e_1)))]
 
   [(type Γ GR e_1 (boolean_1 _))
    (type Γ GR e_2 (boolean_2 _))
    -------------------------------- 
    (type Γ GR (/ e_1 e_2) (⊕ (boolean_1 (head-set GR e_1)) (boolean_2 (head-set GR e_2))))]
 
-  [
-   -------------------------------- 
+  [-------------------------------- 
    (type Γ GR (! e) (#t (head-set GR e)))]
 
   [(type Γ GR e (#f _))
    -------------------------------- 
    (type Γ GR (* e) (#t (head-set GR e)))]
 
-  [;fazer o lookup
-   ;verificar se o x ta no hs (n pode t'a)
-   ;(lookUp x (head-set GR x))
+  [(side-condition (lookUp x hs))
    -------------------------------- 
-   (type Γ GR x (#t (head-set GR x)))]
+   (type ((x_1 t_1)... (x (boolean hs)) (x_2 t_2)... ) GR x (boolean hs))]
   )
 
 (judgment-holds (type () () 1 t) t) 
 (judgment-holds (type () () ε t) t)
 (judgment-holds (type () () (• 1 3) t) t)
+(judgment-holds (type () () (• ε ε) t) t)
 (judgment-holds (type () () (• ε 3) t) t)
 (judgment-holds (type () () (! 1) t) t)
 (judgment-holds (type () () (* 1) t) t)
 (judgment-holds (type () () (/ ε 3) t) t)
-(judgment-holds (type () ((A 2)) (/ A 3) t) t)
-(judgment-holds (type () ((A 2)) A t) t)
+(judgment-holds (type ((A (#f ()))) ((A 2)) (/ A 3) t) t)
+(judgment-holds (type ((A (#f ()))) ((A 2)) A t) t)
 ;(judgment-holds (type () ((A (/ A 2))) A t) t)
 #;(judgment-holds (type ((A (#t ())) 
                          (B (#t ()))
@@ -306,12 +294,16 @@
 
 (term (null (((B B)) B)))
 
+(term (null (((B A)
+              (A B)) B)))
+
 (term (null (() (* (/ ε 0)))))
 
 (term (null (((A (/ (• 0 A) ε))
               (B (/ (• A B) (• B A)))) (• A B))))
 
-;(term (null ((B 1) A)))
+
+(term (null (((B 1)) A)))
 
 
 
