@@ -272,3 +272,7 @@
 ; headset -> metafunction (retorna um conjunto de variáveis)
 ; headset associado a um tipo: conjunto de variáveis que está imetediatamente a esquerda)
 ; judgment do sistema de tipos (3: https://dl.acm.org/doi/pdf/10.1145/3355378.3355388)
+
+;gerar entradas válidas para pegs bem formadas
+;gerar entradas que dão true sempre, que dá sempre certo
+;derivar a entrada a partir da peg
