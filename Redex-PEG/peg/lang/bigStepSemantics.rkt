@@ -126,36 +126,58 @@
   [re Z O F]    ;
   [rsuc Z O]
   [hs (x ...)]
-  [t (boolean (x ...))])
+  [t (boolean hs)])
 
 (define-relation PegRelation
   → ⊆ (GR e) × re
   [(→ (_ ε) Z)]
-  [(→ (_ natural) O)]
   [(→ (_ natural) F)]
-  [(→ ((r... (x e) r...) x) re) (→ (( r... (x e) r...) e) re) ]
-  [(→ (GR (• e_1 e_2)) Z) (→ (GR e_1) Z) (→ (GR e_2) Z)]
-  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) O)]
-  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) Z)]
-  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) O)]
-  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) Z) (→ (GR e_2) O)]
+  [(→ (_ natural) O)]
   [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) F)]
-  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) O) (→ (GR e_2) F)]
-  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) Z) (→ (GR e_2) F)]
   [(→ (GR (/ e_1 e_2)) O) (→ (GR e_1) O)]
   [(→ (GR (/ e_1 e_2)) Z) (→ (GR e_1) Z)]
-  [(→ (GR (/ e_1 e_2)) re) (→ (GR e_1) F) (→ (GR e_2) re)]
   [(→ (GR (* e)) Z) (→ (GR e) Z)]
   [(→ (GR (* e)) F) (→ (GR e) O)]
   [(→ (GR (! e)) F) (→ (GR e) Z)]
   [(→ (GR (! e)) F) (→ (GR e) O)]
-  [(→ (GR (! e)) O) (→ (GR e) F)])
+  [(→ (GR (! e)) O) (→ (GR e) F)]
+  [(→ ((r_1... (x e) r_2...) x) Z) (→ (( r_1... (x e) r_2...) e) Z)]
+  [(→ ((r_1... (x e) r_2...) x) O) (→ (( r_1... (x e) r_2...) e) O)]
+  [(→ ((r_1... (x e) r_2...) x) F) (→ (( r_1... (x e) r_2...) e) F)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) Z)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) O) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) O) (→ (GR e_1) Z) (→ (GR e_2) O)]
+  [(→ (GR (• e_1 e_2)) Z) (→ (GR e_1) Z) (→ (GR e_2) Z)]
+  
+  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) O) (→ (GR e_2) F)]
+  [(→ (GR (• e_1 e_2)) F) (→ (GR e_1) Z) (→ (GR e_2) F)]
+  
+  
+  [(→ (GR (/ e_1 e_2)) Z) (→ (GR e_1) F) (→ (GR e_2) Z)]
+  [(→ (GR (/ e_1 e_2)) O) (→ (GR e_1) F) (→ (GR e_2) O)]
+  [(→ (GR (/ e_1 e_2)) F) (→ (GR e_1) F) (→ (GR e_2) F)]
+  )
+
+(define-relation PegRelation
+  null ⊆ (GR e)
+  [(null (_ ε))]
+  [(null (GR (/ e_1 e_2))) (null (GR e_1))]
+  [(null (GR (/ e_1 e_2))) (null (GR e_2))]
+  [(null (GR (* e)))]
+  [(null ((r_1... (x e) r_2...) x)) (null (( r_1... (x e) r_2...) e))]
+  [(null (GR (• e_1 e_2))) (null (GR e_1)) (null (GR e_2))])
 
 (define-metafunction PegRelation
   [(∪ () ()) ()]
   [(∪ (x_1...) ()) (x_1...)]
   [(∪ () (x_2...)) (x_2...)]
   [(∪ (x_1...) (x_2...)) ,(append `(x_1...) `(x_2...))])
+
+(define-metafunction PegRelation
+  lookUp : x hs -> boolean 
+  [(lookUp x_1 (x... x_1 x_2...)) #f]
+  [(lookUp x hs) (member x hs)])
 
 ;DISJUNÇÃO
 (define-metafunction PegRelation
@@ -169,8 +191,7 @@
   ⊗ : t t -> t
   [(⊗ (boolean_1 hs_1) (boolean_2 hs_2))
    (,(and (term boolean_1) (term boolean_2))
-    (∪ hs_1 (⇒ boolean_1 hs_2)))]
-  )
+    (∪ hs_1 (⇒ boolean_1 hs_2)))])
 
 (define-metafunction PegRelation
   ⇒ : boolean hs -> hs
@@ -178,7 +199,7 @@
   [(⇒ #f hs) ()])
 
 (define-metafunction PegRelation
-  head-set : GR e -> (x ...)
+  head-set : GR e -> hs
   [(head-set _ ε) ()]
   [(head-set _ natural) ()]
   [(head-set ((x e)... (x_1 e_1) (x_2 e_2)...) x_1)  ,(cons (term x_1)
@@ -238,9 +259,9 @@
 
   [;fazer o lookup
    ;verificar se o x ta no hs (n pode t'a)
+   ;(lookUp x (head-set GR x))
    -------------------------------- 
    (type Γ GR x (#t (head-set GR x)))]
-  
   )
 
 (judgment-holds (type () () 1 t) t) 
@@ -252,7 +273,50 @@
 (judgment-holds (type () () (/ ε 3) t) t)
 (judgment-holds (type () ((A 2)) (/ A 3) t) t)
 (judgment-holds (type () ((A 2)) A t) t)
-;(judgment-holds (type ((B 2)) A t) t)
+;(judgment-holds (type () ((A (/ A 2))) A t) t)
+#;(judgment-holds (type ((A (#t ())) 
+                         (B (#t ()))
+                         (S (#f (A B)))) 
+                        ((S (• A (• B 2)))
+                         (A (/ (• 0 A) ε)) 
+                         (B (/ (• 1 B) ε))) S t)t)
+
+#;(term (→ (((S (• A (• B 2)))
+             (A (/ (• 0 A) ε)) 
+             (B (/ (• 1 B) ε))) A) Z))
+(display "Testes nullable\n")
+
+(term (null (() 1)))
+
+(term (null (((S (• A (• B 2)))
+              (A (/ (• 0 A) ε)) 
+              (B (/ (• 1 B) ε))) (• 0 A))))
+
+(term (null (((S (• A (• B 2)))
+              (A (/ (• 0 A) ε)) 
+              (B (/ (• 1 B) ε))) (/ (• 0 A) ε))))
+
+(term (null (((S (• A (• B 2)))
+              (A (/ (• 0 A) ε)) 
+              (B (/ (• 1 B) ε))) (/ (• 0 A) 0))))
+
+(term (null (((S (• A (• B 2)))
+              (A (/ (• 0 A) ε)) 
+              (B (/ (• 1 B) ε))) (/ (* ε) 1))))
+
+(term (null (((B B)) B)))
+
+(term (null (() (* (/ ε 0)))))
+
+(term (null (((A (/ (• 0 A) ε))
+              (B (/ (• A B) (• B A)))) (• A B))))
+
+;(term (null ((B 1) A)))
+
+
+
+
+;(judgment-holds (type () ((B 2)) A t) t)
 
 ; Fazer o type system figura 3  
 
