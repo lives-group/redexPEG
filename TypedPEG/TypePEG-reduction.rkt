@@ -49,8 +49,9 @@
    (--> (in-hole C (Γ (* (#f hs))))
         (in-hole C (#t hs)))
    (--> (in-hole C ((x_1 : (boolean hs) Γ) x_2))
-        (in-hole C (boolean hs))
-        (side-condition (term (samevar x_1 x_2))))
+        (in-hole C (boolean (∪ hs (x_1))))
+        (side-condition (and (term (samevar x_1 x_2))
+                              (not (term (∈ x_1 hs))))))
 
    )
   )
@@ -85,9 +86,30 @@
   [(∪ (x hs)  hs_1) (ccons (∈ x hs_1) x (∪ hs hs_1))]
   )
 
+(define-metafunction TypedPegExp
+  ∈ : x hs -> boolean
+  [(∈ _ ∅) #f]
+  [(∈ x (x _)) #t]
+  [(∈ x (x_1 hs)) (∈ x hs)]
+  )
+
+(define-metafunction TypedPegExp
+  ccons : boolean x hs -> hs
+  [(ccons #t x hs) hs]
+  [(ccons #f x hs) (x hs)]
+  )
+
+(define-metafunction TypedPegExp
+  samevar : x x -> boolean
+  [(samevar x x) #t]
+  [(samevar x _) #f]
+ )
+
+
 (apply-reduction-relation* typing (term (∅ ε)))
 (apply-reduction-relation* typing (term (∅ 1)))
 (apply-reduction-relation* typing (term (∅ (• 1 2))))
 (apply-reduction-relation* typing (term (∅ (/ 1 2))))
 (apply-reduction-relation* typing (term (∅ (! 1))))
 (apply-reduction-relation* typing (term (∅ (* 1))))
+(apply-reduction-relation* typing (term ((A : (#f ∅) ∅) A)))
