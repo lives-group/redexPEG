@@ -4,7 +4,7 @@
 (define-language Peg
   [E (• E E)
      (/ E E)
-     (★ E)
+     (* E)
      (! E)
      x
      natural
@@ -21,12 +21,11 @@
   [x variable-not-otherwise-mentioned]
   [G ((x E) ... )]
   [P (G E)]
-  
   [τ  (boolean hs)]
-  [hs (x ...)
-      ∅]
-  [Γ ∅ (x : τ Γ)]
-  )
+  
+  [hs (x ...)]
+  [reduc (Γ G E)]
+  [Γ ((x τ) ...)])
 
 (define-extended-language  TypedPegExp Peg
   
@@ -34,82 +33,85 @@
 
 (define typing
   (reduction-relation 
-   Peg  
+   Peg
+   #:domain reduc
+   
+   (--> (Γ G (in-hole C ε))
+        (Γ G (in-hole C (#t ()))))
 
-   (--> (in-hole C (Γ ε))
-        (in-hole C (#t ∅)))
-   (--> (in-hole C (Γ natural))
-        (in-hole C (#f ∅)))
-   (--> (in-hole C (Γ (• τ_1 τ_2)))
-        (in-hole C (⊗ τ_1 τ_2)))
-   (--> (in-hole C (Γ (/ τ_1 τ_2)))
-        (in-hole C (⊕ τ_1 τ_2)))
-   (--> (in-hole C (Γ (! (boolean hs))))
-        (in-hole C (#t hs)))
-   (--> (in-hole C (Γ (* (#f hs))))
-        (in-hole C (#t hs)))
-   (--> (in-hole C ((x_1 : (boolean hs) Γ) x_2))
-        (in-hole C (boolean (∪ hs (x_1))))
-        (side-condition (and (term (samevar x_1 x_2))
-                              (not (term (∈ x_1 hs))))))
+   (--> (Γ G (in-hole C natural))
+        (Γ G (in-hole C (#f ()))))
 
+   (--> (Γ G (in-hole C (• τ_1 τ_2)))
+        (Γ G (in-hole C (⊗ τ_1 τ_2))))
+
+   (--> (Γ G (in-hole C (/ τ_1 τ_2)))
+        (Γ G (in-hole C (⊕ τ_1 τ_2))))
+
+   (--> (Γ G (in-hole C (! (boolean hs))))
+        (Γ G (in-hole C (#t hs))))
+
+   (--> (Γ G (in-hole C (* (#f hs))))
+        (Γ G (in-hole C (#t hs))))
+
+   (--> (((x_1 τ_1)... (x (boolean hs)) (x_2 τ_2)...) G (in-hole C x))
+        (((x_1 τ_1)... (x (boolean hs)) (x_2 τ_2)...) G (in-hole C (boolean (∪ (x) hs))))
+        (where #f (∈ x hs))) ; colocar um type erro e discutir com o rodrigo
    )
   )
 
 
 (define-metafunction TypedPegExp
-  ⊗ : τ τ -> τ
-  [(⊗ ( #f hs) ( boolean_1 hs_1)) ( (∧ #t  boolean_1) hs ) ]
-  [(⊗ ( #t hs) ( boolean_1 hs_1)) ( (∧ #f  boolean_1) (∪ hs  hs_1)) ]
-  )
+  ⊗ : τ_1 τ_2 -> τ 
+  [(⊗ (#f hs) ( boolean_1 hs_1))  ( (∧ #t  boolean_1) hs ) ]
+  [(⊗ (#t hs) ( boolean_1 hs_1))  ( (∧ #f  boolean_1) (∪ hs  hs_1)) ])
 
 (define-metafunction TypedPegExp
   ⊕ : τ τ -> τ
-  [(⊕ ( boolean hs) ( boolean_1 hs_1)) ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ]
-  )
+  [(⊕ ( boolean hs) ( boolean_1 hs_1)) ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ])
 
 (define-metafunction TypedPegExp
   ∨ : boolean boolean -> boolean
   [(∨ #f #f) #f]
-  [(∨ _ _) #t]
-  )
+  [(∨ _ _) #t])
 
 (define-metafunction TypedPegExp
   ∧ : boolean boolean -> boolean
   [(∧ #t #t) #t]
-  [(∧ _ _) #f]
-  )
+  [(∧ _ _) #f])
 
 (define-metafunction TypedPegExp
   ∪ : hs hs -> hs
-  [(∪ ∅ hs)   hs]
-  [(∪ (x hs)  hs_1) (ccons (∈ x hs_1) x (∪ hs hs_1))]
-  )
+  [(∪ () hs)   hs]
+  [(∪ (x x_1 ...)  hs) (ccons (∈ x hs) x (∪ (x_1 ...) hs))])
 
 (define-metafunction TypedPegExp
   ∈ : x hs -> boolean
-  [(∈ _ ∅) #f]
-  [(∈ x (x _)) #t]
-  [(∈ x (x_1 hs)) (∈ x hs)]
-  )
+  [(∈ _ ()) #f]
+  [(∈ x (x x_1 ...)) #t]
+  [(∈ x (x_1 x_2 ...)) (∈ x (x_2 ...))])
 
 (define-metafunction TypedPegExp
   ccons : boolean x hs -> hs
   [(ccons #t x hs) hs]
-  [(ccons #f x hs) (x hs)]
-  )
+  [(ccons #f x (x_1 ...)) (x x_1 ...)])
 
 (define-metafunction TypedPegExp
   samevar : x x -> boolean
   [(samevar x x) #t]
-  [(samevar x _) #f]
- )
+  [(samevar x _) #f])
 
-
-(apply-reduction-relation* typing (term (∅ ε)))
-(apply-reduction-relation* typing (term (∅ 1)))
-(apply-reduction-relation* typing (term (∅ (• 1 2))))
-(apply-reduction-relation* typing (term (∅ (/ 1 2))))
-(apply-reduction-relation* typing (term (∅ (! 1))))
-(apply-reduction-relation* typing (term (∅ (* 1))))
-(apply-reduction-relation* typing (term ((A : (#f ∅) ∅) A)))
+(display "1-")
+(apply-reduction-relation* typing (term (() () ε)))
+(display "2-")
+(apply-reduction-relation* typing (term (() () 1)))
+(display "3-")
+(apply-reduction-relation* typing (term (() () (• 1 2))))
+(display "4-")
+(apply-reduction-relation* typing (term (() () (/ 1 2))))
+(display "5-")
+(apply-reduction-relation* typing (term (() () (! 1))))
+(display "6-")
+(apply-reduction-relation* typing (term (() () (* 1))))
+(display "7-")
+(apply-reduction-relation* typing (term (((A (#f (A)))) ((A 1)) A)))
