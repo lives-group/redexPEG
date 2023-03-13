@@ -1,5 +1,6 @@
 #lang racket
 (require redex)
+(provide typing)
 
 (define-language Peg
   [E (• E E)
