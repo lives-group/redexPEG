@@ -169,10 +169,20 @@
   [(null (GR (• e_1 e_2))) (null (GR e_1)) (null (GR e_2))])
 
 (define-metafunction PegRelation
-  [(∪ () ()) ()]
-  [(∪ (x_1...) ()) (x_1...)]
-  [(∪ () (x_2...)) (x_2...)]
-  [(∪ (x_1...) (x_2...)) ,(append `(x_1...) `(x_2...))])
+  ∪ : hs hs -> hs
+  [(∪ () hs)   hs]
+  [(∪ (x x_1 ...)  hs) (ccons (∈ x hs) x (∪ (x_1 ...) hs))])
+
+(define-metafunction PegRelation
+  ∈ : x hs -> boolean
+  [(∈ _ ()) #f]
+  [(∈ x (x x_1 ...)) #t]
+  [(∈ x (x_1 x_2 ...)) (∈ x (x_2 ...))])
+
+(define-metafunction PegRelation
+  ccons : boolean x hs -> hs
+  [(ccons #t x hs) hs]
+  [(ccons #f x (x_1 ...)) (x x_1 ...)])
 
 (define-metafunction PegRelation
   lookUp : x hs -> boolean 
@@ -248,31 +258,31 @@
 
   [(side-condition (lookUp x hs))
    -------------------------------- 
-   (type ((x_1 t_1)... (x (boolean hs)) (x_2 t_2)... ) GR x (boolean hs))]
+   (type ((x_1 t_1)... (x (boolean hs)) (x_2 t_2)... ) GR x (boolean (∪ (x) hs)))]
   )
 
 (judgment-holds (type () () 1 t) t) 
-(judgment-holds (type () () ε t) t)
-(judgment-holds (type () () (• 1 3) t) t)
-(judgment-holds (type () () (• ε ε) t) t)
-(judgment-holds (type () () (• ε 3) t) t)
-(judgment-holds (type () () (! 1) t) t)
-(judgment-holds (type () () (* 1) t) t)
-(judgment-holds (type () () (/ ε 3) t) t)
-(judgment-holds (type ((A (#f ()))) ((A 2)) (/ A 3) t) t)
+;(judgment-holds (type () () ε t) t)
+;(judgment-holds (type () () (• 1 3) t) t)
+;(judgment-holds (type () () (• ε ε) t) t)
+;(judgment-holds (type () () (• ε 3) t) t)
+;(judgment-holds (type () () (! 1) t) t)
+;(judgment-holds (type () () (* 1) t) t)
+;(judgment-holds (type () () (/ ε 3) t) t)
+;judgment-holds (type ((A (#f ()))) ((A 2)) (/ A 3) t) t)
 (judgment-holds (type ((A (#f ()))) ((A 2)) A t) t)
 ;(judgment-holds (type () ((A (/ A 2))) A t) t)
-#;(judgment-holds (type ((A (#t ())) 
-                         (B (#t ()))
-                         (S (#f (A B)))) 
-                        ((S (• A (• B 2)))
-                         (A (/ (• 0 A) ε)) 
-                         (B (/ (• 1 B) ε))) S t)t)
+(judgment-holds (type ((A (#t ())) 
+                       (B (#t ()))
+                       (S (#f (A B)))) 
+                      ((S (• A (• B 2)))
+                       (A (/ (• 0 A) ε)) 
+                       (B (/ (• 1 B) ε))) S t)t)
 
 #;(term (→ (((S (• A (• B 2)))
              (A (/ (• 0 A) ε)) 
              (B (/ (• 1 B) ε))) A) Z))
-(display "Testes nullable\n")
+#|(display "Testes nullable\n")
 
 (term (null (() 1)))
 
@@ -313,7 +323,7 @@
 ; Fazer o type system figura 3  
 
 
-#| ; Tests
+| ; Tests
 
 (judgment-holds (→ (∅ ε) O))
 (judgment-holds (→ (∅ 1) O))

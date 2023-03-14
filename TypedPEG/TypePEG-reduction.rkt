@@ -2,6 +2,8 @@
 (require redex)
 (provide typing)
 
+(provide Peg)
+
 (define-language Peg
   [E (• E E)
      (/ E E)
@@ -115,4 +117,4 @@
 (display "6-")
 (apply-reduction-relation* typing (term (() () (* 1))))
 (display "7-")
-(apply-reduction-relation* typing (term (((A (#f (A)))) ((A 1)) A)))
+(apply-reduction-relation* typing (term (((A (#f ()))) ((A 1)) A)))

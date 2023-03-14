@@ -1,6 +1,7 @@
 #lang racket
 
 (require redex)
+(require rackcheck)
 (require "../Redex-PEG/peg/lang/bigStepSemantics.rkt")
 (require "./TypePEG-reduction.rkt")
 
@@ -11,9 +12,12 @@
 
 
 (define (compareReductionJudgment Γ G exp)
-   (equal? (last (judgment-holds (type ,Γ ,G ,exp t) t)) 
-                (last (last (apply-reduction-relation* typing (term (,Γ ,G ,exp)))))))
-
+  (define reduct (last (last (apply-reduction-relation* typing (term (,Γ ,G ,exp))))))
+  (define judg (last (judgment-holds (type ,Γ ,G ,exp t) t)) )
+  ;(print reduct)
+  ;(print " - ")
+  ;(print judg)
+  (equal? reduct judg))
 
 
 ;; Tests
@@ -24,4 +28,14 @@
 (compareReductionJudgment '() '() '(* 1))
 (compareReductionJudgment '() '() '(• 1 (• 2 3)))
 (compareReductionJudgment '() '() '(• 1 (/ 2 (/ 3 4))))
-(compareReductionJudgment '((A (#f (A)))) '((A 1)) 'A) ;; Esse da errado
+
+(compareReductionJudgment '() '() '(! (• 1 (/ 2 (/ 3 4)))))
+(compareReductionJudgment '((A (#f ()))) '((A 1)) 'A)
+
+(compareReductionJudgment '((A (#t ())) 
+                            (B (#t ()))
+                            (S (#f (A B))))
+                          '((S (• A (• B 2)))
+                            (A (/ (• 0 A) ε)) 
+                            (B (/ (• 1 B) ε)))
+                          'S)
