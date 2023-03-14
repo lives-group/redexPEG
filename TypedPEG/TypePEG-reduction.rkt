@@ -19,13 +19,12 @@
      (/ τ C)
      (* C)
      (! C)
-     hole
-     ]
+     hole]
   [x variable-not-otherwise-mentioned]
   [G ((x E) ... )]
   [P (G E)]
-  [τ  (boolean hs)]
-  
+  [τ  (boolean hs)
+      error]
   [hs (x ...)]
   [reduc (Γ G E)]
   [Γ ((x τ) ...)])
@@ -54,24 +53,42 @@
    (--> (Γ G (in-hole C (! (boolean hs))))
         (Γ G (in-hole C (#t hs))))
 
+   (--> (Γ G (in-hole C (! error)))
+        (Γ G (in-hole C error)))
+
    (--> (Γ G (in-hole C (* (#f hs))))
         (Γ G (in-hole C (#t hs))))
 
+   (--> (Γ G (in-hole C (* (#t hs))))
+        (Γ G (in-hole C error)))
+
    (--> (((x_1 τ_1)... (x (boolean hs)) (x_2 τ_2)...) G (in-hole C x))
         (((x_1 τ_1)... (x (boolean hs)) (x_2 τ_2)...) G (in-hole C (boolean (∪ (x) hs))))
-        (where #f (∈ x hs))) ; colocar um type erro e discutir com o rodrigo
+        (where #f (∈ x hs)))
+
+   (--> (((x_1 τ_1)... (x (boolean hs)) (x_2 τ_2)...) G (in-hole C x))
+        (((x_1 τ_1)... (x (boolean hs)) (x_2 τ_2)...) G (in-hole C error))
+        (where #t (∈ x hs)))
    )
   )
 
+(define-metafunction TypedPegExp
+  in-ctx : Γ x -> boolean
+  [(in-ctx (x_1 ... x x_2 ...) x) #t]
+  [(in-ctx _ _) #f])
 
 (define-metafunction TypedPegExp
   ⊗ : τ_1 τ_2 -> τ 
-  [(⊗ (#f hs) ( boolean_1 hs_1))  ( (∧ #t  boolean_1) hs ) ]
-  [(⊗ (#t hs) ( boolean_1 hs_1))  ( (∧ #f  boolean_1) (∪ hs  hs_1)) ])
+  [(⊗ (#f hs) ( boolean_1 hs_1))  ( (∧ #t  boolean_1) hs )]
+  [(⊗ (#t hs) ( boolean_1 hs_1))  ( (∧ #f  boolean_1) (∪ hs  hs_1))]
+  [(⊗ error τ)  error]
+  [(⊗ τ error)  error])
 
 (define-metafunction TypedPegExp
   ⊕ : τ τ -> τ
-  [(⊕ ( boolean hs) ( boolean_1 hs_1)) ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ])
+  [(⊕ ( boolean hs) ( boolean_1 hs_1)) ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ]
+  [(⊕ error τ) error]
+  [(⊕ τ error) error])
 
 (define-metafunction TypedPegExp
   ∨ : boolean boolean -> boolean
@@ -118,3 +135,9 @@
 (apply-reduction-relation* typing (term (() () (* 1))))
 (display "7-")
 (apply-reduction-relation* typing (term (((A (#f ()))) ((A 1)) A)))
+(display "8-")
+(apply-reduction-relation* typing (term (() () (! (* ε)))))
+
+
+;; Fazer o tópico 3 do artigo Type-based Termination Analysis for Parsing Expression Grammars
+;; Pegar a Gramática e achar o contexto
