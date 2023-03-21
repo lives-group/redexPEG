@@ -28,7 +28,7 @@
  ψ, φ ⊢ C ->  under the environments ψ and φ the constraint C holds
  uma restrição C é satisfeita se existe ψ  e φ tq ψ, φ ⊢ C
  duas restrições são equivalentes (C1 ≈ C2) se ∀ψ φ.ψ, φ ⊢ C1 ↔ ψ, φ ⊢ C2
-
+rond typ
 
 
 |#
@@ -39,8 +39,8 @@
 (provide Typed-Peg)
 
 (define-language Typed-Peg
-  [τ α
-     ((b S)...)]
+  [τ α ;variavel associada com fi
+     (b S)]
   [t x
      b
      S
@@ -52,11 +52,11 @@
      (∃α.C)
      (def x : τ in C)]
   [constraint τ t C]
-  [S (x...)]
+  [S (x ...)]
   [b #t
      #f]
   [x variable-not-otherwise-mentioned]
-  [ψ ((x τ)...)]
+  [ψ ((x τ) ...)]
   [φ ((τ (b S)) ...)]
   [ctx (ψ φ)]
   [reduc (ctx constraint)])
