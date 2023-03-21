@@ -51,10 +51,55 @@
      (C ∧ C)
      (∃α.C)
      (def x : τ in C)]
+  [constraint τ t C]
   [S (x...)]
   [b #t
      #f]
   [x variable-not-otherwise-mentioned]
   [ψ ((x τ)...)]
-  [φ ((α (b S))...)]
-  [ctx (ψ φ)])
+  [φ ((τ (b S)) ...)]
+  [ctx (ψ φ)]
+  [reduc (ctx constraint)])
+
+(define-judgment-form
+  Typed-Peg
+  #:mode (semantics I I I)
+  #:contract (semantics ψ φ constraint)
+
+  [ ---------------------------
+    (semantics ψ φ #t ) ]
+
+  [(side-condition (equalφ (b_2 S_2) (b_3 S_3)))
+   (side-condition (equalτ τ τ_3))
+   (side-condition (equalτ τ_2 τ_4))
+   ---------------------------
+   (semantics ψ ((τ (b_2 S_2))
+                  (τ_1 (b_1 S_1))
+                  (τ_2 (b_3 S_3)) ) (τ_3 ≡ τ_4) ) ]
+
+  )
+
+
+(define-metafunction Typed-Peg
+  equalφ : (b S) (b S) -> boolean
+  [(equalφ (b S) (b S)) #t]
+  [(equalφ (b S) _) #f])
+
+(define-metafunction Typed-Peg
+  equalτ : τ τ -> boolean
+  [(equalτ τ τ) #t]
+  [(equalτ τ _) #f])
+
+
+(define typing
+  (reduction-relation 
+   Typed-Peg
+   #:domain reduc
+   
+   (--> (ctx true)
+        (ctx #t))
+   
+   (--> ((ψ φ) (τ_1 ≡ τ_2))
+        (ctx #t))
+   )
+  )
