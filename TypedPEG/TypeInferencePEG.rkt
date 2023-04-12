@@ -16,7 +16,11 @@
 
 (define-extended-language Typed-Peg Peg
   [τ α
-     (b S)]
+     (b S)
+     (× τ τ)
+     (+ τ τ)
+     (★ τ)
+     (! τ)]
   [t x
      b
      S
@@ -24,10 +28,11 @@
   [C true
      false
      (t ≡ t)
-     (C ∧ C)
+     (∧ C C C ...)
      (∃ α C)
      (def x : τ in C)]
-  [α x]
+  [α x 
+     (v natural)]
   [constraint τ t C]
   [S (x ...) ∅]
   [b #t
@@ -46,90 +51,88 @@
   [state (ψ φ constraint)]
   )
 
-(define cont 0)
+(define n 0)
+(define (inc)
+  (let ([x n])
+    (begin (set! n (+ 1 n)) x)))
 
-(define-metafunction Inference
-  ⊕ : τ τ -> τ
-  [(⊕ ( boolean hs) ( boolean_1 hs_1))
-   ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ]
-  )
+#;(define-metafunction Inference
+    ⊕ : τ τ -> τ
+    [(⊕ ( boolean hs) ( boolean_1 hs_1))
+     ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ])
 
-(define-metafunction Inference
-  ⊗ : τ τ -> τ
-  [(⊗ ( #f hs) ( boolean_1 hs_1)) ( (AND #t  boolean_1) hs ) ]
-  [(⊗ ( #t hs) ( boolean_1 hs_1)) ( (AND #f  boolean_1) (∪ hs  hs_1)) ]
-  )
+#;(define-metafunction Inference
+    ⊗ : τ τ -> τ
+    [(⊗ ( #f hs) ( boolean_1 hs_1)) ( (AND #t  boolean_1) hs ) ]
+    [(⊗ ( #t hs) ( boolean_1 hs_1)) ( (AND #f  boolean_1) (∪ hs  hs_1)) ])
 
-(define-metafunction Inference
-  ∨ : boolean boolean -> boolean
-  [(∨ #f #f) #f]
-  [(∨ _ _) #t]
-  )
+#;(define-metafunction Inference
+    ∨ : boolean boolean -> boolean
+    [(∨ #f #f) #f]
+    [(∨ _ _) #t])
 
-(define-metafunction Inference
-  AND : boolean boolean -> boolean
-  [(AND #t #t) #t]
-  [(AND _ _) #f]
-  )
+#;(define-metafunction Inference
+    AND : boolean boolean -> boolean
+    [(AND #t #t) #t]
+    [(AND _ _) #f])
 
-(define-metafunction Inference
-  ¬ : boolean -> boolean
-  [(¬ #t) #t]
-  [(¬ #f) #t]
-  )
+#;(define-metafunction Inference
+    ¬ : boolean -> boolean
+    [(¬ #t) #t]
+    [(¬ #f) #t])
 
-(define-metafunction Inference
-  ast : boolean -> boolean
-  [(ast #t) (error)]
-  [(ast #f) #t]
-  )
+#;(define-metafunction Inference
+    ast : boolean -> boolean
+    [(ast #t) (error)]
+    [(ast #f) #t])
 
-(define-metafunction Inference
-  ∪ : hs hs -> hs
-  [(∪ ∅ hs)   hs]
-  [(∪ (x hs)  hs_1) (ccons (∈ x hs_1) x (∪ hs hs_1))]
-  )
+#;(define-metafunction Inference
+    ∪ : hs hs -> hs
+    [(∪ ∅ hs)   hs]
+    [(∪ (x hs)  hs_1) (ccons (∈ x hs_1) x (∪ hs hs_1))])
+
 
 ; tc -> trivial-constraints
 (define-metafunction Inference
-  [(tc (ψ φ (ε τ))) (ψ φ (τ ≡ (#t ∅))) ]
-  [(tc (ψ φ (natural τ))) (ψ φ (τ ≡ (#f ∅))) ]
-  [(tc (ψ φ (x τ))) (ψ φ (x ≡ τ)) ]
-  [(tc (ψ φ ((/ e_1 e_2) τ))) (ψ φ ((∃ α_1 (tc (ψ φ (e_1 α_1))))
-                                    ∧ (∃ α_2 (tc (ψ φ (e_2 α_2))))
-                                    ∧ (τ ≡ (⊕
-                                            ,(catchAlfa (term (tc (ψ φ (e_1 α_1)))))
-                                            ,(catchAlfa (term (tc (ψ φ (e_2 α_2))))))))) ]
-  [(tc (ψ φ ((• e_1 e_2) τ))) (ψ φ ((∃ α_1 (tc (ψ φ (e_1 α_1))))
-                                    ∧ (∃ α_2 (tc (ψ φ (e_2 α_2))))
-                                    ∧ (τ ≡ (⊗
-                                            ,(catchAlfa (term (tc (ψ φ (e_1 α_1)))))
-                                            ,(catchAlfa (term (tc (ψ φ (e_2 α_2))))))))) ]
-  [(tc (ψ φ ((! e) τ))) (ψ φ ((∃ α_1 (tc (ψ φ (e α_1))))
-                              ∧ (τ ≡ ((¬
-                                       ,(first (catchAlfa (term (tc (ψ φ (e α_1)))))))
-                                      ,(last (catchAlfa (term (tc (ψ φ (e α_1))))))
-                                      ))))]
+  tc : e τ -> C
+  [(tc ε τ) (τ ≡ (#t ∅))]
 
-  [(tc (ψ φ ((* e) τ))) (ψ φ ((∃ α_1 (tc (ψ φ (e α_1))))
-                              ∧ (τ ≡ ((ast
-                                       ,(first (catchAlfa (term (tc (ψ φ (e α_1)))))))
-                                      ,(last (catchAlfa (term (tc (ψ φ (e α_1))))))
-                                      ))))]
+  [(tc natural τ) (τ ≡ (#f ∅))]
+
+  [(tc x τ) (x ≡ τ)]
 
 
-  )
+  [(tc (/ e_1 e_2) τ) (∧ (∃ α_1 (tc e_1 α_1))
+                         (∃ α_2 (tc e_2 α_2))
+                         (τ ≡ (+ α_1 α_2)))
+                      (where α_1 ,(term (v ,(inc))))
+                      (where α_2 ,(term (v ,(inc))))]
+
+  [(tc (• e_1 e_2) τ) (∧ (∃ α_1 (tc e_1 α_1))
+                         (∃ α_2 (tc e_2 α_2))
+                         (τ ≡ (× α_1 α_2)))
+                      (where α_1 ,(term (v ,(inc))))
+                      (where α_2 ,(term (v ,(inc))))]
+
+  [(tc (((! e) τ))) (((∃ α_1 (tc ((e (v ,(inc))))))
+                      ∧ (τ ≡ ((¬
+                               ,(first (catchAlfa (term (tc ((e α_1)))))))
+                              ,(last (catchAlfa (term (tc ((e α_1))))))))))]
+
+  [(tc (((* e) τ))) (((∃ α_1 (tc ((e α_1))))
+                      ∧ (τ ≡ ((ast
+                               ,(first (catchAlfa (term (tc ((e α_1)))))))
+                              ,(last (catchAlfa (term (tc ((e α_1))))))))))])
 
 
 (define (catchAlfa list)
-  (third (third list))
-  )
+  (third (first list)))
 
-(term (tc (() () (ε (#t ∅)))))
-(term (tc (() () (1 (#f ∅)))))
-(term (tc (() () (A (#f ∅)))))
-(term (tc (() () ((/ 1 2) (#f ∅)))))
-(term (tc (() () ((• 1 2) (#f ∅)))))
-(term (tc (() () ((* 1) (#t ∅)))))
-(term (tc (() () ((! 1) (#f ∅)))))
+(term (tc ε (#t ∅)))
+(term (tc 1 (#f ∅)))
+(term (tc A (#f ∅)))
+(term (tc (/ 2 2) τ))
+(term (tc (• 1 2) (#f ∅)))
+(term (tc (* 1) (#t ∅)))
+(term (tc (! 1) (#f ∅)))
 ;(term (tc (() () ((* ε) (#t ∅))))) ; dá erro, mas é pra dar!
