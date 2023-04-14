@@ -101,7 +101,6 @@
 
   [(tc x τ) (x ≡ τ)]
 
-
   [(tc (/ e_1 e_2) τ) (∧ (∃ α_1 (tc e_1 α_1))
                          (∃ α_2 (tc e_2 α_2))
                          (τ ≡ (+ α_1 α_2)))
@@ -114,25 +113,20 @@
                       (where α_1 ,(term (v ,(inc))))
                       (where α_2 ,(term (v ,(inc))))]
 
-  [(tc (((! e) τ))) (((∃ α_1 (tc ((e (v ,(inc))))))
-                      ∧ (τ ≡ ((¬
-                               ,(first (catchAlfa (term (tc ((e α_1)))))))
-                              ,(last (catchAlfa (term (tc ((e α_1))))))))))]
+  [(tc (! e_1) τ) (∧ (∃ α_1 (tc e_1 α_1))
+                         (τ ≡ (! α_1)))
+                    (where α_1 ,(term (v ,(inc))))]
 
-  [(tc (((* e) τ))) (((∃ α_1 (tc ((e α_1))))
-                      ∧ (τ ≡ ((ast
-                               ,(first (catchAlfa (term (tc ((e α_1)))))))
-                              ,(last (catchAlfa (term (tc ((e α_1))))))))))])
+  [(tc (* e_1) τ) (∧ (∃ α_1 (tc e_1 α_1))
+                     (τ ≡ (★ α_1)))
+                    (where α_1 ,(term (v ,(inc))))])
 
-
-(define (catchAlfa list)
-  (third (first list)))
 
 (term (tc ε (#t ∅)))
 (term (tc 1 (#f ∅)))
 (term (tc A (#f ∅)))
 (term (tc (/ 2 2) τ))
 (term (tc (• 1 2) (#f ∅)))
-(term (tc (* 1) (#t ∅)))
 (term (tc (! 1) (#f ∅)))
+(term (tc (* 1) (#t ∅)))
 ;(term (tc (() () ((* ε) (#t ∅))))) ; dá erro, mas é pra dar!
