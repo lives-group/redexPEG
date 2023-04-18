@@ -130,3 +130,8 @@
 (term (tc (! 1) (#f ∅)))
 (term (tc (* 1) (#t ∅)))
 ;(term (tc (() () ((* ε) (#t ∅))))) ; dá erro, mas é pra dar!
+(term (tc (• (/ 1 3) 2) (#f ∅)))
+(term (tc (* (/ 1 2)) (#f ∅)))
+(term (tc (! (* (/ 1 2))) (#f ∅)))
+
+
