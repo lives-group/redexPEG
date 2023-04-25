@@ -38,6 +38,7 @@
   [b #t
      #f]
   [x variable-not-otherwise-mentioned]
+  [ty (τ (b S))]
   [ψ ((x τ)...)]
   [φ ((τ (b S))...)]
   [ctx (ψ φ)]
@@ -95,7 +96,7 @@
 ; tc -> trivial-constraints
 (define-metafunction Inference
   tc : e τ -> C
-  [(tc ε τ) (τ ≡ (#t ∅))]
+  [(tc ε τ) (α_1 ≡ (#t ∅)) (where α_1 ,(term (v ,(inc))))]
 
   [(tc natural τ) (τ ≡ (#f ∅))]
 
@@ -114,15 +115,15 @@
                       (where α_2 ,(term (v ,(inc))))]
 
   [(tc (! e_1) τ) (∧ (∃ α_1 (tc e_1 α_1))
-                         (τ ≡ (! α_1)))
-                    (where α_1 ,(term (v ,(inc))))]
+                     (τ ≡ (! α_1)))
+                  (where α_1 ,(term (v ,(inc))))]
 
   [(tc (* e_1) τ) (∧ (∃ α_1 (tc e_1 α_1))
                      (τ ≡ (★ α_1)))
-                    (where α_1 ,(term (v ,(inc))))])
+                  (where α_1 ,(term (v ,(inc))))])
 
 
-(term (tc ε (#t ∅)))
+#|(term (tc ε (#t ∅)))
 (term (tc 1 (#f ∅)))
 (term (tc A (#f ∅)))
 (term (tc (/ 2 2) τ))
@@ -133,5 +134,115 @@
 (term (tc (• (/ 1 3) 2) (#f ∅)))
 (term (tc (* (/ 1 2)) (#f ∅)))
 (term (tc (! (* (/ 1 2))) (#f ∅)))
+
+|#
+;fazer a semantica de reescrita d
+
+(define-metafunction Typed-Peg
+  ∉ : α C -> boolean
+  [(∉ _ ()) #t]
+  [(∉ x (x x_1 ...)) #f]
+  [(∉ x (x_1 x_2 ...)) (∉ x (x_2 ...))])
+
+
+(define-metafunction Typed-Peg
+  ∪ : φ (τ (b S)) -> φ
+  [(∪ () (τ (b S)))   ((τ (b S)))]
+  [(∪ ((τ_1 (b_1 S_1)) (τ_2 (_ _)) ...)  (τ (b S)))
+   (ccons (∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...))
+          (τ (b S))
+          (∪ ((τ_2 (b_2 S_2)) ...) (τ (b S))))])
+
+(define-metafunction Typed-Peg
+  ∈ : τ φ -> boolean
+  [(∈ _ ()) #f]
+  [(∈ τ ((τ (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) #t]
+  [(∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) (∈ τ ((τ_2 (b_2 S_2)) ...))])
+
+(define-metafunction Typed-Peg
+  ccons : boolean ty φ -> φ
+  [(ccons #t (τ (b S)) ((τ_1 (b_1 S_1))... (τ (b_3 S_3)) (τ_2 (b_2 S_2)) ...))
+   ((τ_1 (b_1 S_1))... (τ (b S)) (τ_2 (b_2 S_2)) ...)]
+  [(ccons #f (τ (b S)) ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) ((τ (b S)) (τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)])
+
+(define-metafunction Typed-Peg
+  samevar : τ τ -> boolean
+  [(samevar τ τ) #t]
+  [(samevar τ _) #f])
+
+; PROCURANDO NO ENV ψ E RETORNANDO O TIPO
+(define-metafunction Typed-Peg
+  [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_1) τ_1]
+  [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_3) (ψLook ((x_2 τ_2) ...) x_3)] 
+  )
+
+; PROCURANDO NO ENV φ E RETORNANDO O HEAD
+(define-metafunction Typed-Peg
+  [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_1 S_1)) S_1]
+  [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_3 S_3)) (φLook ((τ_2 (b_2 S_2))...) τ_3)] 
+  )
+
+; VERIFICA SE O X PERTENCE AO HEAD DAQUELE TIPO
+(define-metafunction Typed-Peg
+  [(∈hs _ ()) #f]
+  [(∈hs x (x x_1 ...)) #t]
+  [(∈hs x (x_1 x_2 ...)) (∈hs x (x_2 ...))])
+
+(define constraint-solve
+  (reduction-relation 
+   Typed-Peg
+   #:domain (ψ φ C)
+
+   ;1 - falta mexer no ψ
+   (--> (ψ φ ((def x : τ in C)))
+        (ψ φ C)
+        )
+   ;2 - dois parenteses mesmo?
+   (--> (ψ φ (∧ ((∃ α_1 C_1)) C_2))
+        (ψ φ (∧ (∃ α_1 C_1) C_2))
+        (side-condition (term (∉ α_1 C_2)))
+        )
+   ;3
+   (--> (ψ φ ((b_1 S_1) ≡ (★ (#t S_2))))
+        (ψ φ false)
+        )
+   ;4
+   (--> (ψ φ (x ≡ (b S)))
+        (ψ φ false)
+        (side-condition (term (∈hs (x (φLook φ (ψLook ψ x))))))
+        )
+   ;5
+   (--> (ψ φ (∧ C false))
+        (ψ φ false)
+        )
+   ;6
+   (--> (ψ φ (∧ false C))
+        (ψ φ false)
+        )
+   ;7
+   (--> (ψ φ (∧ C true))
+        (ψ φ C)
+        )
+   ;8
+   (--> (ψ φ (∧ true C))
+        (ψ φ C)
+        )
+   ;9 - só jesus na causa dessa metafunction de união
+   (--> (ψ φ (α ≡ (τ (b S))))
+        (ψ (∪ φ (α (b S))) true)
+        )
+   ;10 - mesma coisa do 9
+   (--> (ψ φ ((τ (b S)) ≡ α))
+        (ψ (∪ φ (α (b S))) true)
+        )
+   ;11 - tem o <> entre os tipos, devemos aplicar a redução de novo?
+   (--> (ψ φ ((b_1 S_1) ≡ (b_2 S_2)))
+        (ψ φ (∧ (b_1 ≡ b_2) (S_1 ≡ S_2)))
+        )
+   )
+  )
+
+;metafunction que vai gerar os constraints com a metafunction e vai executar o reduction sobre o contrainst gerado
+;resultado final: constraint true pra falar que a gramática é válida
 
 
