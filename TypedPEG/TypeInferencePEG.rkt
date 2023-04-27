@@ -40,7 +40,7 @@
   [x variable-not-otherwise-mentioned]
   [ty (τ (b S))]
   [ψ ((x τ)...)]
-  [φ ((τ (b S))...)]
+  [φ ((α τ)...)]
   [ctx (ψ φ)]
   [exp (e τ) ]
   [reduc (ctx constraint)]
@@ -138,12 +138,39 @@
 |#
 ;fazer a semantica de reescrita d
 
+;meta função pra variável livre (n aparece ligada a quantificador)
+;cap 5 - part1 
 (define-metafunction Typed-Peg
   ∉ : α C -> boolean
   [(∉ _ ()) #t]
   [(∉ x (x x_1 ...)) #f]
   [(∉ x (x_1 x_2 ...)) (∉ x (x_2 ...))])
 
+;mudar τ pra v
+
+(define-metafunction Typed-Peg
+  lcons : (α τ) φ -> φ
+  [(lcons (α τ) ()) ((α τ))]
+  [(lcons (α_1 τ) ((α_2 τ_2)... (α_1 τ_1) (α_3 τ_3)...)) (((α_2 τ_2)... (α_1 τ) (α_3 τ_3)...))]
+  [(lcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
+  )
+
+(define-metafunction Typed-Peg
+  apply-sub : φ (α τ) -> φ
+  [(apply-sub () (α τ) ) ()]
+  [(apply-sub ((α_1 α_2) (α_3 τ_3) ...) (α_2 τ) )
+   (lcons (α_1 τ) (apply-sub ((α_3 τ_3) ...) (α τ) ))]
+  [(apply-sub ((α_1 τ_1) (α_3 τ_3) ...) (α_2 τ) )
+   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3) ...) (α τ) ))]
+  
+  )
+
+(define-metafunction Typed-Peg
+  compose : φ (α τ) -> φ
+  [(compose
+    ((α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))
+   (lcons (α_3 τ_3) (apply-sub ((α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))) ]
+  )
 
 (define-metafunction Typed-Peg
   ∪ : φ (τ (b S)) -> φ
@@ -163,7 +190,9 @@
   ccons : boolean ty φ -> φ
   [(ccons #t (τ (b S)) ((τ_1 (b_1 S_1))... (τ (b_3 S_3)) (τ_2 (b_2 S_2)) ...))
    ((τ_1 (b_1 S_1))... (τ (b S)) (τ_2 (b_2 S_2)) ...)]
-  [(ccons #f (τ (b S)) ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) ((τ (b S)) (τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)])
+  [(ccons #f (τ (b S))
+          ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...))
+   ((τ (b S)) (τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)])
 
 (define-metafunction Typed-Peg
   samevar : τ τ -> boolean
@@ -197,9 +226,9 @@
    (--> (ψ φ ((def x : τ in C)))
         (ψ φ C)
         )
-   ;2 - dois parenteses mesmo?
-   (--> (ψ φ (∧ ((∃ α_1 C_1)) C_2))
-        (ψ φ (∧ (∃ α_1 C_1) C_2))
+   ;2 - dois parenteses mesmo? barra alfa é um conj de alfas
+   (--> (ψ φ (∧ (∃ α_1 C_1) C_2))
+        (ψ φ (∃ α_1 (∧ C_1 C_2)))
         (side-condition (term (∉ α_1 C_2)))
         )
    ;3
