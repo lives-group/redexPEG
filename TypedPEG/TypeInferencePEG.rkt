@@ -47,6 +47,10 @@
   [hs (x hs)
       ∅])
 
+
+
+
+
 (define-extended-language Inference Typed-Peg
   [state-exp (ψ φ exp)]
   [state (ψ φ constraint)]
@@ -56,41 +60,6 @@
 (define (inc)
   (let ([x n])
     (begin (set! n (+ 1 n)) x)))
-
-#;(define-metafunction Inference
-    ⊕ : τ τ -> τ
-    [(⊕ ( boolean hs) ( boolean_1 hs_1))
-     ( (∨ boolean  boolean_1) (∪ hs hs_1) ) ])
-
-#;(define-metafunction Inference
-    ⊗ : τ τ -> τ
-    [(⊗ ( #f hs) ( boolean_1 hs_1)) ( (AND #t  boolean_1) hs ) ]
-    [(⊗ ( #t hs) ( boolean_1 hs_1)) ( (AND #f  boolean_1) (∪ hs  hs_1)) ])
-
-#;(define-metafunction Inference
-    ∨ : boolean boolean -> boolean
-    [(∨ #f #f) #f]
-    [(∨ _ _) #t])
-
-#;(define-metafunction Inference
-    AND : boolean boolean -> boolean
-    [(AND #t #t) #t]
-    [(AND _ _) #f])
-
-#;(define-metafunction Inference
-    ¬ : boolean -> boolean
-    [(¬ #t) #t]
-    [(¬ #f) #t])
-
-#;(define-metafunction Inference
-    ast : boolean -> boolean
-    [(ast #t) (error)]
-    [(ast #f) #t])
-
-#;(define-metafunction Inference
-    ∪ : hs hs -> hs
-    [(∪ ∅ hs)   hs]
-    [(∪ (x hs)  hs_1) (ccons (∈ x hs_1) x (∪ hs hs_1))])
 
 
 ; tc -> trivial-constraints
@@ -139,37 +108,65 @@
 ;fazer a semantica de reescrita d
 
 ;meta função pra variável livre (n aparece ligada a quantificador)
-;cap 5 - part1 
+;cap 5 - part1
+
 (define-metafunction Typed-Peg
-  ∉ : α C -> boolean
+  [(append () ()) ()]
+  [(append (α ...) ()) (α ...)]
+  [(append () (α ...)) (α ...)]
+  [(append (α_1 ...) (α_2 ...)) (α_1 ... α_2 ...)]
+  )
+
+(define-metafunction Typed-Peg
+  [(attach-α true (α ...)) (α ...)]
+  [(attach-α false (α ...)) (α ...)]
+  [(attach-α (t ≡ t) (α ...)) (α ...)]
+  [(attach-α (∧ C) (α ...)) (attach-α C (α ...))]
+  [(attach-α (∧ C_1 C_2 ...) (α ...) ) (append (attach-α C_1 (α ...)) (attach-α (∧ C_2 ...) (α ...)))]
+  [(attach-α (∃ α C) (α_1 ...)) (attach-α C (α α_1 ...))]
+  [(attach-α (def x : τ in C) (α ...)) (attach-α C (α ...))]
+  )
+
+
+(define-metafunction Typed-Peg
+  ∉ : α (α ...) -> boolean
   [(∉ _ ()) #t]
-  [(∉ x (x x_1 ...)) #f]
-  [(∉ x (x_1 x_2 ...)) (∉ x (x_2 ...))])
+  [(∉ α (α α_1 ...)) #f]
+  [(∉ α (α_1 α_2 ...)) (∉ α (α_2 ...))])
 
 ;mudar τ pra v
 
 (define-metafunction Typed-Peg
   lcons : (α τ) φ -> φ
   [(lcons (α τ) ()) ((α τ))]
-  [(lcons (α_1 τ) ((α_2 τ_2)... (α_1 τ_1) (α_3 τ_3)...)) (((α_2 τ_2)... (α_1 τ) (α_3 τ_3)...))]
+  [(lcons (α_1 τ) ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...))
+   (((α_2 τ_2)... (α_1 τ) (α_3 τ_3) ...))]
   [(lcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
+  )
+
+(define-metafunction Typed-Peg
+  llcons : (α τ) φ -> φ
+  [(llcons (α τ) ()) ((α τ))]
+  [(llcons (α τ) ((α_2 τ_2)... (α τ_1) (α_3 τ_3) ...))
+   (((α_2 τ_2)... (α_1 τ) (α_3 τ_3) ...))]
+  [(llcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
   )
 
 (define-metafunction Typed-Peg
   apply-sub : φ (α τ) -> φ
   [(apply-sub () (α τ) ) ()]
-  [(apply-sub ((α_1 α_2) (α_3 τ_3) ...) (α_2 τ) )
-   (lcons (α_1 τ) (apply-sub ((α_3 τ_3) ...) (α τ) ))]
-  [(apply-sub ((α_1 τ_1) (α_3 τ_3) ...) (α_2 τ) )
-   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3) ...) (α τ) ))]
-  
+  [(apply-sub ((α_1 α_2) (α_3 τ_3)...) (α_2 τ) )
+   (lcons (α_1 τ) (apply-sub ((α_3 τ_3)...) (α_2 τ) ))]
+  [(apply-sub ((α_1 τ_1) (α_3 τ_3)...) (α_2 τ) )
+   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3)...) (α_2 τ) ))]
   )
 
 (define-metafunction Typed-Peg
   compose : φ (α τ) -> φ
+  [(compose () (α τ) ) ((α τ))]
   [(compose
-    ((α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))
-   (lcons (α_3 τ_3) (apply-sub ((α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))) ]
+    ((α τ)... (α_1 τ_1) (α_2 τ_2)...) (α_3 τ_3))
+   (lcons (α_3 τ_3) (apply-sub ((α τ)... (α_1 τ_1) (α_2 τ_2)...) (α_3 τ_3))) ]
   )
 
 (define-metafunction Typed-Peg
@@ -187,12 +184,12 @@
   [(∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) (∈ τ ((τ_2 (b_2 S_2)) ...))])
 
 (define-metafunction Typed-Peg
-  ccons : boolean ty φ -> φ
-  [(ccons #t (τ (b S)) ((τ_1 (b_1 S_1))... (τ (b_3 S_3)) (τ_2 (b_2 S_2)) ...))
-   ((τ_1 (b_1 S_1))... (τ (b S)) (τ_2 (b_2 S_2)) ...)]
-  [(ccons #f (τ (b S))
-          ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...))
-   ((τ (b S)) (τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)])
+  ccons : boolean (α τ) φ -> φ
+  [(ccons #t (α τ) ((α_1 τ_1)... (α_2 τ_2) (α_3 τ_3) ...))
+   ((α_1 τ_1)... (α_2 τ) (α_2 τ_3) ...)]
+  [(ccons #f (α τ)
+          ((α_1 τ_1) (α_2 τ_2) ...))
+   ((α τ) (α_1 τ_1) (α_2 τ_2) ...)])
 
 (define-metafunction Typed-Peg
   samevar : τ τ -> boolean
@@ -226,10 +223,10 @@
    (--> (ψ φ ((def x : τ in C)))
         (ψ φ C)
         )
-   ;2 - dois parenteses mesmo? barra alfa é um conj de alfas
+   ;2
    (--> (ψ φ (∧ (∃ α_1 C_1) C_2))
         (ψ φ (∃ α_1 (∧ C_1 C_2)))
-        (side-condition (term (∉ α_1 C_2)))
+        (side-condition (term (∉ α_1 (term (attach-α C_2 ())))))
         )
    ;3
    (--> (ψ φ ((b_1 S_1) ≡ (★ (#t S_2))))
@@ -256,13 +253,13 @@
    (--> (ψ φ (∧ true C))
         (ψ φ C)
         )
-   ;9 - só jesus na causa dessa metafunction de união
-   (--> (ψ φ (α ≡ (τ (b S))))
-        (ψ (∪ φ (α (b S))) true)
+   ;9
+   (--> (ψ φ (α ≡ (b S)))
+        (ψ (compose φ (α (b S))) true)
         )
-   ;10 - mesma coisa do 9
-   (--> (ψ φ ((τ (b S)) ≡ α))
-        (ψ (∪ φ (α (b S))) true)
+   ;10
+   (--> (ψ φ ((b S) ≡ α))
+        (ψ (compose φ (α (b S))) true)
         )
    ;11 - tem o <> entre os tipos, devemos aplicar a redução de novo?
    (--> (ψ φ ((b_1 S_1) ≡ (b_2 S_2)))
