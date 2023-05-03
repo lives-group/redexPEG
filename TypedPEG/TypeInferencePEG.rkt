@@ -31,6 +31,11 @@
      (∧ C C C ...)
      (∃ α C)
      (def x : τ in C)]
+  [CEval hole
+     (∧ CEval C C ...)
+     ;(∧ C CEval C ...)
+     (∃ α CEval)
+     (def x : τ in CEval)]
   [α x 
      (v natural)]
   [constraint τ t C]
@@ -141,33 +146,42 @@
   lcons : (α τ) φ -> φ
   [(lcons (α τ) ()) ((α τ))]
   [(lcons (α_1 τ) ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...))
-   (((α_2 τ_2)... (α_1 τ) (α_3 τ_3) ...))]
+   ((α_2 τ_2) ... (α_1 τ) (α_3 τ_3) ...)]
   [(lcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
   )
 
 (define-metafunction Typed-Peg
-  llcons : (α τ) φ -> φ
-  [(llcons (α τ) ()) ((α τ))]
-  [(llcons (α τ) ((α_2 τ_2)... (α τ_1) (α_3 τ_3) ...))
-   (((α_2 τ_2)... (α_1 τ) (α_3 τ_3) ...))]
-  [(llcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
+  ψcons : (x τ) ψ -> ψ
+  [(ψcons (x τ) ()) ((x τ))]
+  [(ψcons (x τ) ((x_2 τ_2)... (x τ_1) (x_3 τ_3) ...))
+   (((x_2 τ_2)... (x_1 τ) (x_3 τ_3) ...))]
+  [(ψcons (x τ) ((x_1 τ_1) ...)) ((x τ) (x_1 τ_1) ...)]
   )
+
+;criar uma função lcons que insere um par (variável, tipo) no psi
+;
 
 (define-metafunction Typed-Peg
   apply-sub : φ (α τ) -> φ
   [(apply-sub () (α τ) ) ()]
-  [(apply-sub ((α_1 α_2) (α_3 τ_3)...) (α_2 τ) )
-   (lcons (α_1 τ) (apply-sub ((α_3 τ_3)...) (α_2 τ) ))]
-  [(apply-sub ((α_1 τ_1) (α_3 τ_3)...) (α_2 τ) )
-   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3)...) (α_2 τ) ))]
+  [(apply-sub ((α_1 α_2) (α_3 τ_3) ...) (α_2 τ) )
+   (lcons (α_1 τ) (apply-sub ((α_3 τ_3) ...) (α_2 τ) ))]
+  [(apply-sub ((α_1 τ_1) (α_3 τ_3) ...) (α_2 τ) )
+   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3) ...) (α_2 τ) ))]
+  )
+
+(define-metafunction Typed-Peg
+  subs : φ τ -> τ
+  [(subs ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...) α_1) τ_1]
+  [(subs φ τ) τ]
   )
 
 (define-metafunction Typed-Peg
   compose : φ (α τ) -> φ
   [(compose () (α τ) ) ((α τ))]
   [(compose
-    ((α τ)... (α_1 τ_1) (α_2 τ_2)...) (α_3 τ_3))
-   (lcons (α_3 τ_3) (apply-sub ((α τ)... (α_1 τ_1) (α_2 τ_2)...) (α_3 τ_3))) ]
+    ((α τ) ... (α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))
+   (lcons (α_3 τ_3) (apply-sub ((α τ) ... (α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))) ]
   )
 
 (define-metafunction Typed-Peg
@@ -220,56 +234,91 @@
    Typed-Peg
    #:domain (ψ φ C)
 
-   ;1 - falta mexer no ψ
-   (--> (ψ φ ((def x : τ in C)))
-        (ψ φ C)
+   ; regras Elton
+   (--> (ψ φ (in-hole CEval (∃ α_1 true)))
+        (ψ φ (in-hole CEval true))
         )
+
+   (--> (ψ φ (in-hole CEval (∃ α_1 false)))
+        (ψ φ (in-hole CEval false))
+        )
+
+   ;1
+   (--> (ψ φ ((def x : τ in C)))
+        ((ψcons ψ (subs φ α_1)) φ C)
+        )
+   
    ;2
-   (--> (ψ φ (∧ (∃ α_1 C_1) C_2))
-        (ψ φ (∃ α_1 (∧ C_1 C_2)))
+   (--> (ψ φ (in-hole CEval (∧ (∃ α_1 C_1) C_2)))
+        (ψ φ (in-hole CEval (∃ α_1 (∧ C_1 C_2))))
         (side-condition (term (∉ α_1 (attach-α C_2 ()))))
         )
    ;3
-   (--> (ψ φ ((b_1 S_1) ≡ (★ (#t S_2))))
-        (ψ φ false)
+   (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (★ (#t S_2)))))
+        (ψ φ (in-hole CEval false))
         )
    ;4
-   (--> (ψ φ (x ≡ (b S)))
-        (ψ φ false)
+   (--> (ψ φ (in-hole CEval (x ≡ (b S))))
+        (ψ φ (in-hole CEval false))
         (side-condition (term (∈hs (x (φLook φ (ψLook ψ x))))))
         )
    ;5
-   (--> (ψ φ (∧ C false))
-        (ψ φ false)
+   (--> (ψ φ (in-hole CEval (∧ C false C_1 ...)))
+        (ψ φ (in-hole CEval false))
         )
    ;6
-   (--> (ψ φ (∧ false C))
-        (ψ φ false)
+   (--> (ψ φ (in-hole CEval (∧ false C C_1 ...)))
+        (ψ φ (in-hole CEval false))
         )
    ;7
-   (--> (ψ φ (∧ C true))
-        (ψ φ C)
+   (--> (ψ φ (in-hole CEval (∧ C true C_1 ...)))
+        (ψ φ (in-hole CEval C))
         )
    ;8
-   (--> (ψ φ (∧ true C))
-        (ψ φ C)
+   (--> (ψ φ (in-hole CEval (∧ true C C_1 ...)))
+        (ψ φ (in-hole CEval C))
         )
    ;9
-   (--> (ψ φ (α ≡ (b S)))
-        (ψ (compose φ (α (b S))) true)
+   (--> (ψ φ (in-hole CEval (α ≡ (b S))))
+        (ψ (compose φ (α (b S))) (in-hole CEval true))
         )
    ;10
-   (--> (ψ φ ((b S) ≡ α))
-        (ψ (compose φ (α (b S))) true)
+   (--> (ψ φ (in-hole CEval ((b S) ≡ α)))
+        (ψ (compose φ (α (b S))) (in-hole CEval true))
         )
-   ;11 - tem o <> entre os tipos, devemos aplicar a redução de novo?
-   (--> (ψ φ ((b_1 S_1) ≡ (b_2 S_2)))
-        (ψ φ (∧ (b_1 ≡ b_2) (S_1 ≡ S_2)))
+   ;11
+   (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (b_2 S_2))))
+        (ψ φ (in-hole CEval (and (=b? b_1 b_2) (=S? S_1 S_2))))
         )
    )
+  )
+
+(define-metafunction Typed-Peg
+  and : boolean boolean -> C
+  [(and #t #t) true]
+  [(and _ _) false]
+  )
+
+(define-metafunction Typed-Peg
+  =b? : boolean boolean -> boolean
+  [(=b? #t #t) #t]
+  [(=b? _ _) #f]
+  )
+
+(define-metafunction Typed-Peg
+  =S? : S S -> boolean
+  [(=S? () ()) #t]
+  [(=S? () (x x_1 ...)) #f]
+  [(=S? (x x_1 ...) ()) #f]
+  [(=S? (x_1 x ...) (x_2 ... x_1 x ...))
+   (=S? (x ...) (x_2 ... x ...))]
   )
 
 ;metafunction que vai gerar os constraints com a metafunction e vai executar o reduction sobre o contrainst gerado
 ;resultado final: constraint true pra falar que a gramática é válida
 
 ;; Testes
+
+;fazer metafunction com gramática
+;fazer testes com propriedade gerando gramática e comparando o tipo
+;com gerador de tipo (Rodrigo)
