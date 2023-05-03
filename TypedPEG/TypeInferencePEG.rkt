@@ -118,9 +118,10 @@
   )
 
 (define-metafunction Typed-Peg
+  attach-α : C (α ...) -> (α ...)
   [(attach-α true (α ...)) (α ...)]
   [(attach-α false (α ...)) (α ...)]
-  [(attach-α (t ≡ t) (α ...)) (α ...)]
+  [(attach-α (t_1 ≡ t_2) (α ...)) (α ...)]
   [(attach-α (∧ C) (α ...)) (attach-α C (α ...))]
   [(attach-α (∧ C_1 C_2 ...) (α ...) ) (append (attach-α C_1 (α ...)) (attach-α (∧ C_2 ...) (α ...)))]
   [(attach-α (∃ α C) (α_1 ...)) (attach-α C (α α_1 ...))]
@@ -226,7 +227,7 @@
    ;2
    (--> (ψ φ (∧ (∃ α_1 C_1) C_2))
         (ψ φ (∃ α_1 (∧ C_1 C_2)))
-        (side-condition (term (∉ α_1 (term (attach-α C_2 ())))))
+        (side-condition (term (∉ α_1 (attach-α C_2 ()))))
         )
    ;3
    (--> (ψ φ ((b_1 S_1) ≡ (★ (#t S_2))))
@@ -271,4 +272,4 @@
 ;metafunction que vai gerar os constraints com a metafunction e vai executar o reduction sobre o contrainst gerado
 ;resultado final: constraint true pra falar que a gramática é válida
 
-
+;; Testes
