@@ -53,7 +53,9 @@
       ∅])
 
 
-
+(define-extended-language Grammar Typed-Peg
+  [G ((x e) ...) ∅]
+  )
 
 
 (define-extended-language Inference Typed-Peg
@@ -65,7 +67,6 @@
 (define (inc)
   (let ([x n])
     (begin (set! n (+ 1 n)) x)))
-
 
 ; tc -> trivial-constraints
 (define-metafunction Inference
@@ -110,6 +111,19 @@
 (term (tc (! (* (/ 1 2))) (#f ∅)))
 
 |#
+
+(define-metafunction Grammar
+  gc : G τ -> C
+  [(gc ∅ τ) true]
+  [(gc () τ) true]
+  [(gc ((x e) (x_1 e_1) ...) τ)
+   (∃ α_1 (def x : α_1 in (∧ (tc e α_1) (gc ((x_1 e_1) ...) τ))))]
+  )
+
+(term (gc ∅ (#t ∅)))
+(term (gc () (#t ∅)))
+(term (gc ((A 1)) (#t ∅)))
+
 ;fazer a semantica de reescrita d
 
 ;meta função pra variável livre (n aparece ligada a quantificador)
