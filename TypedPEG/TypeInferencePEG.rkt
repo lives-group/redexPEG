@@ -1,7 +1,7 @@
 #lang racket
 
 (require redex)
-
+(require typed-peg)
 (provide all-defined-out)
 
 (define-language Peg
@@ -52,11 +52,9 @@
   [hs (x hs)
       ∅])
 
-
 (define-extended-language Grammar Typed-Peg
   [G ((x e) ...) ∅]
   )
-
 
 (define-extended-language Inference Typed-Peg
   [state-exp (ψ φ exp)]
@@ -98,20 +96,8 @@
                   (where α_1 ,(term (v ,(inc))))])
 
 
-#|(term (tc ε (#t ∅)))
-(term (tc 1 (#f ∅)))
-(term (tc A (#f ∅)))
-(term (tc (/ 2 2) τ))
-(term (tc (• 1 2) (#f ∅)))
-(term (tc (! 1) (#f ∅)))
-(term (tc (* 1) (#t ∅)))
-;(term (tc (() () ((* ε) (#t ∅))))) ; dá erro, mas é pra dar!
-(term (tc (• (/ 1 3) 2) (#f ∅)))
-(term (tc (* (/ 1 2)) (#f ∅)))
-(term (tc (! (* (/ 1 2))) (#f ∅)))
 
-|#
-
+;gc - grammar constraint
 (define-metafunction Grammar
   gc : G τ -> C
   [(gc ∅ τ) true]
@@ -119,15 +105,6 @@
   [(gc ((x e) (x_1 e_1) ...) τ)
    (∃ α_1 (def x : α_1 in (∧ (tc e α_1) (gc ((x_1 e_1) ...) τ))))]
   )
-
-(term (gc ∅ (#t ∅)))
-(term (gc () (#t ∅)))
-(term (gc ((A 1)) (#t ∅)))
-
-;fazer a semantica de reescrita d
-
-;meta função pra variável livre (n aparece ligada a quantificador)
-;cap 5 - part1
 
 (define-metafunction Typed-Peg
   [(append () ()) ()]
@@ -147,14 +124,11 @@
   [(attach-α (def x : τ in C) (α ...)) (attach-α C (α ...))]
   )
 
-
 (define-metafunction Typed-Peg
   ∉ : α (α ...) -> boolean
   [(∉ _ ()) #t]
   [(∉ α (α α_1 ...)) #f]
   [(∉ α (α_1 α_2 ...)) (∉ α (α_2 ...))])
-
-;mudar τ pra v
 
 (define-metafunction Typed-Peg
   lcons : (α τ) φ -> φ
@@ -171,9 +145,6 @@
    (((x_2 τ_2)... (x_1 τ) (x_3 τ_3) ...))]
   [(ψcons (x τ) ((x_1 τ_1) ...)) ((x τ) (x_1 τ_1) ...)]
   )
-
-;criar uma função lcons que insere um par (variável, tipo) no psi
-;
 
 (define-metafunction Typed-Peg
   apply-sub : φ (α τ) -> φ
