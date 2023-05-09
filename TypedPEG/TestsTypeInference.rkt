@@ -7,7 +7,8 @@
          typed-peg/tree
          peg-gen
          rackcheck
-         rackunit)
+         rackunit
+         redex)
 
 (require "./TypeInferencePEG.rkt")
 

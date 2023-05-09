@@ -20,7 +20,8 @@
      (× τ τ)
      (+ τ τ)
      (★ τ)
-     (! τ)]
+     (! τ)
+     error]
   [t x
      b
      S
@@ -103,8 +104,7 @@
   [(gc ∅ τ) true]
   [(gc () τ) true]
   [(gc ((x e) (x_1 e_1) ...) τ)
-   (∃ α_1 (def x : α_1 in (∧ (tc e α_1) (gc ((x_1 e_1) ...) τ))))]
-  )
+   (∃ α_1 (def x : α_1 in (∧ (tc e α_1) (gc ((x_1 e_1) ...) τ))))])
 
 (define-metafunction Typed-Peg
   [(append () ()) ()]
@@ -158,6 +158,10 @@
 (define-metafunction Typed-Peg
   subs : φ τ -> τ
   [(subs ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...) α_1) τ_1]
+  [(subs φ (★ τ)) (★ (subs φ τ))]
+  [(subs φ (! τ)) (! (subs φ τ))]
+  [(subs φ (+ τ_1 τ_2)) (+ (subs φ τ_1) (subs φ τ_2))]
+  [(subs φ (× τ_1 τ_2)) (× (subs φ τ_1) (subs φ τ_2))]
   [(subs φ τ) τ]
   )
 
@@ -275,6 +279,10 @@
    (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (b_2 S_2))))
         (ψ φ (in-hole CEval (and (=b? b_1 b_2) (=S? S_1 S_2))))
         )
+   ;A outra
+   #;(--> (ψ φ (in-hole CEval (τ_1 ≡ τ_2)))
+        (ψ φ (in-hole CEval ((subs φ τ_1) ≡ (subs φ τ_2))))
+        )
    )
   )
 
@@ -298,6 +306,32 @@
   [(=S? (x_1 x ...) (x_2 ... x_1 x ...))
    (=S? (x ...) (x_2 ... x ...))]
   )
+
+(define-metafunction Typed-Peg
+  cle : τ -> τ
+  [(cle (#f S) ) (#t S)]
+  [(cle α) α]
+  [(cle _) error])
+
+(define-metafunction Typed-Peg
+  union : S S -> S
+  [(union () ()) ∅]
+  [(union ∅ ∅) ∅]
+  [(union ∅ S) S]
+  [(union S ∅) S]
+  #;[(union () S) S]
+  [(union (x_1 ...) (x_2 ...)) ,(set-union (term (x_1 ...)) (term (x_2 ...)))]
+  #;[(union (x x_1 ...) (x_2 ...)) (x (union (x_1 ...) (x_2 ...)))]
+
+  )
+
+
+(define-metafunction Typed-Peg
+  ⊕ : τ τ -> τ
+  [(⊕ (b S) (b_1 S_1)) (,(or (term b) (term b_1)) (union S S_1))]
+  [(⊕ τ_1 τ_2) (+ τ_1 τ_2)])
+
+
 
 ;metafunction que vai gerar os constraints com a metafunction e vai executar o reduction sobre o contrainst gerado
 ;resultado final: constraint true pra falar que a gramática é válida
