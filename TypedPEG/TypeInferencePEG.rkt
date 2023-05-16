@@ -33,10 +33,10 @@
      (∃ α C)
      (def x : τ in C)]
   [CEval hole
-     (∧ CEval C C ...)
-     ;(∧ C CEval C ...)
-     (∃ α CEval)
-     (def x : τ in CEval)]
+         (∧ CEval C C ...)
+         ;(∧ C CEval C ...)
+         (∃ α CEval)
+         (def x : τ in CEval)]
   [α x 
      (v natural)]
   [constraint τ t C]
@@ -70,7 +70,7 @@
 ; tc -> trivial-constraints
 (define-metafunction Inference
   tc : e τ -> C
-  [(tc ε τ) (α_1 ≡ (#t ∅)) (where α_1 ,(term (v ,(inc))))]
+  [(tc ε τ) (τ ≡ (#t ∅))]
 
   [(tc natural τ) (τ ≡ (#f ∅))]
 
@@ -202,6 +202,7 @@
 
 ; PROCURANDO NO ENV ψ E RETORNANDO O TIPO
 (define-metafunction Typed-Peg
+  #;[(ψLook () )]
   [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_1) τ_1]
   [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_3) (ψLook ((x_2 τ_2) ...) x_3)] 
   )
@@ -277,19 +278,19 @@
         )
    ;11
    (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (b_2 S_2))))
-        (ψ φ (in-hole CEval (and (=b? b_1 b_2) (=S? S_1 S_2))))
+        (ψ φ (in-hole CEval (∧ (=b? b_1 b_2) (=S? S_1 S_2))))
         )
    ;A outra
    #;(--> (ψ φ (in-hole CEval (τ_1 ≡ τ_2)))
-        (ψ φ (in-hole CEval ((subs φ τ_1) ≡ (subs φ τ_2))))
-        )
+          (ψ φ (in-hole CEval ((subs φ τ_1) ≡ (subs φ τ_2))))
+          )
    )
   )
 
 (define-metafunction Typed-Peg
-  and : boolean boolean -> C
-  [(and #t #t) true]
-  [(and _ _) false]
+  ∧ : boolean boolean -> C
+  [(∧ #t #t) true]
+  [(∧ _ _) false]
   )
 
 (define-metafunction Typed-Peg
@@ -301,6 +302,7 @@
 (define-metafunction Typed-Peg
   =S? : S S -> boolean
   [(=S? () ()) #t]
+  [(=S? ∅ ∅) #t]
   [(=S? () (x x_1 ...)) #f]
   [(=S? (x x_1 ...) ()) #f]
   [(=S? (x_1 x ...) (x_2 ... x_1 x ...))
@@ -322,7 +324,6 @@
   #;[(union () S) S]
   [(union (x_1 ...) (x_2 ...)) ,(set-union (term (x_1 ...)) (term (x_2 ...)))]
   #;[(union (x x_1 ...) (x_2 ...)) (x (union (x_1 ...) (x_2 ...)))]
-
   )
 
 
@@ -331,7 +332,21 @@
   [(⊕ (b S) (b_1 S_1)) (,(or (term b) (term b_1)) (union S S_1))]
   [(⊕ τ_1 τ_2) (+ τ_1 τ_2)])
 
+(define-metafunction Typed-Peg
+  ⊗ : τ τ -> τ
+  [(⊗ (b S) (b_1 S_1)) (,(and (term b) (term b_1)) (union S (⇒ b S_1)))]
+  [(⊗ τ_1 τ_2) (× τ_1 τ_2)])
 
+(define-metafunction Typed-Peg
+  ⇒ : b S -> S
+  [(⇒ #t S) S]
+  [(⇒ _ _) ()])
+
+(define-metafunction Typed-Peg
+  τeval : τ -> τ
+  [(τeval (★ τ)) (cle (τeval τ))])
+
+; fazer eq e eval(pegar um tau e se casar com algum construtores)
 
 ;metafunction que vai gerar os constraints com a metafunction e vai executar o reduction sobre o contrainst gerado
 ;resultado final: constraint true pra falar que a gramática é válida
