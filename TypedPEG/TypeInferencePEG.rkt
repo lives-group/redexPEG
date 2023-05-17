@@ -106,118 +106,6 @@
   [(gc ((x e) (x_1 e_1) ...) τ)
    (∃ α_1 (def x : α_1 in (∧ (tc e α_1) (gc ((x_1 e_1) ...) τ))))])
 
-(define-metafunction Typed-Peg
-  [(append () ()) ()]
-  [(append (α ...) ()) (α ...)]
-  [(append () (α ...)) (α ...)]
-  [(append (α_1 ...) (α_2 ...)) (α_1 ... α_2 ...)]
-  )
-
-(define-metafunction Typed-Peg
-  attach-α : C (α ...) -> (α ...)
-  [(attach-α true (α ...)) (α ...)]
-  [(attach-α false (α ...)) (α ...)]
-  [(attach-α (t_1 ≡ t_2) (α ...)) (α ...)]
-  [(attach-α (∧ C) (α ...)) (attach-α C (α ...))]
-  [(attach-α (∧ C_1 C_2 ...) (α ...) ) (append (attach-α C_1 (α ...)) (attach-α (∧ C_2 ...) (α ...)))]
-  [(attach-α (∃ α C) (α_1 ...)) (attach-α C (α α_1 ...))]
-  [(attach-α (def x : τ in C) (α ...)) (attach-α C (α ...))]
-  )
-
-(define-metafunction Typed-Peg
-  ∉ : α (α ...) -> boolean
-  [(∉ _ ()) #t]
-  [(∉ α (α α_1 ...)) #f]
-  [(∉ α (α_1 α_2 ...)) (∉ α (α_2 ...))])
-
-(define-metafunction Typed-Peg
-  lcons : (α τ) φ -> φ
-  [(lcons (α τ) ()) ((α τ))]
-  [(lcons (α_1 τ) ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...))
-   ((α_2 τ_2) ... (α_1 τ) (α_3 τ_3) ...)]
-  [(lcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
-  )
-
-(define-metafunction Typed-Peg
-  ψcons : (x τ) ψ -> ψ
-  [(ψcons (x τ) ()) ((x τ))]
-  [(ψcons (x τ) ((x_2 τ_2)... (x τ_1) (x_3 τ_3) ...))
-   (((x_2 τ_2)... (x_1 τ) (x_3 τ_3) ...))]
-  [(ψcons (x τ) ((x_1 τ_1) ...)) ((x τ) (x_1 τ_1) ...)]
-  )
-
-(define-metafunction Typed-Peg
-  apply-sub : φ (α τ) -> φ
-  [(apply-sub () (α τ) ) ()]
-  [(apply-sub ((α_1 α_2) (α_3 τ_3) ...) (α_2 τ) )
-   (lcons (α_1 τ) (apply-sub ((α_3 τ_3) ...) (α_2 τ) ))]
-  [(apply-sub ((α_1 τ_1) (α_3 τ_3) ...) (α_2 τ) )
-   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3) ...) (α_2 τ) ))]
-  )
-
-(define-metafunction Typed-Peg
-  subs : φ τ -> τ
-  [(subs ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...) α_1) τ_1]
-  [(subs φ (★ τ)) (★ (subs φ τ))]
-  [(subs φ (! τ)) (! (subs φ τ))]
-  [(subs φ (+ τ_1 τ_2)) (+ (subs φ τ_1) (subs φ τ_2))]
-  [(subs φ (× τ_1 τ_2)) (× (subs φ τ_1) (subs φ τ_2))]
-  [(subs φ τ) τ]
-  )
-
-(define-metafunction Typed-Peg
-  compose : φ (α τ) -> φ
-  [(compose () (α τ) ) ((α τ))]
-  [(compose
-    ((α τ) ... (α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))
-   (lcons (α_3 τ_3) (apply-sub ((α τ) ... (α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))) ]
-  )
-
-(define-metafunction Typed-Peg
-  ∪ : φ (τ (b S)) -> φ
-  [(∪ () (τ (b S)))   ((τ (b S)))]
-  [(∪ ((τ_1 (b_1 S_1)) (τ_2 (_ _)) ...)  (τ (b S)))
-   (ccons (∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...))
-          (τ (b S))
-          (∪ ((τ_2 (b_2 S_2)) ...) (τ (b S))))])
-
-(define-metafunction Typed-Peg
-  ∈ : τ φ -> boolean
-  [(∈ _ ()) #f]
-  [(∈ τ ((τ (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) #t]
-  [(∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) (∈ τ ((τ_2 (b_2 S_2)) ...))])
-
-(define-metafunction Typed-Peg
-  ccons : boolean (α τ) φ -> φ
-  [(ccons #t (α τ) ((α_1 τ_1)... (α_2 τ_2) (α_3 τ_3) ...))
-   ((α_1 τ_1)... (α_2 τ) (α_2 τ_3) ...)]
-  [(ccons #f (α τ)
-          ((α_1 τ_1) (α_2 τ_2) ...))
-   ((α τ) (α_1 τ_1) (α_2 τ_2) ...)])
-
-(define-metafunction Typed-Peg
-  samevar : τ τ -> boolean
-  [(samevar τ τ) #t]
-  [(samevar τ _) #f])
-
-; PROCURANDO NO ENV ψ E RETORNANDO O TIPO
-(define-metafunction Typed-Peg
-  #;[(ψLook () )]
-  [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_1) τ_1]
-  [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_3) (ψLook ((x_2 τ_2) ...) x_3)] 
-  )
-
-; PROCURANDO NO ENV φ E RETORNANDO O HEAD
-(define-metafunction Typed-Peg
-  [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_1 S_1)) S_1]
-  [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_3 S_3)) (φLook ((τ_2 (b_2 S_2))...) τ_3)] 
-  )
-
-; VERIFICA SE O X PERTENCE AO HEAD DAQUELE TIPO
-(define-metafunction Typed-Peg
-  [(∈hs _ ()) #f]
-  [(∈hs x (x x_1 ...)) #t]
-  [(∈hs x (x_1 x_2 ...)) (∈hs x (x_2 ...))])
 
 (define constraint-solve
   (reduction-relation 
@@ -278,19 +166,110 @@
         )
    ;11
    (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (b_2 S_2))))
-        (ψ φ (in-hole CEval (∧ (=b? b_1 b_2) (=S? S_1 S_2))))
+        (ψ φ (in-hole CEval (mand (=b? b_1 b_2) (=S? S_1 S_2))))
         )
    ;A outra
-   #;(--> (ψ φ (in-hole CEval (τ_1 ≡ τ_2)))
-          (ψ φ (in-hole CEval ((subs φ τ_1) ≡ (subs φ τ_2))))
+   (--> (ψ φ (in-hole CEval (τ_1 ≡ τ_2)))
+          (ψ φ (in-hole CEval (equiv φ τ_1 τ_2)))
           )
    )
   )
 
+; Aux. attach-α
 (define-metafunction Typed-Peg
-  ∧ : boolean boolean -> C
-  [(∧ #t #t) true]
-  [(∧ _ _) false]
+  [(append () ()) ()]
+  [(append (α ...) ()) (α ...)]
+  [(append () (α ...)) (α ...)]
+  [(append (α_1 ...) (α_2 ...)) (α_1 ... α_2 ...)]
+  )
+
+;VERIFICA OS ALFAS LIGADOS E FORMA UMA LISTA COM ELES
+(define-metafunction Typed-Peg
+  attach-α : C (α ...) -> (α ...)
+  [(attach-α true (α ...)) (α ...)]
+  [(attach-α false (α ...)) (α ...)]
+  [(attach-α (t_1 ≡ t_2) (α ...)) (α ...)]
+  [(attach-α (∧ C) (α ...)) (attach-α C (α ...))]
+  [(attach-α (∧ C_1 C_2 ...) (α ...) ) (append (attach-α C_1 (α ...)) (attach-α (∧ C_2 ...) (α ...)))]
+  [(attach-α (∃ α C) (α_1 ...)) (attach-α C (α α_1 ...))]
+  [(attach-α (def x : τ in C) (α ...)) (attach-α C (α ...))]
+  )
+
+(define-metafunction Typed-Peg
+  ∉ : α (α ...) -> boolean
+  [(∉ _ ()) #t]
+  [(∉ α (α α_1 ...)) #f]
+  [(∉ α (α_1 α_2 ...)) (∉ α (α_2 ...))])
+
+(define-metafunction Typed-Peg
+  lcons : (α τ) φ -> φ
+  [(lcons (α τ) ()) ((α τ))]
+  [(lcons (α_1 τ) ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...))
+   ((α_2 τ_2) ... (α_1 τ) (α_3 τ_3) ...)]
+  [(lcons (α τ) ((α_1 τ_1) ...)) ((α τ) (α_1 τ_1) ...)]
+  )
+
+(define-metafunction Typed-Peg
+  ψcons : (x τ) ψ -> ψ
+  [(ψcons (x τ) ()) ((x τ))]
+  [(ψcons (x τ) ((x_2 τ_2)... (x τ_1) (x_3 τ_3) ...))
+   (((x_2 τ_2)... (x_1 τ) (x_3 τ_3) ...))]
+  [(ψcons (x τ) ((x_1 τ_1) ...)) ((x τ) (x_1 τ_1) ...)]
+  )
+
+(define-metafunction Typed-Peg
+  apply-sub : φ (α τ) -> φ
+  [(apply-sub () (α τ) ) ()]
+  [(apply-sub ((α_1 α_2) (α_3 τ_3) ...) (α_2 τ) )
+   (lcons (α_1 τ) (apply-sub ((α_3 τ_3) ...) (α_2 τ) ))]
+  [(apply-sub ((α_1 τ_1) (α_3 τ_3) ...) (α_2 τ) )
+   (lcons (α_1 τ_1) (apply-sub ((α_3 τ_3) ...) (α_2 τ) ))]
+  )
+
+(define-metafunction Typed-Peg
+  subs : φ τ -> τ
+  [(subs ((α_2 τ_2) ... (α_1 τ_1) (α_3 τ_3) ...) α_1) τ_1]
+  [(subs φ (★ τ)) (★ (subs φ τ))]
+  [(subs φ (! τ)) (! (subs φ τ))]
+  [(subs φ (+ τ_1 τ_2)) (+ (subs φ τ_1) (subs φ τ_2))]
+  [(subs φ (× τ_1 τ_2)) (× (subs φ τ_1) (subs φ τ_2))]
+  [(subs φ τ) τ]
+  )
+
+(define-metafunction Typed-Peg
+  compose : φ (α τ) -> φ
+  [(compose () (α τ) ) ((α τ))]
+  [(compose
+    ((α τ) ... (α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))
+   (lcons (α_3 τ_3) (apply-sub ((α τ) ... (α_1 τ_1) (α_2 τ_2) ...) (α_3 τ_3))) ]
+  )
+
+
+; PROCURANDO NO ENV ψ E RETORNANDO O TIPO
+(define-metafunction Typed-Peg
+  #;[(ψLook () )]
+  [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_1) τ_1]
+  [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_3) (ψLook ((x_2 τ_2) ...) x_3)] 
+  )
+
+; PROCURANDO NO ENV φ E RETORNANDO O HEAD
+(define-metafunction Typed-Peg
+  [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_1 S_1)) S_1]
+  [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_3 S_3)) (φLook ((τ_2 (b_2 S_2))...) τ_3)] 
+  )
+
+; VERIFICA SE O X PERTENCE AO HEAD DAQUELE TIPO
+(define-metafunction Typed-Peg
+  [(∈hs _ ()) #f]
+  [(∈hs x (x x_1 ...)) #t]
+  [(∈hs x (x_1 x_2 ...)) (∈hs x (x_2 ...))])
+
+
+; AND PARA REDUCTION
+(define-metafunction Typed-Peg
+  mand : boolean boolean -> C
+  [(mand #t #t) true]
+  [(mand _ _) false]
   )
 
 (define-metafunction Typed-Peg
@@ -310,22 +289,16 @@
   )
 
 (define-metafunction Typed-Peg
-  cle : τ -> τ
-  [(cle (#f S) ) (#t S)]
-  [(cle α) α]
-  [(cle _) error])
+  klee : τ -> τ
+  [(klee (#f S) ) (#t S)]
+  [(klee α) α]
+  [(klee _) error])
 
 (define-metafunction Typed-Peg
-  union : S S -> S
-  [(union () ()) ∅]
-  [(union ∅ ∅) ∅]
-  [(union ∅ S) S]
-  [(union S ∅) S]
-  #;[(union () S) S]
-  [(union (x_1 ...) (x_2 ...)) ,(set-union (term (x_1 ...)) (term (x_2 ...)))]
-  #;[(union (x x_1 ...) (x_2 ...)) (x (union (x_1 ...) (x_2 ...)))]
-  )
-
+  not : τ -> τ
+  [(not (_ S) ) (#t S)]
+  [(not α) α]
+  [(not _) error])
 
 (define-metafunction Typed-Peg
   ⊕ : τ τ -> τ
@@ -343,8 +316,36 @@
   [(⇒ _ _) ()])
 
 (define-metafunction Typed-Peg
+  union : S S -> S
+  [(union () ()) ∅]
+  [(union ∅ ∅) ∅]
+  [(union ∅ S) S]
+  [(union S ∅) S]
+  #;[(union () S) S]
+  [(union (x_1 ...) (x_2 ...)) ,(set-union (term (x_1 ...)) (term (x_2 ...)))]
+  #;[(union (x x_1 ...) (x_2 ...)) (x (union (x_1 ...) (x_2 ...)))]
+  )
+
+(define-metafunction Typed-Peg
   τeval : τ -> τ
-  [(τeval (★ τ)) (cle (τeval τ))])
+  [(τeval (★ τ)) (klee (τeval τ))]
+  [(τeval (+ τ_1 τ_2)) (⊕ (τeval τ_1) (τeval τ_2))]
+  [(τeval (× τ_1 τ_2)) (⊗ (τeval τ_1) (τeval τ_2))]
+  [(τeval (! τ)) (not (τeval τ))]
+  [(τeval τ) τ])
+
+
+(define-metafunction Typed-Peg
+  auxEquiv : boolean -> C
+  [(auxEquiv #t) true]
+  [(auxEquiv #f) false]
+  )
+
+(define-metafunction Typed-Peg
+  equiv : φ τ τ -> C
+  [(equiv  φ τ_1 τ_2) (auxEquiv ,(equal? (term (τeval (subs φ τ_1)))
+                               (term (τeval (subs φ τ_2)))))]
+  )
 
 ; fazer eq e eval(pegar um tau e se casar com algum construtores)
 
@@ -356,3 +357,15 @@
 ;fazer metafunction com gramática
 ;fazer testes com propriedade gerando gramática e comparando o tipo
 ;com gerador de tipo (Rodrigo)
+
+
+(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ∅)))))
+(apply-reduction-relation* constraint-solve (term (() () (tc 1 (#f ∅)))))
+;(apply-reduction-relation* constraint-solve (term (() () (tc A (#f ∅)))))
+(apply-reduction-relation* constraint-solve (term (() () (tc (/ 2 2) τ))))
+(apply-reduction-relation* constraint-solve (term (() () (tc (* 2) τ))))
+
+
+;O QUE FAZER COM A GRAMÁTICA
+;A METAFUNÇÃO EQUIV É PRA USAR NA LINHA 173 MESMO?
+

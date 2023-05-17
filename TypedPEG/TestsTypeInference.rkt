@@ -12,6 +12,7 @@
 
 (require "./TypeInferencePEG.rkt")
 
+#|
 (define (peg2struct peg)
     (let ([ug (car peg)]
           [exp (cadr peg)])
@@ -101,7 +102,7 @@
 (check-property type-contexts-match)
 
 
-#|(term (tc ε (#t ∅)))
+(term (tc ε (#t ∅)))
 (term (tc 1 (#f ∅)))
 (term (tc A (#f ∅)))
 (term (tc (/ 2 2) τ))
@@ -118,4 +119,44 @@
 (term (gc () (#t ∅)))
 (term (gc ((A 1)) (#t ∅)))
 
+
+
+
+(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ∅)))))
+(apply-reduction-relation* constraint-solve (term (() () (tc 1 (#f ∅)))))
+(apply-reduction-relation* constraint-solve (term (() () (tc A (#f ∅)))))
+(apply-reduction-relation* constraint-solve (term (() () (tc (/ 2 2) τ))))
+(apply-reduction-relation* constraint-solve (term (() () (tc (* 2) τ))))
+
+
+
+(define-metafunction Typed-Peg
+  ∪ : φ (τ (b S)) -> φ
+  [(∪ () (τ (b S)))   ((τ (b S)))]
+  [(∪ ((τ_1 (b_1 S_1)) (τ_2 (_ _)) ...)  (τ (b S)))
+   (ccons (∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...))
+          (τ (b S))
+          (∪ ((τ_2 (b_2 S_2)) ...) (τ (b S))))])
+
+(define-metafunction Typed-Peg
+  ∈ : τ φ -> boolean
+  [(∈ _ ()) #f]
+  [(∈ τ ((τ (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) #t]
+  [(∈ τ ((τ_1 (b_1 S_1)) (τ_2 (b_2 S_2)) ...)) (∈ τ ((τ_2 (b_2 S_2)) ...))])
+
+
+(define-metafunction Typed-Peg
+  ccons : boolean (α τ) φ -> φ
+  [(ccons #t (α τ) ((α_1 τ_1)... (α_2 τ_2) (α_3 τ_3) ...))
+   ((α_1 τ_1)... (α_2 τ) (α_2 τ_3) ...)]
+  [(ccons #f (α τ)
+          ((α_1 τ_1) (α_2 τ_2) ...))
+   ((α τ) (α_1 τ_1) (α_2 τ_2) ...)])
+
+(define-metafunction Typed-Peg
+  samevar : τ τ -> boolean
+  [(samevar τ τ) #t]
+  [(samevar τ _) #f])
 |#
+
+
