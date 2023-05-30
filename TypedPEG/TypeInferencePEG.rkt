@@ -40,7 +40,7 @@
   [α x 
      (v natural)]
   [constraint τ t C]
-  [S (x ...) ∅]
+  [S (x ...)]
   [b #t
      #f]
   [x variable-not-otherwise-mentioned]
@@ -51,10 +51,10 @@
   [exp (e τ) ]
   [reduc (ctx constraint)]
   [hs (x hs)
-      ∅])
+      ])
 
 (define-extended-language Grammar Typed-Peg
-  [G ((x e) ...) ∅]
+  [G ((x e) ...) ]
   )
 
 (define-extended-language Inference Typed-Peg
@@ -70,9 +70,9 @@
 ; tc -> trivial-constraints
 (define-metafunction Inference
   tc : e τ -> C
-  [(tc ε τ) (τ ≡ (#t ∅))]
+  [(tc ε τ) (τ ≡ (#t ()))]
 
-  [(tc natural τ) (τ ≡ (#f ∅))]
+  [(tc natural τ) (τ ≡ (#f ()))]
 
   [(tc x τ) (x ≡ τ)]
 
@@ -100,11 +100,15 @@
 
 ;gc - grammar constraint
 (define-metafunction Grammar
-  gc : G τ -> C
-  [(gc ∅ τ) true]
-  [(gc () τ) true]
-  [(gc ((x e) (x_1 e_1) ...) τ)
-   (∃ α_1 (def x : α_1 in (∧ (tc e α_1) (gc ((x_1 e_1) ...) τ))))])
+  gc : ((x e) ...) -> C
+  [(gc ()) true]
+  [(gc ((x e) (x_1 e_1) ...))
+   (∧ (∃ α_1 (def x : α_1 in (tc e α_1))) (gc ((x_1 e_1) ...) ))])
+
+(define-metafunction Grammar
+  grmConstraint : G -> C
+  [(grmConstraint (((x e) ... ) e_1)) (∧ (gc ((x e) ...) ) (∃ α_1 (tc e_1 α_1) ))]
+  )
 
 
 (define constraint-solve
@@ -281,7 +285,7 @@
 (define-metafunction Typed-Peg
   =S? : S S -> boolean
   [(=S? () ()) #t]
-  [(=S? ∅ ∅) #t]
+  ;[(=S? ∅ ∅) #t]
   [(=S? () (x x_1 ...)) #f]
   [(=S? (x x_1 ...) ()) #f]
   [(=S? (x_1 x ...) (x_2 ... x_1 x ...))
@@ -317,11 +321,12 @@
 
 (define-metafunction Typed-Peg
   union : S S -> S
-  [(union () ()) ∅]
-  [(union ∅ ∅) ∅]
-  [(union ∅ S) S]
-  [(union S ∅) S]
-  #;[(union () S) S]
+  [(union () ()) ()]
+  ;[(union ∅ ∅) ∅]
+  ;[(union ∅ S) S]
+  ;[(union S ∅) S]
+  [(union () S) S]
+  [(union S ()) S]
   [(union (x_1 ...) (x_2 ...)) ,(set-union (term (x_1 ...)) (term (x_2 ...)))]
   #;[(union (x x_1 ...) (x_2 ...)) (x (union (x_1 ...) (x_2 ...)))]
   )
@@ -359,9 +364,9 @@
 ;com gerador de tipo (Rodrigo)
 
 
-(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ∅)))))
-(apply-reduction-relation* constraint-solve (term (() () (tc 1 (#f ∅)))))
-;(apply-reduction-relation* constraint-solve (term (() () (tc A (#f ∅)))))
+(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
+(apply-reduction-relation* constraint-solve (term (() () (tc 1 (#f ())))))
+;(apply-reduction-relation* constraint-solve (term (() () (tc A (#f ())))))
 (apply-reduction-relation* constraint-solve (term (() () (tc (/ 2 2) τ))))
 (apply-reduction-relation* constraint-solve (term (() () (tc (* 2) τ))))
 
