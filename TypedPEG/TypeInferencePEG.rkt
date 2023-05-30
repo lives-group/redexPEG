@@ -3,6 +3,7 @@
 (require redex)
 (require typed-peg)
 (provide all-defined-out)
+(provide constraint-solve)
 
 (define-language Peg
   (e natural    ; Terminal

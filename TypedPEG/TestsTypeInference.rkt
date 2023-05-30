@@ -12,6 +12,44 @@
 
 (require "./TypeInferencePEG.rkt")
 
+
+
+
+
+
+
+(sample (gen:peg 2 2 3) 1)
+
+
+(define (get-G l)
+  (car (car l)))
+(define (get-expression l)
+  (second (car l)))
+(define (get-type l)
+  (third (car l)))
+
+
+
+
+
+(define (teste l)
+  (println "Expressão: ")
+  (println (car l))
+  (apply-reduction-relation* constraint-solve (term (() ,(get-G l) (tc ,(get-expression l) ,(get-type l))))))
+
+
+(teste (sample (gen:peg 2 2 3) 1))
+
+;(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
+
+
+
+
+
+
+
+
+
 #|
 (define (peg2struct peg)
     (let ([ug (car peg)]
@@ -99,7 +137,7 @@
   )
 
 (check-property type-checks)
-(check-property type-contexts-match)
+(check-property type-contexts-match)emicida 
 
 
 (term (tc ε (#t ∅)))
