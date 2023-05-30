@@ -2,8 +2,7 @@
 
 (require redex)
 (require typed-peg)
-(provide all-defined-out)
-(provide constraint-solve)
+(provide (all-defined-out))
 
 (define-language Peg
   (e natural    ; Terminal
@@ -108,8 +107,11 @@
 
 (define-metafunction Grammar
   grmConstraint : G -> C
-  [(grmConstraint (((x e) ... ) e_1)) (∧ (gc ((x e) ...) ) (∃ α_1 (tc e_1 α_1) ))]
-  )
+  [(grmConstraint (((x e) ... ) e_1)) (∧ (gc ((x e) ...) ) (∃ α_1 (tc e_1 α_1) ))])
+
+
+(define (inferType G e)
+  (apply-reduction-relation* constraint-solve (term (() () (gc (G e) (v ,(inc)))))))
 
 
 (define constraint-solve
@@ -365,11 +367,11 @@
 ;com gerador de tipo (Rodrigo)
 
 
-(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
-(apply-reduction-relation* constraint-solve (term (() () (tc 1 (#f ())))))
+;(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
+;(apply-reduction-relation* constraint-solve (term (() () (tc 1 (#f ())))))
 ;(apply-reduction-relation* constraint-solve (term (() () (tc A (#f ())))))
-(apply-reduction-relation* constraint-solve (term (() () (tc (/ 2 2) τ))))
-(apply-reduction-relation* constraint-solve (term (() () (tc (* 2) τ))))
+;(apply-reduction-relation* constraint-solve (term (() () (tc (/ 2 2) τ))))
+;(apply-reduction-relation* constraint-solve (term (() () (tc (* 2) τ))))
 
 
 ;O QUE FAZER COM A GRAMÁTICA

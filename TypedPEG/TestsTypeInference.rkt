@@ -13,32 +13,33 @@
 (require "./TypeInferencePEG.rkt")
 
 
-
-
-
-
-
-(sample (gen:peg 2 2 3) 1)
-
-
 (define (get-G l)
-  (car (car l)))
+  (import-gen-grm (car l)))
+
 (define (get-expression l)
-  (second (car l)))
+  (cadr l))
+
 (define (get-type l)
-  (third (car l)))
+  (caddr l))
 
 
-
+(define (import-gen-grm l)
+   (match l
+     ['∅  null]
+     [(list v e g) (cond
+                     [(symbol? v) (cons (cons v (list e)) (import-gen-grm g))]
+                     [else (error "Error while converting from random generated peg") ])]
+  )
+)
 
 
 (define (teste l)
   (println "Expressão: ")
-  (println (car l))
-  (apply-reduction-relation* constraint-solve (term (() ,(get-G l) (tc ,(get-expression l) ,(get-type l))))))
+  (println (last l))
+  (apply-reduction-relation* constraint-solve (term (() ,(get-G l) (gc ,(get-expression l) (#f ()))))))
 
 
-(teste (sample (gen:peg 2 2 3) 1))
+(teste (last (sample (gen:peg 2 2 3) 1)))
 
 ;(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
 
