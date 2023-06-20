@@ -103,15 +103,20 @@
   gc : ((x e) ...) -> C
   [(gc ()) true]
   [(gc ((x e) (x_1 e_1) ...))
-   (∧ (∃ α_1 (def x : α_1 in (tc e α_1))) (gc ((x_1 e_1) ...) ))])
+   (∧ (∃ α_1 (def x : α_1 in (tc e α_1))) (gc ((x_1 e_1) ...) )) (where α_1 ,(term (v ,(inc))))])
 
 (define-metafunction Grammar
-  grmConstraint : G -> C
-  [(grmConstraint (((x e) ... ) e_1)) (∧ (gc ((x e) ...) ) (∃ α_1 (tc e_1 α_1) ))])
+  grmConstraint : (G e) -> C
+  [(grmConstraint (((x e) ... ) e_1))
+   (∧ (gc ((x e) ...) ) (∃ α_1 (tc e_1 α_1) )) (where α_1 ,(term (v ,(inc))))])
 
 
 (define (inferType G e)
-  (apply-reduction-relation* constraint-solve (term (() () (gc (G e) (v ,(inc)))))))
+  (apply-reduction-relation* constraint-solve (term (() () (grmConstraint (,G ,e)) ))))
+
+
+(define (genConstraint G e)
+  (term (() () (grmConstraint (,G ,e)) )))
 
 
 (define constraint-solve
@@ -129,56 +134,58 @@
         )
 
    ;1
-   (--> (ψ φ ((def x : τ in C)))
-        ((ψcons ψ (subs φ α_1)) φ C)
-        )
+   (--> (ψ φ (in-hole CEval (def x : τ in C)))
+        ((ψcons (x (subs φ τ)) ψ) φ (in-hole CEval C))
+        regra-1)
    
    ;2
    (--> (ψ φ (in-hole CEval (∧ (∃ α_1 C_1) C_2)))
         (ψ φ (in-hole CEval (∃ α_1 (∧ C_1 C_2))))
         (side-condition (term (∉ α_1 (attach-α C_2 ()))))
-        )
+        regra-2)
+  
    ;3
-   (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (★ (#t S_2)))))
+   (--> (ψ φ (in-hole CEval (τ_1 ≡ (★ (#t S)))))
         (ψ φ (in-hole CEval false))
-        )
+        regra-3)
+
    ;4
    (--> (ψ φ (in-hole CEval (x ≡ (b S))))
         (ψ φ (in-hole CEval false))
         (side-condition (term (∈hs (x (φLook φ (ψLook ψ x))))))
-        )
+        regra-4)
    ;5
    (--> (ψ φ (in-hole CEval (∧ C false C_1 ...)))
         (ψ φ (in-hole CEval false))
-        )
+        regra-5)
    ;6
    (--> (ψ φ (in-hole CEval (∧ false C C_1 ...)))
         (ψ φ (in-hole CEval false))
-        )
+        regra-6)
    ;7
    (--> (ψ φ (in-hole CEval (∧ C true C_1 ...)))
         (ψ φ (in-hole CEval C))
-        )
+        regra-7)
    ;8
    (--> (ψ φ (in-hole CEval (∧ true C C_1 ...)))
         (ψ φ (in-hole CEval C))
-        )
+        regra-8)
    ;9
    (--> (ψ φ (in-hole CEval (α ≡ (b S))))
         (ψ (compose φ (α (b S))) (in-hole CEval true))
-        )
+        regra-9)
    ;10
    (--> (ψ φ (in-hole CEval ((b S) ≡ α)))
         (ψ (compose φ (α (b S))) (in-hole CEval true))
-        )
+        regra-10)
    ;11
    (--> (ψ φ (in-hole CEval ((b_1 S_1) ≡ (b_2 S_2))))
         (ψ φ (in-hole CEval (mand (=b? b_1 b_2) (=S? S_1 S_2))))
-        )
+        regra-11)
    ;A outra
    (--> (ψ φ (in-hole CEval (τ_1 ≡ τ_2)))
-          (ψ φ (in-hole CEval (equiv φ τ_1 τ_2)))
-          )
+        (ψ φ (in-hole CEval (equiv φ τ_1 τ_2)))
+        regra-outra)
    )
   )
 
@@ -195,7 +202,7 @@
   attach-α : C (α ...) -> (α ...)
   [(attach-α true (α ...)) (α ...)]
   [(attach-α false (α ...)) (α ...)]
-  [(attach-α (t_1 ≡ t_2) (α ...)) (α ...)]
+  [(attach-α (τ_1 ≡ τ_2) (α ...)) (α ...)]
   [(attach-α (∧ C) (α ...)) (attach-α C (α ...))]
   [(attach-α (∧ C_1 C_2 ...) (α ...) ) (append (attach-α C_1 (α ...)) (attach-α (∧ C_2 ...) (α ...)))]
   [(attach-α (∃ α C) (α_1 ...)) (attach-α C (α α_1 ...))]
@@ -254,7 +261,7 @@
 
 ; PROCURANDO NO ENV ψ E RETORNANDO O TIPO
 (define-metafunction Typed-Peg
-  #;[(ψLook () )]
+  ;[(ψLook () )]
   [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_1) τ_1]
   [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_3) (ψLook ((x_2 τ_2) ...) x_3)] 
   )
@@ -302,10 +309,10 @@
   [(klee _) error])
 
 (define-metafunction Typed-Peg
-  not : τ -> τ
-  [(not (_ S) ) (#t S)]
-  [(not α) α]
-  [(not _) error])
+  not! : τ -> τ
+  [(not! (_ S) ) (#t S)]
+  [(not! α) α]
+  [(not! _) error])
 
 (define-metafunction Typed-Peg
   ⊕ : τ τ -> τ
@@ -339,7 +346,7 @@
   [(τeval (★ τ)) (klee (τeval τ))]
   [(τeval (+ τ_1 τ_2)) (⊕ (τeval τ_1) (τeval τ_2))]
   [(τeval (× τ_1 τ_2)) (⊗ (τeval τ_1) (τeval τ_2))]
-  [(τeval (! τ)) (not (τeval τ))]
+  [(τeval (! τ)) (not! (τeval τ))]
   [(τeval τ) τ])
 
 
@@ -352,7 +359,7 @@
 (define-metafunction Typed-Peg
   equiv : φ τ τ -> C
   [(equiv  φ τ_1 τ_2) (auxEquiv ,(equal? (term (τeval (subs φ τ_1)))
-                               (term (τeval (subs φ τ_2)))))]
+                                         (term (τeval (subs φ τ_2)))))]
   )
 
 ; fazer eq e eval(pegar um tau e se casar com algum construtores)

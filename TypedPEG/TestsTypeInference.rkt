@@ -35,9 +35,12 @@
 
 
 (define (teste l)
-  (apply-reduction-relation*
-   constraint-solve
-   (term (() ,(get-G l) (tc ,(get-expression l) (#f ()))))))
+  #;(apply-reduction-relation*
+     constraint-solve
+     (term (() ,(get-G l) (tc ,(get-expression l) (#f ())))))
+  ;(term (() ,(get-G l) (tc ,(get-expression l) ())))
+  (inferType (get-G l) (get-expression l))
+  )
 
 
 (define (findTrue l)
@@ -52,7 +55,7 @@
   (check-equal?  (testgen peg) (findTrue (teste peg)) )
   )
 
-(check-property (make-config #:tests 1) type-checks)
+(check-property (make-config #:tests 5) type-checks)
 
 ;(teste (last (sample (gen:peg 2 2 3) 1)))
 
