@@ -133,10 +133,15 @@
         (ψ φ (in-hole CEval false))
         )
 
+   ;0
+   (--> (ψ φ (in-hole CEval (def x : τ in true)))
+        (ψ φ (in-hole CEval true))
+        "regra-0")
+
    ;1
    (--> (ψ φ (in-hole CEval (def x : τ in C)))
         ((ψcons (x (subs φ τ)) ψ) φ (in-hole CEval C))
-        regra-1)
+        "regra-1")
    
    ;2
    (--> (ψ φ (in-hole CEval (∧ (∃ α_1 C_1) C_2)))
@@ -152,7 +157,7 @@
    ;4
    (--> (ψ φ (in-hole CEval (x ≡ (b S))))
         (ψ φ (in-hole CEval false))
-        (side-condition (term (∈hs (x (φLook φ (ψLook ψ x))))))
+        (side-condition (term (∈hs (x (φLook φ (subs (ψLook ψ x)))))))
         regra-4)
    ;5
    (--> (ψ φ (in-hole CEval (∧ C false C_1 ...)))
@@ -185,6 +190,7 @@
    ;A outra
    (--> (ψ φ (in-hole CEval (τ_1 ≡ τ_2)))
         (ψ φ (in-hole CEval (equiv φ τ_1 τ_2)))
+        (side-condition (not (term (∉ α_1 (attach-α (τ_1 ≡ τ_2) ())))))
         regra-outra)
    )
   )
@@ -199,7 +205,7 @@
 
 ;VERIFICA OS ALFAS LIGADOS E FORMA UMA LISTA COM ELES
 (define-metafunction Typed-Peg
-  attach-α : C (α ...) -> (α ...)
+  attach-α : _ (α ...) -> (α ...)
   [(attach-α true (α ...)) (α ...)]
   [(attach-α false (α ...)) (α ...)]
   [(attach-α (τ_1 ≡ τ_2) (α ...)) (α ...)]
@@ -383,4 +389,3 @@
 
 ;O QUE FAZER COM A GRAMÁTICA
 ;A METAFUNÇÃO EQUIV É PRA USAR NA LINHA 173 MESMO?
-

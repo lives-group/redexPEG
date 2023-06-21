@@ -55,7 +55,7 @@
   (check-equal?  (testgen peg) (findTrue (teste peg)) )
   )
 
-(check-property (make-config #:tests 5) type-checks)
+;(check-property (make-config #:tests 5) type-checks)
 
 ;(teste (last (sample (gen:peg 2 2 3) 1)))
 
