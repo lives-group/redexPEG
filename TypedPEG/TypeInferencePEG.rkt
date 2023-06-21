@@ -36,7 +36,7 @@
          (∧ CEval C C ...)
          ;(∧ C CEval C ...)
          (∃ α CEval)
-         (def x : τ in CEval)]
+         #;(def x : τ in CEval)]
   [α x 
      (v natural)]
   [constraint τ t C]
@@ -134,7 +134,7 @@
         )
 
    ;0
-   (--> (ψ φ (in-hole CEval (def x : τ in true)))
+   #;(--> (ψ φ (in-hole CEval (def x : τ in true)))
         (ψ φ (in-hole CEval true))
         "regra-0")
 
@@ -157,8 +157,15 @@
    ;4
    (--> (ψ φ (in-hole CEval (x ≡ (b S))))
         (ψ φ (in-hole CEval false))
-        (side-condition (term (∈hs (x (φLook φ (subs (ψLook ψ x)))))))
+        (side-condition (term (∈hs x (φLook φ (ψLook ψ x)) )))
         regra-4)
+
+   ;4,5
+   (--> (ψ φ (in-hole CEval (x ≡ α)))
+        (ψ φ (in-hole CEval ((subs φ (ψLook ψ x)) ≡ (subs φ α)) ))
+        (side-condition (term (valid-hs x (subs φ (ψLook ψ x)) )) )
+        "regra-4eMeio")
+   
    ;5
    (--> (ψ φ (in-hole CEval (∧ C false C_1 ...)))
         (ψ φ (in-hole CEval false))
@@ -193,6 +200,12 @@
         (side-condition (not (term (∉ α_1 (attach-α (τ_1 ≡ τ_2) ())))))
         regra-outra)
    )
+  )
+
+(define-metafunction Typed-Peg
+  in-ϕ : ϕ α -> boolean 
+  [(in-ϕ ( (α_1 τ_1) ... (α τ) (α_2 τ_2) ...) α) #t]
+  [(in-ϕ _ _) #f]
   )
 
 ; Aux. attach-α
@@ -274,8 +287,14 @@
 
 ; PROCURANDO NO ENV φ E RETORNANDO O HEAD
 (define-metafunction Typed-Peg
+  φLook : ϕ τ -> S
   [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_1 S_1)) S_1]
   [(φLook ((b_1 S_1) (b_2 S_2) ...) (b_3 S_3)) (φLook ((τ_2 (b_2 S_2))...) τ_3)] 
+  )
+
+(define-metafunction Typed-Peg
+  valid-hs : x τ -> boolean
+  [(valid-hs x (b S) ) (∉ x S) ]
   )
 
 ; VERIFICA SE O X PERTENCE AO HEAD DAQUELE TIPO

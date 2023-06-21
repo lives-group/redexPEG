@@ -128,5 +128,3 @@
   [(samevar τ τ) #t]
   [(samevar τ _) #f])
 |#
-
-
