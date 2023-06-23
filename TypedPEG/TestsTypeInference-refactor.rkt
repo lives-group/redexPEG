@@ -35,25 +35,30 @@
 
 
 (define (teste l)
-  #;(apply-reduction-relation*
-     constraint-solve
-     (term (() ,(get-G l) (tc ,(get-expression l) (#f ())))))
-  ;(term (() ,(get-G l) (tc ,(get-expression l) ())))
   (inferType (get-G l) (get-expression l))
+  )
+
+(define (constraint-from-peggen peggen)
+    (genConstraint (get-G peggen) (get-expression peggen))
   )
 
 
 (define (findTrue l)
   (cond [(eq? l '()) #f]
-        [(eq? (last (car l)) 'true) #t]
-        [else (findTrue (cdr l))]
+        [else (or (last (car l)) (findTrue (cdr l)))]
         )
   )
 
-(define-property type-checks([peg  (gen:peg 3 5 2)])
+(define-property type-checks([peg  (gen:peg 3 5 1)])
   (println peg)
   (check-equal?  (testgen peg) (findTrue (teste peg)) )
   )
+
+(define-property simple-check ([peg  (gen:peg 3 2 1)])
+  (println peg)
+  (findTrue (teste peg)) 
+  )
+
 
 ;(check-property (make-config #:tests 5) type-checks)
 
