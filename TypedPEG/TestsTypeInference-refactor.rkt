@@ -10,7 +10,7 @@
          rackunit
          redex)
 
-(require "./TypeInferencePEG.rkt")
+(require "./TypeInferencePEG-refactor.rkt")
 (require "./TestsTypedPeg.rkt")
 
 
@@ -49,12 +49,12 @@
         )
   )
 
-(define-property type-checks([peg  (gen:peg 3 5 1)])
+(define-property type-checks([peg  (gen:peg 3 5 2)])
   (println peg)
   (check-equal?  (testgen peg) (findTrue (teste peg)) )
   )
 
-(define-property simple-check ([peg  (gen:peg 3 2 1)])
+(define-property simple-check ([peg  (gen:peg 3 2 2)])
   (println peg)
   (findTrue (teste peg)) 
   )

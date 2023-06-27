@@ -43,6 +43,8 @@
 
 (define n 1)
 (define (reset) (set! n 1))
+(define (fresh-var) (list 'v (inc) ))
+
 (define start_var '(v 0))
 
 (define (inc)
@@ -85,13 +87,27 @@
   gc : ((x e) ...) -> C
   [(gc ()) #t]
   [(gc ((x e) (x_1 e_1) ...))
-   (∧ (def x : α_1 in (tc e α_1)) (gc ((x_1 e_1) ...) )) (where α_1 ,(term (v ,(inc))))])
+   (∧ (def x : α_1 in (tc e α_1)) (gc ((x_1 e_1) ...) )) (where α_1 fresh-var)])
+
+;gc - grammar constraint
+(define-metafunction Grammar
+  gc1 : ψ G C -> (ψ C)
+  [(gc1 ψ () C) (ψ C)]
+  [(gc1 ψ ((x e) (x_1 e_1) ...) C) 
+   (gc1 (ψcons (x α) ψ)
+        ((x_1 e_1) ...)
+        (c-and C (tc e α)))
+   (where α ,(fresh-var))])
+
 
 (define-metafunction Grammar
-  grmConstraint : (G e) -> C
-  [(grmConstraint (((x e) ... ) e_1))
-   (∧ (gc ((x e) ...) )  (tc e_1 α_1) ) (where α_1 ,start_var )])
-
+  grm->constraint : G e -> (ψ φ C)
+  [(grm->constraint G e)
+          (ψ
+           ()
+           (c-and C  (tc e α) ))
+   (where α ,start_var )
+   (where (ψ C) (gc1 () G #t)) ])
 
 (define (inferType G e)
   (apply-reduction-relation* constraint-solve (genConstraint G e)
@@ -103,7 +119,7 @@
 
 (define (genConstraint G e)
   (reset)
-  (term (() () (grmConstraint (,G ,e)) )))
+  (term (grm->constraint ,G ,e) ))
 
 (define (stop? ctx)
   (match ctx
@@ -116,20 +132,23 @@
    #:domain (ψ φ C)
 
    ;1
-   (--> (ψ φ (in-hole CEval (def x : τ in C)))
-        ((ψcons (x (subs φ τ)) ψ) φ (in-hole CEval C))
+   (--> (ψ φ C)
+        ((subsψ ψ φ_1) φ_1 (subsf φ_1 C_1))
+        (where (natural φ_1 C_1) (Csimplify φ 0 C) )
+        (side-condition (> (term natural) 0) )
         "r-1")
    ;3
    (--> (ψ φ (in-hole CEval ( t ≡ (★ (#t S)))))
-        (ψ φ (in-hole CEval #f))
+        (ψ φ #f)
         "r-3")
    ;4
    (--> (ψ φ (in-hole CEval (x ≡ (b S))))
-        (ψ φ (in-hole CEval false))
-        (side-condition (term (∈hs x (φLook φ (ψLook ψ x)) )))
+        (ψ φ #f)
+        (where (b_1 S_1) (ψLook ψ x))
+        (side-condition  (term (∈hs x S_1) ) ) 
         "r-4")
    ;4,5
-   (--> (ψ φ (in-hole CEval (x ≡ α)))
+   #;(--> (ψ φ (in-hole CEval (x ≡ α)))
         (ψ φ (in-hole CEval (x ≡ (subs φ α)) ))
         (side-condition (term (in-ϕ φ α) ))
         "regra-4eMeio")
@@ -141,11 +160,11 @@
         "regra-4eTresQuartos")
    ;5
    (--> (ψ φ (in-hole CEval (∧ C #f)))
-        (ψ φ (in-hole CEval #f))
+        (ψ φ #f)
         "r-5")
    ;6
    (--> (ψ φ (in-hole CEval (∧ #f C)))
-        (ψ φ (in-hole CEval false))
+        (ψ φ #f)
         "r-6")
    ;7
    (--> (ψ φ (in-hole CEval (∧ C #t)))
@@ -156,11 +175,11 @@
         (ψ φ (in-hole CEval C))
         "r-8")
    ;9
-   (--> (ψ φ (in-hole CEval (α ≡ (b S))))
+   #;(--> (ψ φ (in-hole CEval (α ≡ (b S))))
         (ψ (compose φ (α (b S))) (in-hole CEval #t))
         "r-9")
    ;10
-   (--> (ψ φ (in-hole CEval ((b S) ≡ α)))
+   #;(--> (ψ φ (in-hole CEval ((b S) ≡ α)))
         (ψ (compose φ (α (b S))) (in-hole CEval #t))
         "r-10")
    ;11
@@ -168,10 +187,11 @@
         (ψ φ (in-hole CEval ,(and (term (=b? b_1 b_2)) (term (=S? S_1 S_2)) )))
         "r-11")
    ;A outra
-   (--> (ψ φ (in-hole CEval (α ≡ τ)))
+   #;(--> (ψ φ (in-hole CEval (α ≡ τ)))
         (ψ φ (in-hole CEval (α ≡ (τeval (subs φ τ))) ))
         #;(side-condition (not (term (∉ α_1 (attach-α (τ_1 ≡ τ_2) ())))))
-        (side-condition (and (not (term (ground τ )))
+        (side-condition (and (term (τeval? τ ))
+                             (not (term (ground τ)))
                              (term (vars-subset φ (vars τ))) ))
         "r-outra")
    )
@@ -189,31 +209,53 @@
   [(in-ψ _ _) #f]
   )
 
-
 (define-metafunction Typed-Peg
   ground : τ -> boolean 
   [(ground (b S) ) #t]
   [(ground _) #f]
   )
 
-; Aux. attach-α
 (define-metafunction Typed-Peg
-  [(append () ()) ()]
-  [(append (α ...) ()) (α ...)]
-  [(append () (α ...)) (α ...)]
-  [(append (α_1 ...) (α_2 ...)) (α_1 ... α_2 ...)]
+  τeval? : τ -> boolean 
+  [(τeval? (b S)) #t]
+  [(τeval? (★ τ)) (τeval? τ)]
+  [(τeval? (+ τ_1 τ_2)) ,(and (term (τeval? τ_1)) (term (τeval? τ_2)))]
+  [(τeval? (× (#f S) τ_2)) #t]
+  [(τeval? (× τ_1 τ_2)) ,(and (term (τeval? τ_1)) (term (τeval? τ_2)))]
+  [(τeval? (! τ)) (τeval? τ)]
+  [(τeval? _) #f])
+
+(define-metafunction Typed-Peg
+  Csimplify : φ natural C  -> (natural φ C) 
+  [(Csimplify φ natural (α ≡ (b S)) ) (,(+ (term natural) 1) (compose φ ((α (b S))) ) #t)
+                                      (side-condition (not (term (in-ϕ φ α))))]
+  [(Csimplify φ natural (α ≡ (b S)) ) (natural φ ((subs φ α) ≡ (b S)))
+                                      (side-condition (term (in-ϕ φ α )))]
+  [(Csimplify φ natural (t ≡ τ) )  (natural φ (t ≡ (τeval (subs φ τ))) )
+                                   (side-condition (not (term (ground τ))) )]
+  [(Csimplify φ natural (∧ C_1 C_2)) (natural_2 φ_2 (c-and C_3 C_4))
+                             (where (natural_1 φ_1 C_3) (Csimplify φ natural C_1))
+                             (where (natural_2 φ_2 C_4) (Csimplify φ_1 natural_1 C_2))]
+  [(Csimplify φ natural C) (natural φ C)]
   )
 
-;VERIFICA OS ALFAS LIGADOS E FORMA UMA LISTA COM ELES
 #;(define-metafunction Typed-Peg
-  attach-α : _ (α ...) -> (α ...)
-  [(attach-α true (α ...)) (α ...)]
-  [(attach-α false (α ...)) (α ...)]
-  [(attach-α (τ_1 ≡ τ_2) (α ...)) (α ...)]
-  [(attach-α (∧ C) (α ...)) (attach-α C (α ...))]
-  [(attach-α (∧ C_1 C_2 ...) (α ...) ) (append (attach-α C_1 (α ...)) (attach-α (∧ C_2 ...) (α ...)))]
-  [(attach-α (∃ α C) (α_1 ...)) (attach-α C (α α_1 ...))]
-  [(attach-α (def x : τ in C) (α ...)) (attach-α C (α ...))]
+  Csimplify : φ φ C  -> (φ C) 
+  [(Csimplify φ φ_nw (α ≡ (b S)) ) ((φcons (α (b S)) φ_nw) #t)
+                                   (side-condition (not (term (in-ϕ φ α))))]
+  [(Csimplify φ φ_nw (α ≡ (b S)) ) (φ_nw (subs φ α) ≡ (b S)) (side-condition (term (in-ϕ φ α )))]
+  [(Csimplify φ φ_nw (t ≡ τ) )  (φ_nw (t ≡ (τeval (subs φ τ)))) (side-condition (not (term (ground τ))) )]
+  [(Csimplify φ φ_nw (∧ C_1 C_2)) ((compose φ_1 φ_2) (c-and C_3 C_4))
+                             (where (φ_1 C_3) (Csimplify φ φ_nw C_1))
+                             (where (φ_2 C_4) (Csimplify φ φ_nw C_2))]
+  [(Csimplify φ φ_nw C) (φ_nw C)]
+  )
+
+(define-metafunction Typed-Peg
+  c-and : C C -> C 
+  [(c-and  #t C) C]
+  [(c-and  C #t) C]
+  [(c-and C_1 C_2) (∧ C_1 C_2)]
   )
 
 (define-metafunction Typed-Peg
@@ -253,6 +295,7 @@
 (define-metafunction Typed-Peg
   φcons : (α τ) φ -> φ
   [(φcons (α τ) ()) ((α τ))]
+  #;[(φcons (α τ) ((α τ_1) (α_2 τ_2)...)) ((α τ_1) (α_2 τ_2)...)]
   [(φcons (α τ) ((α_1 τ_1) (α_2 τ_2)...)) ((α τ) (α_1 τ_1) (α_2 τ_2)...)
                                           (side-condition (term (α<?  α α_1)))]
   [(φcons (α τ) ((α_1 τ_1) (α_2 τ_2)...)) ((α_1 τ_1) (α_3 τ_3) ...)
@@ -277,6 +320,21 @@
   [(subs φ (× τ_1 τ_2)) (× (subs φ τ_1) (subs φ τ_2))]
   [(subs φ τ) τ]
   )
+
+(define-metafunction Typed-Peg
+  subsf : φ C -> C
+  [(subsf φ (τ ≡ τ_1)) ((subs φ τ) ≡ (subs φ τ_1) )]
+  [(subsf φ (x ≡ τ_1)) (x ≡ (subs φ τ_1) )]
+  [(subsf φ (τ_1 ≡ x)) ((subs φ τ_1) ≡ x)]
+  [(subsf φ (∧ C_1 C_2)) (∧ (subsf φ C_1) (subsf φ C_2))]
+  [(subsf φ b) b]
+  )
+
+(define-metafunction Typed-Peg
+  subsψ : ψ φ -> ψ
+  [(subsψ () φ)    ()]
+  [(subsψ ((x τ) (x_1 τ_1) ...)  φ) (ψcons (x (subs φ τ)) (subsψ ((x_1 τ_1) ...) φ) )]
+ )
 
 (define-metafunction Typed-Peg
   vars : τ -> (α ...)
@@ -304,19 +362,22 @@
 (define-metafunction Typed-Peg
   vars-union : (α ...) (α ...) -> (α ...)
   [(vars-union (α_1 ...) ())  (α_1 ...)]
+  [(vars-union () (α_1 ...) )  (α_1 ...)]
   [(vars-union (α_1 α_2 ...) (α_3 ... α_1  α_4 ...)) (vars-union (α_1 α_2 ...) (α_3 ... α_4 ...))]
   [(vars-union (α_1 α_2 ...) (α_3 α_4 ...)) (vars-union (α_1 α_2 ... α_3) (α_4 ...))]
   )
 
 (define-metafunction Typed-Peg
-  compose : φ (α τ) -> φ
-  [(compose ((α τ) ...) (α_2 τ_2))  (φcons (α_2 τ_2) (apply-sub ((α τ) ...) (α_2 τ_2))) ]
+  compose : φ φ -> φ
+  [(compose () φ) φ]
+  [(compose ((α_2 τ_2) (α_3 τ_3) ...) φ)
+            (φcons (α_2 (subs φ τ_2)) (compose ((α_3 τ_3) ...) φ)) ]
   )
 
 
 ; PROCURANDO NO ENV ψ E RETORNANDO O TIPO
 (define-metafunction Typed-Peg
-  ;[(ψLook () )]
+  ψLook : ψ x -> τ
   [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_1) τ_1]
   [(ψLook ((x_1 τ_1) (x_2 τ_2)...) x_3) (ψLook ((x_2 τ_2) ...) x_3)] 
   )
@@ -364,8 +425,7 @@
 (define-metafunction Typed-Peg
   not! : τ -> τ
   [(not! (_ S) ) (#t S)]
-  [(not! α) α]
-  [(not! _) error])
+  [(not! α) α])
 
 (define-metafunction Typed-Peg
   ⊕ : τ τ -> τ
@@ -374,13 +434,10 @@
 
 (define-metafunction Typed-Peg
   ⊗ : τ τ -> τ
-  [(⊗ (b S) (b_1 S_1)) (,(and (term b) (term b_1)) (union S (⇒ b S_1)))]
+  [(⊗ (#f S) τ) (#f S)]
+  [(⊗ (#t S) (b_1 S_1)) (b_1 (union S S_1)) ]
   [(⊗ τ_1 τ_2) (× τ_1 τ_2)])
 
-(define-metafunction Typed-Peg
-  ⇒ : b S -> S
-  [(⇒ #t S) S]
-  [(⇒ _ _) ()])
 
 (define-metafunction Typed-Peg
   union : S S -> S
