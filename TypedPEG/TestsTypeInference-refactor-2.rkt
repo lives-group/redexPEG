@@ -59,14 +59,16 @@
   )
 
 
-;(check-property (make-config #:tests 5) type-checks)
+(check-property (make-config #:tests 3) type-checks)
 
 ;(teste (last (sample (gen:peg 2 2 3) 1)))
 
 ;(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
 
 
-;peg = ((Q (• A J) (A (• ε 0) (J (• ε ε) ∅))) (/ A 0) ((J #t ()) (A #f ()) (Q #f (A))))
+;peg = ((Q (• A J) (A (• ε 0) (J (• ε ε) ∅)))
+;       (/ A 0)
+;       ((J #t ()) (A #f ()) (Q #f (A))))
 
 ;peg = ((N (* (/ 0 2)) (A (/ (/ 2 0) (• N 2)) ∅)) (/ (• 1 ε) (• 2 ε)) ((A #f (N)) (N #t ())))
 ;peg = ((N (* (/ 0 2)) ∅) (• 1 ε) ( (N #t ())))
