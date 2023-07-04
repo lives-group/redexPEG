@@ -21,8 +21,7 @@
      (+ τ τ)
      (★ τ)
      (! τ)
-     (hs τ)
-     (null τ)]
+     (clone τ x)]
   [t x τ]
   [C b
      (t ≡ t)
@@ -67,39 +66,39 @@
 
 ; tc -> trivial-constraints
 (define-metafunction Typed-Peg
-  tc : e τ φ -> C
-  [(tc ε τ φ) (τ ≡ (#t ()))]
+  tc : e τ -> C
+  [(tc ε τ) (τ ≡ (#t ()))]
 
-  [(tc natural τ φ) (τ ≡ (#f ()))]
+  [(tc natural τ) (τ ≡ (#f ()))]
 
-  #;[(tc x (b S) φ) (x ≡ (b S))] ;quanto temos um tal unico (instanciado e completo (b S))
+  #;[(tc x (b S) φ) (x ≡ (b S))] ;quanto temos um tau unico (instanciado e completo (b S))
   ;quando ele é uma variavel  (alfa), ai geramos duas restrições:
   ;uma que vai garantir que ele n ocorra no proprio headset
   ;que coloca ele no headset dele
 
   #;[(tc x α φ) (x ≡ (τeval (subs α)))]
 
-  [(tc x τ φ) (x ≡ (τeval τ)) (side-condition (term (valid-hs x (τeval (subs φ τ) )))) ]
+  [(tc x τ) (∧ (x ≡ α_1) (τ ≡ (clone α_1 x))) (where α_1 ,(term (v ,(inc))))]
 
-  [(tc x τ φ) (τ ≡ ((get-nullable τ) (x (get-headset τ)))) (side-condition (term (valid-hs x (τeval τ)))) ]
+  [(tc x τ) (τ ≡ ((get-nullable τ) (x (get-headset τ)))) (side-condition (term (valid-hs x (τeval τ)))) ]
   
-  [(tc (/ e_1 e_2) τ φ) (∧ (∧  (tc e_1 α_1 φ)
-                             (tc e_2 α_2 φ))
+  [(tc (/ e_1 e_2) τ) (∧ (∧  (tc e_1 α_1)
+                             (tc e_2 α_2))
                          (τ ≡ (+ α_1 α_2)))
                       (where α_1 ,(term (v ,(inc))))
                       (where α_2 ,(term (v ,(inc))))]
 
-  [(tc (• e_1 e_2) τ φ) (∧ (∧ (tc e_1 α_1 φ)
-                            (tc e_2 α_2 φ))
+  [(tc (• e_1 e_2) τ) (∧ (∧ (tc e_1 α_1)
+                            (tc e_2 α_2))
                          (τ ≡ (× α_1 α_2)))
                       (where α_1 ,(term (v ,(inc))))
                       (where α_2 ,(term (v ,(inc))))]
 
-  [(tc (! e_1) τ φ) (∧ (tc e_1 α_1 φ)
+  [(tc (! e_1) τ) (∧ (tc e_1 α_1)
                      (τ ≡ (! α_1)))
                   (where α_1 ,(term (v ,(inc))))]
 
-  [(tc (* e_1) τ φ) (∧ (tc e_1 α_1 φ)
+  [(tc (* e_1) τ) (∧ (tc e_1 α_1)
                      (τ ≡ (★ α_1)))
                   (where α_1 ,(term (v ,(inc))))])
 
@@ -119,7 +118,7 @@
   [(gc1 ψ ((x e) (x_1 e_1) ...) C) 
    (gc1 (ψcons (x α) ψ)
         ((x_1 e_1) ...)
-        (c-and C (tc e α ())))
+        (c-and C (tc e α )))
    (where α ,(fresh-var))])
 
 
@@ -128,7 +127,7 @@
   [(grm->constraint G e)
           (ψ
            ()
-           (c-and C  (tc e α ()) ))
+           (c-and C  (tc e α) ))
    (where α ,start_var )
    (where (ψ C) (gc1 () G #t)) ])
 
@@ -246,7 +245,7 @@
   [(τeval? (× (#f S) τ_2)) #t]
   [(τeval? (× τ_1 τ_2)) ,(and (term (τeval? τ_1)) (term (τeval? τ_2)))]
   [(τeval? (! τ)) (τeval? τ)]
-  ;implementar (hs τ) e (null τ)
+  ; implementar (hs τ) e (null τ)
   [(τeval? _) #f])
 
 (define-metafunction Typed-Peg
@@ -342,6 +341,7 @@
   [(subs φ (! τ)) (! (subs φ τ))]
   [(subs φ (+ τ_1 τ_2)) (+ (subs φ τ_1) (subs φ τ_2))]
   [(subs φ (× τ_1 τ_2)) (× (subs φ τ_1) (subs φ τ_2))]
+  [(subs φ (clone τ_1 x)) (clone (subs φ τ_1) x)]
   [(subs φ τ) τ]
   )
 
@@ -474,6 +474,9 @@
   [(τeval (+ τ_1 τ_2)) (⊕ (τeval τ_1) (τeval τ_2))]
   [(τeval (× τ_1 τ_2)) (⊗ (τeval τ_1) (τeval τ_2))]
   [(τeval (! τ)) (not! (τeval τ))]
+  [(τeval (clone (b (x ... x_1 x_2 ...)) x_1)) (b (x ... x_1 x_2 ...))]
+  [(τeval (clone (b (x ...)) x_1)) (b (x_1 x ...))]
+  [(τeval (clone τ x)) (clone (τeval τ) x)]
   [(τeval τ) τ])
 
 
