@@ -59,7 +59,7 @@
   )
 
 
-(check-property (make-config #:tests 3) type-checks)
+(check-property (make-config #:tests 15) type-checks)
 
 ;(teste (last (sample (gen:peg 2 2 3) 1)))
 
