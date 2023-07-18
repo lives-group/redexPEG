@@ -38,7 +38,11 @@
   )
 
 (define (constraint-from-peggen peggen)
-    (genConstraint (get-G peggen) (get-expression peggen))
+  (genConstraint (get-G peggen) (get-expression peggen))
+  )
+
+(define (traces-gen peggen)
+  (traces constraint-solve (constraint-from-peggen peggen))
   )
 
 
@@ -59,11 +63,65 @@
   )
 
 
-(check-property (make-config #:tests 15) type-checks)
+;(check-property (make-config #:tests 15) type-checks)
+(check-property (make-config #:tests 50
+                             #:deadline (+ (current-inexact-milliseconds) (* 60 1000))
+                             ) simple-check
+                )
 
 ;(teste (last (sample (gen:peg 2 2 3) 1)))
 
-;(apply-reduction-relation* constraint-solve (term (() () (tc ε (#t ())))))
+;((C ε (B C (A 1 ∅))) A ((A #f ()) (B #t (C)) (C #t ())))
+#;(apply-reduction-relation*
+ constraint-solve
+ (term (((A (v 3)) (B (v 2)) (C (v 1)))
+        ()
+        (∧
+         (∧
+          (∧
+           ((v 1) ≡ (#t ()))
+           (∧
+            (C ≡ (v 3))
+            ((v 2) ≡ (clone (v 3) C))))
+          ((v 3) ≡ (#f ())))
+         (∧
+          (A ≡ (v 1))
+          ((v 0) ≡ (clone (v 1) A)))))))
+
+
+#;(apply-reduction-relation* constraint-solve (term (((C (v 1)) (E (v 2)) (S (v 5)))
+  ()
+  (∧
+   (∧
+    (∧
+     (∧
+      (∧
+       ((v 3) ≡ (#t ()))
+       ((v 4) ≡ (#t ())))
+      ((v 1) ≡ (× (v 3) (v 4))))
+     (∧
+      (∧
+       ((v 3) ≡ (#f ()))
+       ((v 4) ≡ (#f ())))
+      ((v 2) ≡ (+ (v 3) (v 4)))))
+    (∧
+     (∧
+      (∧
+       (E ≡ (v 8))
+       ((v 6) ≡ (clone (v 8) E)))
+      ((v 7) ≡ (#t ())))
+     ((v 5) ≡ (× (v 6) (v 7)))))
+   (∧
+    (∧
+     (∧
+      (C ≡ (v 11))
+      ((v 9) ≡ (clone (v 11) C)))
+     (∧
+      (E ≡ (v 12))
+      ((v 10)
+       ≡
+       (clone (v 12) E))))
+    ((v 0) ≡ (× (v 9) (v 10))))))))
 
 
 ;peg = ((Q (• A J) (A (• ε 0) (J (• ε ε) ∅)))

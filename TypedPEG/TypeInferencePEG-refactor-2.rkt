@@ -42,15 +42,15 @@
   [G ((x e) ...) ]
   )
 
-(define n 1)
-(define (reset) (set! n 1))
+(define counter 1)
+(define (reset) (set! counter 1))
 (define (fresh-var) (list 'v (inc) ))
 
 (define start_var '(v 0))
 
 (define (inc)
-  (let ([x n])
-    (begin (set! n (+ 1 n)) x)))
+  (let ([x counter])
+    (begin (set! counter (+ 1 counter)) x)))
 
 (define-metafunction Typed-Peg
   get-nullable : τ -> b
@@ -78,29 +78,30 @@
 
   #;[(tc x α φ) (x ≡ (τeval (subs α)))]
 
-  [(tc x τ) (∧ (x ≡ α_1) (τ ≡ (clone α_1 x))) (where α_1 ,(term (v ,(inc))))]
+  [(tc x τ) (∧ (x ≡ α_1) (τ ≡ (clone α_1 x))) (where α_1 ,(fresh-var))]
 
-  [(tc x τ) (τ ≡ ((get-nullable τ) (x (get-headset τ)))) (side-condition (term (valid-hs x (τeval τ)))) ]
+  [(tc x τ) (τ ≡ ((get-nullable τ) (x (get-headset τ))))
+            (side-condition (term (valid-hs x (τeval τ)))) ]
   
   [(tc (/ e_1 e_2) τ) (∧ (∧  (tc e_1 α_1)
                              (tc e_2 α_2))
                          (τ ≡ (+ α_1 α_2)))
-                      (where α_1 ,(term (v ,(inc))))
-                      (where α_2 ,(term (v ,(inc))))]
+                      (where α_1 ,(fresh-var))
+                      (where α_2 ,(fresh-var))]
 
   [(tc (• e_1 e_2) τ) (∧ (∧ (tc e_1 α_1)
                             (tc e_2 α_2))
                          (τ ≡ (× α_1 α_2)))
-                      (where α_1 ,(term (v ,(inc))))
-                      (where α_2 ,(term (v ,(inc))))]
+                      (where α_1 ,(fresh-var))
+                      (where α_2 ,(fresh-var))]
 
   [(tc (! e_1) τ) (∧ (tc e_1 α_1)
                      (τ ≡ (! α_1)))
-                  (where α_1 ,(term (v ,(inc))))]
+                  (where α_1 ,(fresh-var))]
 
   [(tc (* e_1) τ) (∧ (tc e_1 α_1)
                      (τ ≡ (★ α_1)))
-                  (where α_1 ,(term (v ,(inc))))])
+                  (where α_1 ,(fresh-var))])
 
 
 
