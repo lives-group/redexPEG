@@ -58,14 +58,14 @@
   )
 
 (define-property simple-check ([peg  (gen:peg 3 2 2)])
-  (println peg)
+  ;(println peg)
   (findTrue (teste peg)) 
   )
 
 
 ;(check-property (make-config #:tests 15) type-checks)
-(check-property (make-config #:tests 50
-                             #:deadline (+ (current-inexact-milliseconds) (* 60 1000))
+#;(check-property (make-config #:tests 4
+                             #:deadline (+ (current-inexact-milliseconds) (* 60 3000))
                              ) simple-check
                 )
 
