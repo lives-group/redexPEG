@@ -65,9 +65,9 @@
   )
 
 (define-metafunction Typed-Peg
-  tcMonad : e τ natural -> _
-  [(tcMonad ε τ natural) (τ ≡ (#t ()))]
-  [(tcMonad natural_1 τ natural) (τ ≡ (#f ()))]
+  tcMonad : e τ natural -> (C natural)
+  [(tcMonad ε τ natural) ((τ ≡ (#t ())) natural)]
+  [(tcMonad natural_1 τ natural) ((τ ≡ (#f ())) natural)]
   [(tcMonad x τ natural) (
                           (∧ (x ≡ (v natural)) (τ ≡ (clone (v natural) x)))
                           ,(+ (term natural) 1))]
@@ -76,28 +76,37 @@
   
   [(tcMonad (/ e_1 e_2) τ natural) ((∧
                                      (∧
-                                      (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
-                                      (tcMonad e_2 (v ,(+ (term natural) 2)) ,(+ (term natural) 2)))
-                                     (τ ≡ (+ (v ,(+ (term natural) 1)) (v ,(+ (term natural) 2)))))
-                                    ,(+ (term natural) 3))
+                                      C_1
+                                      C_2)
+                                     (τ ≡ (+ (v natural) (v natural_1))))
+                                    natural_2)
+                                   (where (C_1 natural_1) (tcMonad e_1 (v natural) ,(+ (term natural) 1)))
+                                   (where (C_2 natural_2) (tcMonad e_2 (v natural_1) ,(+ (term natural_1) 1)))
                                    ]
 
   [(tcMonad (• e_1 e_2) τ natural) ((∧
                                      (∧
-                                      (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
-                                      (tcMonad e_2 (v ,(+ (term natural) 2)) ,(+ (term natural) 2))
-                                      (τ ≡ (× (v natural) (v ,(+ (term natural) 1))))))
-                                    ,(+ (term natural) 2))]
+                                      C_1
+                                      C_2)
+                                     (τ ≡ (× (v natural) (v natural_1))))
+                                    natural_2)
+                                   (where (C_1 natural_1) (tcMonad e_1 (v natural) ,(+ (term natural) 1)))
+                                   (where (C_2 natural_2) (tcMonad e_2 (v natural_1) ,(+ (term natural_1) 1)))
+                                   ]
 
   [(tcMonad (! e_1) τ natural) ((∧
-                                 (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
-                                 (τ ≡ (! (v ,(+ (term natural) 1)))))
-                                ,(+ (term natural) 2))]
+                                 C
+                                 (τ ≡ (! (v natural))))
+                                natural_1)
+                               (where (C natural_1) (tcMonad e_1 (v natural) ,(+ (term natural) 1)))
+                               ]
 
   [(tcMonad (* e_1) τ natural) ((∧
-                                 (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
-                                 (τ ≡ (★ (v ,(+ (term natural) 1)))))
-                                ,(+ (term natural) 2))]
+                                 C
+                                 (τ ≡ (★ (v natural))))
+                                natural_1)
+                               (where (C natural_1) (tcMonad e_1 (v natural) ,(+ (term natural) 1)))
+                               ]
   )
   
 
@@ -151,16 +160,14 @@
 
 ;gc - grammar constraint
 (define-metafunction Grammar
-  gc1Monad : ψ G C _ -> ((ψ C) natural)
+  gc1Monad : ψ G C natural -> ((ψ C) natural)
   [(gc1Monad ψ () C natural ) ((ψ C) natural)]
   [(gc1Monad ψ ((x e) (x_1 e_1) ...) C natural)
    (gc1Monad (ψcons (x (v natural)) ψ)
              ((x_1 e_1) ...)
-             (c-and C ,(verify-C (term (tcMonad e (v natural) natural))
-                                 (cdr (term (tcMonad e (v natural) natural)))))
-             ,(verify-natural
-               (cdr (term (tcMonad e (v natural) natural)))
-               (term natural)))
+             (c-and C C_1)
+             natural_1)
+   (where (C_1 natural_1) (tcMonad e (v natural) ,(+ (term natural) 1)))
    ])
 
 (define (verify-natural l natural)
@@ -200,9 +207,9 @@
   [(grm->constraint-monad G e)
    (ψ
     ()
-    (c-and C ,(verify-C (term (tcMonad e (v n) n)) (cdr (term (tcMonad e (v n) n)))) ))
-   (where n ,start_var_2)
-   (where ((ψ C) n) (gc1Monad () G #t n)) ])
+    (c-and C_2 C_1))
+   (where (C_1 natural_1) (tcMonad e (v 0) 1))
+   (where ((ψ C_2) natural_2) (gc1Monad () G #t natural_1)) ])
 
 (define (inferType G e)
   (apply-reduction-relation* constraint-solve (genConstraint G e)

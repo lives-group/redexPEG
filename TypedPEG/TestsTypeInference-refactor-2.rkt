@@ -64,7 +64,7 @@
 
 
 ;(check-property (make-config #:tests 15) type-checks)
-#;(check-property (make-config #:tests 4
+(check-property (make-config #:tests 10
                              #:deadline (+ (current-inexact-milliseconds) (* 60 3000))
                              ) simple-check
                 )
