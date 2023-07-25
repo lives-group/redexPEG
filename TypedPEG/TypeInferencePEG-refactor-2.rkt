@@ -143,9 +143,9 @@
   gc1Monad : ψ G C natural -> ((ψ C) natural)
   [(gc1Monad ψ () C natural ) ((ψ C) natural)]
   [(gc1Monad ψ ((x e) (x_1 e_1) ...) C natural) 
-   (gc1Monad (ψcons (x (v n)) ψ)
+   (gc1Monad (ψcons (x (v natural)) ψ)
         ((x_1 e_1) ...)
-        (c-and C (tc e (v n) )) ,(+ (term naturaln) 1))
+        (c-and C (tc e (v natural) )) ,(+ (term natural) 1))
    ])
 
 ;gc - grammar constraint
@@ -185,7 +185,6 @@
 
 
 (define (genConstraint G e)
-  (reset)
   (term (grm->constraint-monad ,G ,e) ))
 
 (define (stop? ctx)
