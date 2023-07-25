@@ -65,28 +65,39 @@
   )
 
 (define-metafunction Typed-Peg
-  tcMonad : e τ natural -> (C natural)
-  [(tcMonad ε τ natural) ((τ ≡ (#t ())) natural)]
-  [(tcMonad natural τ natural) ((τ ≡ (#f ())) natural)]
-  [(tcMonad x τ natural) ((∧ (x ≡ (v natural)) (τ ≡ (clone (v natural) x))) ,(+ (term natural) 1))]
-  [(tcMonad x τ natural) (τ ≡ ((get-nullable τ) (x (get-headset τ))))
-                   (side-condition (term (valid-hs x (τeval τ)))) ]
-  
-  [(tcMonad (/ e_1 e_2) τ natural) ((∧ (∧  (tcMonad e_1 (v natural))
-                                     (tcMonad e_2 (v ,(+ (term natural) 1))))
-                                 (τ ≡ (+ (v natural) ,(+ (term natural) 1)))) ,(+ (term natural) 2))
-                             ]
-
-  [(tcMonad (• e_1 e_2) τ natural) ((∧ (∧ (tc e_1 (v natural))
-                                    (tcMonad e_2 ,(+ (term natural) 1)))
-                                 (τ ≡ (× (v natural) ,(+ (term natural) 1)))) ,(+ (term natural) 2))]
-
-  [(tcMonad (! e_1) τ natural) ((∧ (tcMonad e_1 (v natural))
-                             (τ ≡ (! (v natural)))) 
+  tcMonad : e τ natural -> _
+  [(tcMonad ε τ natural) ((τ ≡ (#t ())) )]
+  [(tcMonad natural_1 τ natural) ((τ ≡ (#f ())) )]
+  [(tcMonad x τ natural) (
+                          (∧ (x ≡ (v natural)) (τ ≡ (clone (v natural) x)))
                           ,(+ (term natural) 1))]
+  [(tcMonad x τ natural) ((τ ≡ ((get-nullable τ) (x (get-headset τ)))) natural)
+                         (side-condition (term (valid-hs x (τeval τ)))) ]
+  
+  [(tcMonad (/ e_1 e_2) τ natural) ((∧
+                                     (∧
+                                      (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
+                                      (tcMonad e_2 (v ,(+ (term natural) 2)) ,(+ (term natural) 2)))
+                                     (τ ≡ (+ (v ,(+ (term natural) 1)) (v ,(+ (term natural) 2)))))
+                                    ,(+ (term natural) 3))
+                                   ]
 
-  [(tcMonad (* e_1) τ natural) ((∧ (tcMonad e_1 (v natural))
-                             (τ ≡ (★ (v n)))) ,(+ (term natural) 1))]
+  [(tcMonad (• e_1 e_2) τ natural) ((∧
+                                     (∧
+                                      (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
+                                      (tcMonad e_2 (v ,(+ (term natural) 2)) ,(+ (term natural) 2))
+                                      (τ ≡ (× (v natural) (v ,(+ (term natural) 1))))))
+                                    ,(+ (term natural) 2))]
+
+  [(tcMonad (! e_1) τ natural) ((∧
+                                 (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
+                                 (τ ≡ (! (v ,(+ (term natural) 1)))))
+                                ,(+ (term natural) 2))]
+
+  [(tcMonad (* e_1) τ natural) ((∧
+                                 (tcMonad e_1 (v ,(+ (term natural) 1)) ,(+ (term natural) 1))
+                                 (τ ≡ (★ (v ,(+ (term natural) 1)))))
+                                ,(+ (term natural) 2))]
   )
   
 
@@ -140,12 +151,14 @@
 
 ;gc - grammar constraint
 (define-metafunction Grammar
-  gc1Monad : ψ G C natural -> ((ψ C) natural)
+  gc1Monad : ψ G C _ -> ((ψ C) natural)
   [(gc1Monad ψ () C natural ) ((ψ C) natural)]
-  [(gc1Monad ψ ((x e) (x_1 e_1) ...) C natural) 
+  [(gc1Monad ψ ((x e) (x_1 e_1) ...) C natural)
    (gc1Monad (ψcons (x (v natural)) ψ)
-        ((x_1 e_1) ...)
-        (c-and C (tc e (v natural) )) ,(+ (term natural) 1))
+             ((x_1 e_1) ...)
+             (c-and C result-tc-C) result-tc-natural)
+   (where result-tc-C ,(car (term (tcMonad e (v natural) natural))))
+   (where result-tc-natural ,(cdr (term (tcMonad e (v natural) natural))))
    ])
 
 ;gc - grammar constraint
@@ -173,8 +186,9 @@
   [(grm->constraint-monad G e)
    (ψ
     ()
-    (c-and C  (tcMonad e (v 0) 0) ))
-   (where (ψ C) (gc1Monad () G #t 0)) ])
+    (c-and C  (tcMonad e (v n) n) ))
+   (where n 0 )
+   (where (ψ C) (gc1Monad () G #t n)) ])
 
 (define (inferType G e)
   (apply-reduction-relation* constraint-solve (genConstraint G e)
