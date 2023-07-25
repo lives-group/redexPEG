@@ -191,17 +191,18 @@
    (ψ
     ()
     (c-and C  (tc e α) ))
-   (where α ,start_var )
+   (where α ,start_var) 
    (where (ψ C) (gc1 () G #t)) ])
 
+(define start_var_2 0) 
 (define-metafunction Grammar
   grm->constraint-monad : G e -> (ψ φ C)
   [(grm->constraint-monad G e)
    (ψ
     ()
     (c-and C ,(verify-C (term (tcMonad e (v n) n)) (cdr (term (tcMonad e (v n) n)))) ))
-   (where n 0)
-   (where (ψ C) (gc1Monad () G #t n)) ])
+   (where n ,start_var_2)
+   (where ((ψ C) n) (gc1Monad () G #t n)) ])
 
 (define (inferType G e)
   (apply-reduction-relation* constraint-solve (genConstraint G e)
