@@ -40,6 +40,7 @@
   (inferType (get-G l) (get-expression l))
   )
 
+
 (define (constraint-from-peggen peggen)
   (genConstraint (get-G peggen) (get-expression peggen))
   )
@@ -55,11 +56,43 @@
         )
   )
 
+
+(define (test255 list1 list2)
+  (map (lambda (x) 
+         (map (lambda (y) 
+                (and (equal? (car x) (car y))
+                     (and (equal? (car (cadr y)) (car (rest x)))
+                          (equal? (list->set (cadr (cadr y))) (list->set (cadr (rest x)))))))
+              list1))
+       list2))
+
+(define (findTrueinList l)
+  (andmap (lambda (x) (findTruePure x))
+          l))
+
+
+(define (findTruePure term)
+  (cond [(empty? term) #f]
+        [(car term) #t]
+        [else (findTruePure (cdr term))]))
+
 (define-property type-checks([peg  (gen:peg 3 5 2)])
-  (println peg)
-  (check-types  (get-type-of-typed-peg peg)
-                (car (car (teste peg)))
-                )
+  ;(println peg)
+  (test255  
+   (car (car (teste peg)))
+   (get-type-of-typed-peg peg)
+   )
+  )
+
+
+;verifica se o tamanho das listas são iguais, se não forem, já retorna falso
+;se for, ele compara as listas 
+(define (check-types type_1 type_2)
+  (cond [(not (equal? (length type_1) (length type_2))) #f]
+        [(equal? (length type_1) 1) (equal? (rest (car type_1))
+                                            (cadr (car type_2)))]
+        [else (equal? (list->set type_1) (list->set type_2))]
+        )
   )
 
 (define (new-test peg)
@@ -67,28 +100,16 @@
   (define our-type (car (car (teste peg))))
   (println our-type)
   (println type-of-rodrigo)
-  (check-types  type-of-rodrigo
-                our-type
-                ))
-
-;dá erro pq o do rodrigo vem sem os parênteses
-(new-test '((P ε ∅) ε ((P #t ()))))
-
-;verifica se o tamanho das listas são iguais, se não forem, já retorna falso
-;se for, ele compara as listas 
-(define (check-types type_1 type_2)
-  (cond [(not (equal? (length type_1) (length type_2))) #f]
-        [else (equal? (list->set type_1) (list->set type_2))]
-        )
-  )
+  (test255
+   our-type
+   type-of-rodrigo
+   ))
 
 (define-property simple-check ([peg  (gen:peg 3 2 2)])
-  (println peg)
+  ;(println peg)
   (findTrue (teste peg))
   
   )
-
-
 
 (check-property (make-config #:tests 10) type-checks)
 #;(check-property (make-config #:tests 1
@@ -157,3 +178,10 @@
 
 ;peg = ((N (* (/ 0 2)) (A (/ (/ 2 0) (• N 2)) ∅)) (/ (• 1 ε) (• 2 ε)) ((A #f (N)) (N #t ())))
 ;peg = ((N (* (/ 0 2)) ∅) (• 1 ε) ( (N #t ())))
+
+
+(define a '((J (#t ())) (K (#t (X J))) (X (#f ()))))
+(define b '((J #t ()) (X #t ()) (K #t (X J))))
+
+
+;(findTrueinList (test255 a b))
