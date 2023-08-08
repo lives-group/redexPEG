@@ -58,9 +58,21 @@
 (define-property type-checks([peg  (gen:peg 3 5 2)])
   (println peg)
   (check-types  (get-type-of-typed-peg peg)
-                 (car (car (teste peg)))
-                 )
+                (car (car (teste peg)))
+                )
   )
+
+(define (new-test peg)
+  (define type-of-rodrigo (get-type-of-typed-peg peg))
+  (define our-type (car (car (teste peg))))
+  (println our-type)
+  (println type-of-rodrigo)
+  (check-types  type-of-rodrigo
+                our-type
+                ))
+
+;dá erro pq o do rodrigo vem sem os parênteses
+(new-test '((P ε ∅) ε ((P #t ()))))
 
 ;verifica se o tamanho das listas são iguais, se não forem, já retorna falso
 ;se for, ele compara as listas 
@@ -78,11 +90,11 @@
 
 
 
-(check-property (make-config #:tests 1) type-checks)
+(check-property (make-config #:tests 10) type-checks)
 #;(check-property (make-config #:tests 1
-                             #:deadline (+ (current-inexact-milliseconds) (* 60 3000))
-                             ) simple-check
-                               )
+                               #:deadline (+ (current-inexact-milliseconds) (* 60 3000))
+                               ) simple-check
+                                 )
 
 ;(teste (last (sample (gen:peg 2 2 3) 1)))
 
