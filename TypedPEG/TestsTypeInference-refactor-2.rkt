@@ -56,6 +56,22 @@
         )
   )
 
+(define (compare2lists list1 list2)
+  (match list1 
+    ['() #t]
+    [(cons (list nt b hs) xs) (let ([result-assoc (assoc nt list2)])
+                                (cond [(and result-assoc
+                                            (equal? (caadr result-assoc) b)
+                                            (equal? (list->set (cadr (cadr result-assoc))) (list->set hs)))
+                                       (compare2lists xs list2)]
+                                      [else #f]))]
+    )
+  )
+
+;LISTA DO RODRIGO TEM QUE SER PRIMEIRO
+(define (compare-types list1 list2)
+  (and (equal? (length list1) (length list2)) (compare2lists list1 list2))
+  )
 
 (define (test255 list1 list2)
   (map (lambda (x) 
@@ -78,9 +94,10 @@
 
 (define-property type-checks([peg  (gen:peg 3 5 2)])
   ;(println peg)
-  (test255  
-   (car (car (teste peg)))
+  (compare-types  
+   
    (get-type-of-typed-peg peg)
+   (car (car (teste peg)))
    )
   )
 
@@ -100,9 +117,9 @@
   (define our-type (car (car (teste peg))))
   (println our-type)
   (println type-of-rodrigo)
-  (test255
-   our-type
+  (compare-types
    type-of-rodrigo
+   our-type
    ))
 
 (define-property simple-check ([peg  (gen:peg 3 2 2)])
@@ -111,7 +128,9 @@
   
   )
 
-(check-property (make-config #:tests 10) type-checks)
+(check-property (make-config #:tests 10
+                             #:deadline (+ (current-inexact-milliseconds) (* 60 3000)))
+                type-checks)
 #;(check-property (make-config #:tests 1
                                #:deadline (+ (current-inexact-milliseconds) (* 60 3000))
                                ) simple-check
@@ -181,7 +200,7 @@
 
 
 (define a '((J (#t ())) (K (#t (X J))) (X (#f ()))))
-(define b '((J #t ()) (X #t ()) (K #t (X J))))
+(define b '((J #t ()) (X #f ()) (K #t (J Y))))
 
 
 ;(findTrueinList (test255 a b))
