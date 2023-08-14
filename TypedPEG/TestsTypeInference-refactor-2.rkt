@@ -128,7 +128,7 @@
   
   )
 
-(check-property (make-config #:tests 5
+(check-property (make-config #:tests 15
                              #:deadline (+ (current-inexact-milliseconds) (* 60 3000)))
                 type-checks)
 #;(check-property (make-config #:tests 1

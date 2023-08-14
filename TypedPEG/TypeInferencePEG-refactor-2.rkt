@@ -324,7 +324,6 @@
   [(τeval? (× (#f S) τ_2)) #t]
   [(τeval? (× τ_1 τ_2)) ,(and (term (τeval? τ_1)) (term (τeval? τ_2)))]
   [(τeval? (! τ)) (τeval? τ)]
-  ; implementar (hs τ) e (null τ)
   [(τeval? _) #f])
 
 (define-metafunction Typed-Peg
@@ -523,12 +522,12 @@
 (define-metafunction Typed-Peg
   klee : τ -> τ
   [(klee (#f S) ) (#t S)]
-  [(klee α) α])
+  [(klee α) (★ α)])
 
 (define-metafunction Typed-Peg
   not! : τ -> τ
   [(not! (_ S) ) (#t S)]
-  [(not! α) α])
+  [(not! α) (! α)])
 
 (define-metafunction Typed-Peg
   ⊕ : τ τ -> τ
