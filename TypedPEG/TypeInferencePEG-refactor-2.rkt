@@ -220,6 +220,8 @@
 
 
 (define (genConstraint G e)
+  (displayln G)
+  (display e)
   (term (grm->constraint-monad ,G ,e) ))
 
 (define (stop? ctx)
