@@ -20,10 +20,10 @@
 )
 ; Syntax for parsing expression evaluation
 (define-extended-language simpleEvalPeg Grammar
-  [E (e s)]         ;An evaluation is comprised of a PEG and a input 
-  [s (natural ...)  ; An input can be: * A squence of terminal symbols
-     ⊥              ;                  * Booton, meaning an parser error 
-     ε])            ;                  * Empty string (there is nothing to be consumed !)
+  [E (e s)]         ;  An evaluation is comprised of a PEG and a input 
+  [s (natural ...)  ;  An input can be: * A squence of terminal symbols
+     ⊥              ;                   * Booton, meaning an parser error 
+     ε])            ;                   * Empty string (there is nothing to be consumed !)
 
 
 

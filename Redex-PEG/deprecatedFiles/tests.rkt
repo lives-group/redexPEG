@@ -20,6 +20,7 @@
 (test-equal (judgment-holds (eval ∅ ((/ 1 2) (1 1 1)) s) s)      (list (term (1 1))))
 (test-equal (judgment-holds (eval ∅ ((/ 1 2) (2 1 1)) s) s)      (list (term (1 1))))
 (test-equal (judgment-holds (eval ∅ ((/ 1 2) ()) s) s)           (list (term ⊥)))
+(test-equal (judgment-holds (eval ∅ ((/ 1 2) (3 4)) s) s)        (list (term ⊥)))
 (test-results)
 
 ;Tests for Sequence

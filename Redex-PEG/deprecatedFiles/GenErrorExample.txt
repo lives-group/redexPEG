@@ -1,0 +1,25 @@
+(runTest '() '(0 1 2 3) 2 1)
+Body ((• (/ 3 X1) (/ ε 2)) #t (X1)) Generated for (X0 #t ())
+ With Γ = ((X0 #t ()) (X1 #t ()) (X2 #t ()))
+ and Δ = #hash((X0 . (X0)) (X1 . (X1)) (X2 . (X2)))
+ and Δ_x = (X0)
+
+ --
+ -- HERE IS THE PROBLEM 
+ -- 
+Body ((• (• X2 ε) (• ε ε)) #t (X2)) Generated for (X1 #t ())
+ With Γ = ((X0 #t (X1)) (X1 #t ()) (X2 #t ()))
+ and Δ = #hash((X0 . (X0)) (X1 . (X0 X1)) (X2 . (X2)))
+ and Δ_x = (X0 X1)
+ 
+ -- The problem is that the HEADSET of X1 can't be in the HEADSET X2
+ -- Or in better terms, Delta(X2) = DELTA(X2) U HEADSET(X1)
+ 
+Body ((! (• X0 1)) #t (X2 X1 X0)) Generated for (X2 #t ())
+ With Γ = ((X0 #t (X2 X1)) (X1 #t (X2)) (X2 #t ()))
+ and Δ = #hash((X0 . (X0)) (X1 . (X0 X1)) (X2 . (X1 X2)))
+ and Δ_x = (X1 X2)
+
+ and Last Δ = #hash((X0 . (X2 X0)) (X1 . (X2 X0 X1)) (X2 . (X1 X2)))
+'((X2 (! (• X0 1)) (X1 (• (• X2 ε) (• ε ε)) (X0 (• (/ 3 X1) (/ ε 2)) ∅))) (/ (! 0) (• 2 X0)) ((X0 #t (X0 X2 X1)) (X1 #t (X0 X1 X2)) (X2 #t (X2 X1 X0))))
+"Grammar: "'(X2 (! (• X0 1)) (X1 (• (• X2 ε) (• ε ε)) (X0 (• (/ 3 X1) (/ ε 2)) ∅))) 
